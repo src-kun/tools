@@ -3,8 +3,17 @@
 import os,sys
 import json
 
+suffix = {'.cn':'','.cx':'','.com.cn':'','.wang':'','.cc':'','.xin':'','.com':'','.net':'','.top':'','tech':'','.org':'','red':'','.pub':'','.ink':'','.info':'','.xyz':'','.win':''}
+
 def whois(host):
-	output = os.popen('whois ' + host.strip('http://').strip('https://').strip('www.'))
+	hts = host.strip('http://').strip('https://').strip('www.').split('.')
+	lens = len(hts)
+	#排除.com.cn
+	if cmp(hts[lens - 2],'com') == 0:
+		host = hts[lens - 3] + '.' + hts[lens - 2] + '.' + hts[lens - 1]
+	else:
+		host = hts[lens - 2] + '.' + hts[lens - 1]
+	output = os.popen('whois ' + host)
 	return output.read()
 
 def toJson(result):
@@ -19,7 +28,14 @@ def toJson(result):
 		index = text.find('\n', tmp + 1)
 		line = text[tmp:index].strip('\n').split(': ')
 		if len(line) == 2:
-			js[line[0]] = line[1]
+			try:
+				if cmp(line[0], 'Name Server') == 0 and js[line[0]] == None:
+						js[line[0]] = line[1]
+			except Exception,e:
+				print e
+				
+			else:
+				js[line[0]] = line[1]
 		tmp = index
 	return  js
 
