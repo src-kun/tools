@@ -1,7 +1,6 @@
 #! usr/bin/python 
 #coding=utf-8 
 import os,sys
-import json
 from time import sleep
 
 suffix = {'.cn':'','.cx':'','.com.cn':'','.wang':'','.cc':'','.xin':'','.com':'','.net':'','.top':'','.tech':'','.org':'','.red':'','.pub':'','.ink':'','.info':'','.xyz':'','.win':''}
@@ -29,9 +28,6 @@ def toJson(result):
 	start_index = result.find('Domain Name:')
 	end_index = result.find('DNSSEC: ')
 	if start_index == -1 or end_index == -1:
-		end_index = result.find('>>> Last update of whois database:')
-		if end_index != -1:
-			return [-1, result[0,end_index]]
 		return [-1, result]
 	if result.find('Domain Name:', start_index + 1) != -1:
 		start_index = result.find('Domain Name:', start_index + 1)

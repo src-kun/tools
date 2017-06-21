@@ -7,7 +7,6 @@ import sys
 
 import getIP
 import getLocal
-import getSame
 import whois
 
 info = [['Domain Name', 'Registrant Contact Email', 'Registrant Organization', 'Registrant', 'Registration Time', 'Name Server'],['Domain Name', 'Tech Organization', 'Admin Organization', 'Admin Name', 'Admin Email', 'Registrant Fax', 'Registrant Phone', 'Registrant Organization', 'Registrant Name', 'Name Server']]
@@ -21,7 +20,7 @@ scan.py -h <host>'
 def get_info(url):
 	ip = getIP.get_ip(url,0)
 	if ip[0] == 0:
-		same = getSame.get_same(url)
+		
 		local = getLocal.get_local(ip[1][0], 0)
 		ws = whois.toJson(whois.whois(url, mutex))
 		print '*' * 100
@@ -32,8 +31,6 @@ def get_info(url):
 			return 
 		elif ws[0] == 0:
 			print('%-30s%-30s%-20s' % (local[0] ,url, local[1]))
-			for s in same['domainArray']:
-				print('\t%-30s%-30s' % ('Reverse IP Domain', s[0]))
 			for key in info[ws[1]['type']]:
 				try:
 					print('\t%-30s%-30s' % (key ,ws[1][key]))

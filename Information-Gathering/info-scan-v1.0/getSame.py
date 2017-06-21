@@ -1,6 +1,8 @@
 import urllib 
 import urllib2 
 from cookielib import CookieJar
+
+
 #https://www.apnic.net/
 def get_same(host):
 	url = 'http://domains.yougetsignal.com/domains.php'   

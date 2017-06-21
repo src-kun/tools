@@ -10,17 +10,30 @@ def help():
 	url.txt 每个域名占据一行
 '''
 
+"""
+url：需要获取ip的域名
+debug：打印信息
+num：判断是否为分布式服务器，默认循环三次
 
-def get_ip(url, pr = 1):
+return:[0/-1,[address list]/msg]
+	0: 正常返回
+	-1：失败
+	msg：错误信息
+"""
+def get_ip(url, debug = 1, num = 3):
 	try:
-		myaddr = socket.getaddrinfo(url, 'http')[0][4][0]
-		if pr:
-			print(myaddr + '\t' + url)
-		return [myaddr, url]
+		myaddr = []
+		for i in range(0, num):
+			addr = socket.getaddrinfo(url, 'http')[0][4][0]
+			myaddr.append(addr)
+		if debug:
+			print(myaddr[0] + '\t' + url)
+		return [0, list(set(myaddr))]
 	except Exception,e:
-		if pr:
+		if debug:
 			print('[x]\t' + url)
-		return [url, ]
+			print[-1, str(e)]
+		return [-1, str(e)]
 	
 		
 		
@@ -34,7 +47,7 @@ def start(path):
 			t.start()
 			sleep(0.05)
 	finally:
-		file_object.close( )
+		file_object.close()
 
 def main():
 	if len(sys.argv) < 2:
