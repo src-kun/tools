@@ -1,23 +1,26 @@
-#! usr/bin/python 
-#coding=utf-8 
-import os,sys
-
-def whois(host):
-	output = os.popen('whois ' + host.strip('http://').strip('https://').strip('www.'))
-	return output.read()
-
-def json(result):
-	js = []
-	start_index = result.index('Domain Name:')
-	end_index = result.index('DNSSEC: unsigned')
-	if result.find('Domain Name:', start_index + 1):
-		start_index = result.find('Domain Name:', start_index + 1)
-	text = result[start_index:end_index]
-	tmp = 0
-	while tmp != -1:
-		index = text.find('\n', tmp + 1)
-		js.append(text[tmp:index].strip('\n').split(': '))
-		tmp = index
-	return js
-
-print json(whois(sys.argv[1]))
+from HTMLParser import HTMLParser
+ 
+class MyHTMLParser(HTMLParser):
+    def __init__(self):
+        HTMLParser.__init__(self)
+        self.links = []
+ 
+    def handle_starttag(self, tag, attrs):
+        #print "Encountered the beginning of a %s tag" % tag
+        if tag == "a":
+            if len(attrs) == 0: pass
+            else:
+                for (variable, value)  in attrs:
+                    if variable == "href":
+                        self.links.append(value)
+ 
+if __name__ == "__main__":
+    html_code = """
+    <a href="www.google.com"> google.com</a>
+    <A Href="www.pythonclub.org"> PythonClub </a>
+    <A HREF = "www.sina.com.cn"> Sina </a>
+    """
+    hp = MyHTMLParser()
+    hp.feed(html_code)
+    hp.close()
+    print(hp.links)

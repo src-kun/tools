@@ -39,7 +39,6 @@ def get_info(url):
 					print('\t%-30s%-30s' % (key ,ws[1][key]))
 				except Exception,e:
 					print('\t%-30s%-30s' % (str(e).replace("'","")  ,'[x]'))
-
 	else:
 		print '[x] ' + url + '\terror msg:\t' + ip[1]
 	
