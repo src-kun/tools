@@ -4,6 +4,9 @@ import threading
 from time import ctime,sleep
 import urllib2  
 import sys,socket
+import log
+
+logger = log.getLogger()
 
 def help():
     print '''getip.py url.txt
@@ -26,13 +29,11 @@ def get_ip(url, debug = 1, num = 3):
 		for i in range(0, num):
 			addr = socket.getaddrinfo(url, 'http')[0][4][0]
 			myaddr.append(addr)
-		if debug:
-			print(myaddr[0] + '\t' + url)
+		logger.debug(myaddr[0] + '\t' + url)
 		return [0, list(set(myaddr))]
 	except Exception,e:
-		if debug:
-			print('[x]\t' + url)
-			print[-1, str(e)]
+		logger.error('get ip error for ' + url + ' host')
+		logger.exception("Exception Logged")
 		return [-1, str(e)]
 	
 		

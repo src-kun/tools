@@ -3,7 +3,9 @@
 import urllib 
 import urllib2 
 from cookielib import CookieJar
+import log
 
+logger = log.getLogger()
 
 #https://www.apnic.net/
 def get_same(host):
@@ -24,6 +26,7 @@ def get_same(host):
 		response = urllib2.urlopen(req)   
 		return eval(response.read())
 	except Exception,e:
+		logger.error('get ' + host + ' same domains error')
 		return {"status":"Fail", 'message': e}
 
 if __name__ == '__main__':
