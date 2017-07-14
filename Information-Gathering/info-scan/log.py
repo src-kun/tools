@@ -18,8 +18,9 @@ def getLogger():
     logger = logging.getLogger('mylogger')  
     logger.setLevel(level)  
       
-    # 创建一个handler，用于写入日志文件  
-    fh = logging.FileHandler(os.path.join(os.getcwd(), '../log/' + getFiltName() + '.log'))  
+    # 创建一个handler，用于写入日志文件
+    #fh = logging.FileHandler(os.path.join(os.getcwd(), '../log/' + getFiltName() + '.log'))
+	fh = logging.FileHandler(os.path.join('/root/tools/Information-Gathering/info-scan/log' + getFiltName() + '.log'))	
     fh.setLevel(level)  
       
     # 再创建一个handler，用于输出到控制台  
