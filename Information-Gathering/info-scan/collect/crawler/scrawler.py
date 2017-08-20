@@ -9,7 +9,7 @@ from bs4 import BeautifulSoup
 import sys
 from pybloom import BloomFilter
 
-class crawler:
+class Crawler:
 	
 	url = []
 	host = []
@@ -19,6 +19,8 @@ class crawler:
 	level = 2
 	#html编码 默认utf-8
 	charset = "utf-8"
+	#代理
+	proxies = None
 	
 	#TODO cookie and random User-Agent 
 	headers = {
@@ -47,15 +49,16 @@ class crawler:
 		self.charset = charset
 		
 	
-	#TODO过滤静态资源、无用链接 过滤掉无用字符(#)/非法字符校验修复url格式（http[s]:\\host） 
+	#TODO过滤静态资源、无用链接 过滤掉无用字符(#)/非法字符校验修复url格式（http[s]:\\host） 归类
 	#返回格式 (url, host) url/host不符合或重复则赋值为None并返回
-	def accept(self, url, domain):
+	def accept(self, url, in_host):
 		host = None
 		if not self.bloom.add(url):
 			#处理url
-			if not cmp(url[0:5], 'http:') or not cmp(url[0:6], 'https:') or not cmp(url[0:2], '//'):
+			if len(url) > 6 and (not cmp(url[0:5], 'http:') or not cmp(url[0:6], 'https:') or not cmp(url[0:2], '//')):
 				host = self.getHost(url)
 				#self.filter 不等于None过滤不需要域名 等于None不过滤掉任何域名全部返回
+				
 				if host and self.filter and self.filter in host or not self.filter:
 					if self.bloom.add(host):
 						host = None
@@ -63,8 +66,10 @@ class crawler:
 			#处理不完整url
 			else:
 				#self.filter 等于domain保留拼接后的url过滤掉所有不完整url 或 self.filter为None不过滤任何不完整url
-				if self.filter in domain or not self.filter:
-					return (domain + '/' + url, host)
+				if self.filter in in_host or not self.filter:
+					return (in_host + '/' + url, host)
+		#url已存在 或 url不属于此域名被过滤掉
+		return (None, None)
 					
 	
 	#成功返回 html / 失败返回 None
@@ -86,6 +91,13 @@ class crawler:
 			data = values
 			if values:
 				data = urllib.urlencode(values)
+			
+			#设置代理
+			if self.proxies :   
+				proxy_s = urllib2.ProxyHandler(self.proxies)       
+				opener = urllib2.build_opener(proxy_s)        
+				urllib2.install_opener(opener) 
+				
 			request = urllib2.Request(url, data, self.headers) 			
 			response = urllib2.urlopen(request) 
 			return (domain, response.read())
@@ -110,30 +122,34 @@ class crawler:
 			self.host.append(host)
 
 	#解析出html中的链接		
-	def parser(self, domain, html):
+	def parser(self, in_host, html):
+		url = None
+		host = None
 		soup = BeautifulSoup(str(html).decode(self.charset),  "html.parser")
 		for a in soup.find_all('a'):
 			try:
-				url, host = self.accept(a['href'], domain)
+				url, host = self.accept(a['href'], in_host)
 				self.push(url, host)
 			except Exception,e:
 				#LOG 输出
+				print e
 				pass
-		
+				
 
 	
 if __name__ == '__main__':
 	#http://csdn.net
 	bloom = BloomFilter(capacity=100000, error_rate=0.001)
-	c = crawler(bloom)
-	c.setFilter("miitbeian.gov.cn")
+	c = Crawler(bloom)
+	c.setFilter("cnblogs.com")
 	#c.setCharset("gb2312")
 	#c.setCookies("test")
 	#get request
-	domain, html = c.open("http://www.cnblogs.com")
+	host, html = c.open("http://www.cnblogs.com")
+	print host
 	#post request
 	#html = c.open("http://www.zgyey.com/",{'id':1})
-	c.parser(domain, html)
+	c.parser(host, html)
 	print c.url
 	print
 	print
