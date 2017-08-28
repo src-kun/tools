@@ -8,14 +8,14 @@ from html.parser import HTMLParser
 from bs4 import BeautifulSoup
 import sys
 from pybloom import BloomFilter
+import json
 
 class Crawler:
 	
-	url = []
-	host = []
+	url = {0:[]}
+	host = {0:[]}
 	filter = None
-	#TODO 爬虫等级（1、2、3）默认为2
-	#1、 只获取a链接 2、 获取所有标签的链接 3、 +1 +2 爬取js中链接和提交form数据
+	#TODO 爬虫深度
 	level = 2
 	#html编码 默认utf-8
 	charset = "utf-8"
@@ -31,25 +31,11 @@ class Crawler:
 			"User-Agent":"Mozilla/5.0 (Windows NT 10.0; WOW64; rv:55.0) Gecko/20100101 Firefox/55.0"
 	}
 	
+	#初始化
 	def __init__(self, bloom):
 		self.bloom = bloom
-		
-	def setLevel(self, level):
-		self.level = level
-		
-	def setCookies(self, cookies):
-		self.headers['Cookie'] = cookies
 	
-	def setFilter(self, filter):
-		if len(filter) is 0:
-			return
-		self.filter = filter
-		
-	def setCharset(self, charset):
-		self.charset = charset
-		
-	
-	#TODO过滤静态资源、无用链接 过滤掉无用字符(#)/非法字符校验修复url格式（http[s]:\\host） 归类
+	#TODO过滤静态资源、无用链接 过滤掉无用字符(#)/非法字符校验修复url格式（http[s]:\\host） 去掉最后一个斜杠
 	#返回格式 (url, host) url/host不符合或重复则赋值为None并返回
 	def accept(self, url, in_host):
 		host = None
@@ -74,12 +60,15 @@ class Crawler:
 	
 	#成功返回 html / 失败返回 None
 	#url not None时优先爬取url
-	def open(self, url = None, values = None):
-		
+	def open(self, current_level, url = None, values = None):
 		try:
 			if url is None:
 				raise Exception('url is None !')
 			
+			#检测爬虫深度
+			if current_level > self.level:
+				return  (-1, None, None)
+
 			#拼接domain的网址
 			if not cmp(url[0:5], 'http:'):
 				domain = 'http://'
@@ -93,6 +82,7 @@ class Crawler:
 				data = urllib.urlencode(values)
 			
 			#设置代理
+			#TODO 代理池
 			if self.proxies :   
 				proxy_s = urllib2.ProxyHandler(self.proxies)       
 				opener = urllib2.build_opener(proxy_s)        
@@ -100,13 +90,13 @@ class Crawler:
 				
 			request = urllib2.Request(url, data, self.headers) 			
 			response = urllib2.urlopen(request) 
-			return (domain, response.read())
+			return (current_level, domain, response.read())
 		except Exception,e:
 			#logger.error('opne '+ url + 'error')
 			#logger.exception("Exception Logged") 
 			#TODO 增加log输出
 			print e
-			return 
+			return  (-1, None, None) 
 
 	#从url中提取出host部分，提取失败返回None
 	def getHost(self, url):
@@ -115,24 +105,24 @@ class Crawler:
 		return res
 			
 	#将url和domain压入数组
-	def push(self, url, host):
+	def push(self, current_level, url, host):
 		if url:
-			self.url.append(url)
+			self.url[current_level].append(url)
 		if host:
-			self.host.append(host)
+			self.host[current_level].append(host)
 
-	#解析出html中的链接		
-	def parser(self, in_host, html):
+	#解析出html中的链接
+	def parser(self, current_level, in_host, html):
 		url = None
 		host = None
 		soup = BeautifulSoup(str(html).decode(self.charset),  "html.parser")
 		for a in soup.find_all('a'):
 			try:
 				url, host = self.accept(a['href'], in_host)
-				self.push(url, host)
+				self.push(current_level, url, host)
 			except Exception,e:
 				#LOG 输出
-				print e
+				#print e
 				pass
 				
 
@@ -141,15 +131,16 @@ if __name__ == '__main__':
 	#http://csdn.net
 	bloom = BloomFilter(capacity=100000, error_rate=0.001)
 	c = Crawler(bloom)
-	c.setFilter("cnblogs.com")
-	#c.setCharset("gb2312")
-	#c.setCookies("test")
+	c.filter = "cnblogs.com"
+	#c.charset = "gb2312"
+	#c.headers['Cookie'] = cookies
 	#get request
-	host, html = c.open("http://www.cnblogs.com")
+	current_level, host, html = c.open(1, "http://www.cnblogs.com")
 	print host
 	#post request
 	#html = c.open("http://www.zgyey.com/",{'id':1})
-	c.parser(host, html)
+	if current_level is not -1:
+		c.parser(current_level, host, html)
 	print c.url
 	print
 	print
