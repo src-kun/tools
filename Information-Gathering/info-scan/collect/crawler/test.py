@@ -27,11 +27,11 @@ class myThread (threading.Thread):
  
 def start(current_levle, cra, url, data = None):
 	#get request
-	current_levle, domain, html = cra.open(current_levle, url)
+	current_levle, html = cra.open(current_levle, url)
 	#post request
 	#html = c.open("http://www.zgyey.com/", data)
 	if current_levle != -1:
-		cra.parser(current_levle, domain, html)
+		cra.parser(current_levle, url, html)
 	
 
 def test():
@@ -40,20 +40,13 @@ def test():
 	c = Crawler(bloom)
 	c.filter = "zgyey.com"
 	c.level = 2
-	#c.setCharset("gb2312")
-	#c.setCookies("test")
 	threadLock = threading.Lock()
 	threads = []
 
 	c.url[0].append("http://zgyey.com/")
-	tmp_url = c.url[0]
+	tmp_url = c.url[0][:]
 	for i in range(0, c.level):
-		#level key不存在则创建
-		if not c.url.get(i):
-			c.url[i] = []
-			tmp_url.append(c.host[0])
 		l = len(tmp_url)
-	
 		for x in range(l):
 			# 创建新线程
 			thread = myThread(threadLock, i, c, tmp_url[x])
@@ -64,11 +57,14 @@ def test():
 		# 等待所有线程完成
 		for t in threads:
 			t.join()
-		c.charset = "gb2312"
+		tmp_url = c.host[0][:]
 	print c.url
 	print
 	print
 	print c.host
+	print
+	print
+	print tmp_url
 	print "Exiting Main Thread"
 	
 test()

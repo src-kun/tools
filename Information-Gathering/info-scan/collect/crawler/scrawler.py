@@ -9,18 +9,18 @@ from bs4 import BeautifulSoup
 import sys
 from pybloom import BloomFilter
 import json
+import chardet
 
 class Crawler:
 	
 	url = {0:[]}
 	host = {0:[]}
 	filter = None
-	#TODO 爬虫深度
+	#爬虫深度
 	level = 2
-	#html编码 默认utf-8
-	charset = "utf-8"
 	#代理
 	proxies = None
+	timeout = 3
 	
 	#TODO cookie and random User-Agent 
 	headers = {
@@ -35,25 +35,25 @@ class Crawler:
 	def __init__(self, bloom):
 		self.bloom = bloom
 	
-	#TODO过滤静态资源、无用链接 过滤掉无用字符(#)/非法字符校验修复url格式（http[s]:\\host） 去掉最后一个斜杠
+	#TODO过滤静态资源、无用链接 过滤掉无用字符(#)/非法字符校验修复url格式（http[s]:\\host） 归类（host/url） 去掉最后一个斜杠
 	#返回格式 (url, host) url/host不符合或重复则赋值为None并返回
-	def accept(self, url, in_host):
-		host = None
+	def accept(self, url, current_url):
+		print url
 		if not self.bloom.add(url):
 			#处理url
 			if len(url) > 6 and (not cmp(url[0:5], 'http:') or not cmp(url[0:6], 'https:') or not cmp(url[0:2], '//')):
-				host = self.getHost(url)
-				#self.filter 不等于None过滤不需要域名 等于None不过滤掉任何域名全部返回
-				
+				proto, host = self.getHost(url)
+				#self.filter 不等于None过滤不需要域名 等于None不过滤掉任何域名全部通过
 				if host and self.filter and self.filter in host or not self.filter:
 					if self.bloom.add(host):
 						host = None
-					return (url, host)
+					return (url, proto + "://" + host)
 			#处理不完整url
 			else:
+				path = url
 				#self.filter 等于domain保留拼接后的url过滤掉所有不完整url 或 self.filter为None不过滤任何不完整url
-				if self.filter in in_host or not self.filter:
-					return (in_host + '/' + url, host)
+				if self.filter in current_url or not self.filter:
+					return (current_url + path, None)
 		#url已存在 或 url不属于此域名被过滤掉
 		return (None, None)
 					
@@ -69,13 +69,9 @@ class Crawler:
 			if current_level > self.level:
 				return  (-1, None, None)
 
-			#拼接domain的网址
-			if not cmp(url[0:5], 'http:'):
-				domain = 'http://'
-			elif not cmp(url[0:6], 'https:'):
-				domain = 'https://'
-			domain = domain + self.getHost(url)
-			
+			#获取domain的网址
+			proto, host = self.getHost(url)
+			current_url = url#proto + "://" + host
 			#values 不等于None则是POST请求
 			data = values
 			if values:
@@ -84,25 +80,25 @@ class Crawler:
 			#设置代理
 			#TODO 代理池
 			if self.proxies :   
-				proxy_s = urllib2.ProxyHandler(self.proxies)       
-				opener = urllib2.build_opener(proxy_s)        
+				proxy_s = urllib2.ProxyHandler(self.proxies)
+				opener = urllib2.build_opener(proxy_s)
 				urllib2.install_opener(opener) 
 				
-			request = urllib2.Request(url, data, self.headers) 			
-			response = urllib2.urlopen(request) 
-			return (current_level, domain, response.read())
+			request = urllib2.Request(url, data, self.headers) 	
+			response = urllib2.urlopen(request, timeout = self.timeout) 
+			return (current_level, response.read())
 		except Exception,e:
 			#logger.error('opne '+ url + 'error')
 			#logger.exception("Exception Logged") 
 			#TODO 增加log输出
 			print e
-			return  (-1, None, None) 
+			return  (-1, None) 
 
 	#从url中提取出host部分，提取失败返回None
 	def getHost(self, url):
 		proto, rest = urllib.splittype(url)
 		res, rest = urllib.splithost(rest)
-		return res
+		return (proto, res)
 			
 	#将url和domain压入数组
 	def push(self, current_level, url, host):
@@ -112,19 +108,25 @@ class Crawler:
 			self.host[current_level].append(host)
 
 	#解析出html中的链接
-	def parser(self, current_level, in_host, html):
-		url = None
-		host = None
-		soup = BeautifulSoup(str(html).decode(self.charset),  "html.parser")
-		for a in soup.find_all('a'):
-			try:
-				url, host = self.accept(a['href'], in_host)
-				self.push(current_level, url, host)
-			except Exception,e:
-				#LOG 输出
-				#print e
-				pass
-				
+	def parser(self, current_level, current_url, html):
+		try:
+			#动态获取字符集
+			charset = chardet.detect(str(html))['encoding']
+			soup = BeautifulSoup(str(html).decode(charset), "html.parser")
+			for a in soup.find_all('a'):
+				try:
+					url, host = self.accept(a['href'], current_url)
+					self.push(current_level, url, host)
+				except Exception,e:
+					#LOG 输出
+					print e
+					pass
+		except Exception,e:
+			#LOG 输出
+			print e
+			pass
+		
+	
 
 	
 if __name__ == '__main__':
