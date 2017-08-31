@@ -127,7 +127,7 @@ class Crawler:
 		try:
 			#动态获取字符集
 			charset = chardet.detect(str(html))['encoding']
-			soup = BeautifulSoup(str(html).decode(charset), "html.parser")
+			soup = BeautifulSoup(str(html).decode(charset, 'ignore'), "html.parser")
 			for a in soup.find_all('a'):
 				try:
 					url, host = self.accept(a['href'], current_url)
