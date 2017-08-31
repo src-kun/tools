@@ -18,7 +18,7 @@ class Crawler:
 	host = {0:[]}
 	filter = None
 	#爬虫深度
-	level = 2
+	level = 0
 	#代理
 	proxies = None
 	timeout = 3
@@ -37,6 +37,7 @@ class Crawler:
 		self.bloom = bloom
 	
 	#TODO过滤静态资源、无用链接 过滤掉无用字符(#)/非法字符校验修复url格式（http[s]:\\host） 归类（host/url） 去掉最后一个斜杠
+	#TODO 增加相近url匹配过滤，去除相似url 如 host/2345.html host/4567.html
 	#返回格式 (url, host) url/host不符合或重复则赋值为None并返回
 	def accept(self, url, current_url):
 		if not self.bloom.add(url):
@@ -52,11 +53,14 @@ class Crawler:
 					return (url, host)
 			#处理不完整url
 			else:
-				path = url
-				#self.filter 等于domain保留拼接后的url过滤掉所有不完整url 或 self.filter为None不过滤任何不完整url
-				if self.filter in current_url or not self.filter:
-					return (current_url + path, None)
-		#url已存在 或 url不属于此域名被过滤掉
+				#TODO url 合规性检测 后期优化启动后直接加载到内存中
+				messy = ["javascript:", "tencent:"]
+				if str(messy).find(url[0:4]) == -1:
+					path = "/" + url
+					#self.filter 等于domain保留拼接后的url过滤掉所有不完整url 或 self.filter为None不过滤任何不完整url
+					if self.filter in current_url or not self.filter:
+						return (current_url + path, None)
+		#url已存在 或 url不属于此域名被过滤掉 或 url不合规
 		return (None, None)
 					
 	
@@ -69,7 +73,7 @@ class Crawler:
 			
 			#检测爬虫深度
 			if current_level > self.level:
-				return  (-1, None, None)
+				return None
 
 			#获取domain的网址
 			proto, host = self.getHost(url)
@@ -88,7 +92,7 @@ class Crawler:
 				
 			request = urllib2.Request(url, data, self.headers) 	
 			response = urllib2.urlopen(request, timeout = self.timeout) 
-			return (current_level, response.read())
+			return response.read()
 		except Exception,e:
 			#logger.error('opne '+ url + 'error')
 			#logger.exception("Exception Logged") 
@@ -104,10 +108,14 @@ class Crawler:
 			
 	#将url和domain压入数组
 	def push(self, current_level, url, host):
-		#BUG 字典key
+	
+		#字典key不存在则创建
+		if not self.url.has_key(current_level):
+			self.url[current_level] = []
+		if not self.host.has_key(current_level):
+			self.host[current_level] = []
 			
 		if url:
-			print self.url
 			self.url[current_level].append(url)
 		if host:
 			self.host[current_level].append(host)
@@ -132,72 +140,79 @@ class Crawler:
 			#LOG 输出
 			#print e
 			pass
- 
-class myThread (threading.Thread):
-	def __init__(self, threadLock, current_levle, cra, url, data = None):
+	#TODO线程控制
+	def start(self, url):
+		threadLock = threading.Lock()
+		threads = []
+		self.url[0].append(url)
+		tmp_host = self.url[0][:]
+		for current_level in range(0, self.level):
+			host_len = len(tmp_host)
+			for i in range(host_len):
+				# 创建新线程
+				thread = CrawlerTrd(threadLock, current_level, self, tmp_host[i])
+				# 开启新线程
+				thread.start()
+				# 添加线程到线程列表
+				threads.append(thread)
+			# 等待线程完成
+			for t in threads:
+				t.join()
+			if not self.host.has_key(current_level):
+				break
+			tmp_host = self.host[current_level][:]
+	 
+class CrawlerTrd (threading.Thread):
+	def __init__(self, threadLock, current_levle, crawler, url, data = None):
 		threading.Thread.__init__(self)
-		self.cra = cra
+		self.crawler = crawler
 		self.url = url
 		self.data = data
 		self.current_levle = current_levle
 		self.threadLock = threadLock
 		
 	def run(self):
-		# 获得锁，成功获得锁定后返回True
-		# 可选的timeout参数不填时将一直阻塞直到获得锁定
-		# 否则超时后将返回False
-		
-		start(self.current_levle, self.cra, self.url, self.data)
+		#get request
+		html = self.crawler.open(self.current_levle, self.url)
+		#post request
+		#html = crawler.open(self.current_levle, self.url, self.data)
+		if html:
+			self.crawler.parser(self.current_levle, self.url, html)
 		#threadLock.acquire()
 		# 释放锁
 		#threadLock.release()
- 
-def start(current_levle, cra, url, data = None):
-	#get request
-	current_levle, html = cra.open(current_levle, url)
-	#post request
-	#html = c.open("http://www.zgyey.com/", data)
-	if current_levle != -1:
-		cra.parser(current_levle, url, html)
 	
 
-def main():
-	#http://csdn.net
+
+#多线程Demo
+def t_demo():
+	#http://csdn.netn
 	bloom = BloomFilter(capacity=100000, error_rate=0.001)
-	c = Crawler(bloom)
-	c.filter = "zgyey.com"
-	c.level = 2
-	threadLock = threading.Lock()
-	threads = []
-
-	c.url[0].append("http://zgyey.com/")
-	tmp_url = c.url[0][:]
-	for i in range(0, c.level):
-		l = len(tmp_url)
-		for x in range(l):
-			# 创建新线程
-			thread = myThread(threadLock, i, c, tmp_url[x])
-			# 开启新线程
-			thread.start()
-			# 添加线程到线程列表
-			threads.append(thread)
-		# 等待所有线程完成
-		for t in threads:
-			t.join()
-		print c.url
-		tmp_url = c.host[0][:]
-	print c.url
-	print
-	print
-	print c.host
-	#print
-	#print
-	#print tmp_url
-	print "Exiting Main Thread"
-
+	crawler = Crawler(bloom)
+	crawler.filter = "zgyey.com"
+	crawler.level = 4
+	crawler.start("http://www.zgyey.com")
+	print crawler.host
+	#print crawler.url
+	
+#单线程Demo	
+def demo():
+	url = "http://zgyey.com/"
+	current_levle = 0
+	bloom = BloomFilter(capacity=100000, error_rate=0.001)
+	crawler = Crawler(bloom)
+	crawler.filter = "zgyey.com"
+	#get request
+	html = crawler.open(current_levle, url)
+	#post request
+	#html = crawler.open("http://www.zgyey.com/", data)
+	if html:
+		crawler.parser(current_levle, url, html)
+	print crawler.host
+	#print crawler.url
 	
 if __name__ == '__main__':
-	main()
-
+	#t_demo()
+	demo()
 
 
