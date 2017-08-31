@@ -11,6 +11,8 @@ from pybloom import BloomFilter
 import json
 import chardet
 import threading
+import socks
+import socket
 
 class Crawler:
 	
@@ -19,7 +21,7 @@ class Crawler:
 	filter = None
 	#爬虫深度
 	level = 0
-	#代理
+	#代理 {"proxyPool":[{"type":"socks5", "ip":"192.168.1.206", "port",1080},...]}
 	proxies = None
 	timeout = 3
 	
@@ -84,11 +86,10 @@ class Crawler:
 				data = urllib.urlencode(values)
 			
 			#设置代理
-			#TODO 代理池
-			if self.proxies :   
-				proxy_s = urllib2.ProxyHandler(self.proxies)
-				opener = urllib2.build_opener(proxy_s)
-				urllib2.install_opener(opener) 
+			#TODO socks/http代理池
+			if self.proxies :
+				socks.setdefaultproxy(socks.PROXY_TYPE_SOCKS5, self.proxies["proxyPool"]["ip"], self.proxies["proxyPool"]["port"])
+				socket.socket = socks.socksocket
 				
 			request = urllib2.Request(url, data, self.headers) 	
 			response = urllib2.urlopen(request, timeout = self.timeout) 
@@ -97,8 +98,8 @@ class Crawler:
 			#logger.error('opne '+ url + 'error')
 			#logger.exception("Exception Logged") 
 			#TODO 增加log输出
-			#print e
-			return  (-1, None) 
+			print e
+			return None
 
 	#从url中提取出host部分，提取失败返回None
 	def getHost(self, url):
@@ -178,6 +179,8 @@ class CrawlerTrd (threading.Thread):
 		#html = crawler.open(self.current_levle, self.url, self.data)
 		if html:
 			self.crawler.parser(self.current_levle, self.url, html)
+		else:
+			print self.url + " open failed!"
 		#threadLock.acquire()
 		# 释放锁
 		#threadLock.release()
@@ -189,9 +192,10 @@ def t_demo():
 	#http://csdn.netn
 	bloom = BloomFilter(capacity=100000, error_rate=0.001)
 	crawler = Crawler(bloom)
-	crawler.filter = "zgyey.com"
+	crawler.filter = "pornhub.com"
 	crawler.level = 4
-	crawler.start("http://www.zgyey.com")
+	#crawler.proxies = {"type":"socks5", "ip":"192.168.1.206", "port":1080}
+	crawler.start("https://www.pornhub.com/")
 	print crawler.host
 	#print crawler.url
 	
@@ -212,7 +216,7 @@ def demo():
 	#print crawler.url
 	
 if __name__ == '__main__':
-	#t_demo()
-	demo()
+	t_demo()
+	#demo()
 
 
