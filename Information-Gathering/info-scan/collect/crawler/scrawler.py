@@ -10,6 +10,7 @@ import sys
 from pybloom import BloomFilter
 import json
 import chardet
+import threading
 
 class Crawler:
 	
@@ -38,7 +39,6 @@ class Crawler:
 	#TODO过滤静态资源、无用链接 过滤掉无用字符(#)/非法字符校验修复url格式（http[s]:\\host） 归类（host/url） 去掉最后一个斜杠
 	#返回格式 (url, host) url/host不符合或重复则赋值为None并返回
 	def accept(self, url, current_url):
-		print url
 		if not self.bloom.add(url):
 			#处理url
 			if len(url) > 6 and (not cmp(url[0:5], 'http:') or not cmp(url[0:6], 'https:') or not cmp(url[0:2], '//')):
@@ -47,7 +47,9 @@ class Crawler:
 				if host and self.filter and self.filter in host or not self.filter:
 					if self.bloom.add(host):
 						host = None
-					return (url, proto + "://" + host)
+					elif proto and host:
+						host = proto + "://" + host
+					return (url, host)
 			#处理不完整url
 			else:
 				path = url
@@ -91,7 +93,7 @@ class Crawler:
 			#logger.error('opne '+ url + 'error')
 			#logger.exception("Exception Logged") 
 			#TODO 增加log输出
-			print e
+			#print e
 			return  (-1, None) 
 
 	#从url中提取出host部分，提取失败返回None
@@ -102,13 +104,18 @@ class Crawler:
 			
 	#将url和domain压入数组
 	def push(self, current_level, url, host):
+		#BUG 字典key
+			
 		if url:
+			print self.url
 			self.url[current_level].append(url)
 		if host:
 			self.host[current_level].append(host)
 
 	#解析出html中的链接
 	def parser(self, current_level, current_url, html):
+		url = None
+		host = None
 		try:
 			#动态获取字符集
 			charset = chardet.detect(str(html))['encoding']
@@ -119,34 +126,78 @@ class Crawler:
 					self.push(current_level, url, host)
 				except Exception,e:
 					#LOG 输出
-					print e
+					#print e
 					pass
 		except Exception,e:
 			#LOG 输出
-			print e
+			#print e
 			pass
+ 
+class myThread (threading.Thread):
+	def __init__(self, threadLock, current_levle, cra, url, data = None):
+		threading.Thread.__init__(self)
+		self.cra = cra
+		self.url = url
+		self.data = data
+		self.current_levle = current_levle
+		self.threadLock = threadLock
 		
+	def run(self):
+		# 获得锁，成功获得锁定后返回True
+		# 可选的timeout参数不填时将一直阻塞直到获得锁定
+		# 否则超时后将返回False
+		
+		start(self.current_levle, self.cra, self.url, self.data)
+		#threadLock.acquire()
+		# 释放锁
+		#threadLock.release()
+ 
+def start(current_levle, cra, url, data = None):
+	#get request
+	current_levle, html = cra.open(current_levle, url)
+	#post request
+	#html = c.open("http://www.zgyey.com/", data)
+	if current_levle != -1:
+		cra.parser(current_levle, url, html)
 	
 
-	
-if __name__ == '__main__':
+def main():
 	#http://csdn.net
 	bloom = BloomFilter(capacity=100000, error_rate=0.001)
 	c = Crawler(bloom)
-	c.filter = "cnblogs.com"
-	#c.charset = "gb2312"
-	#c.headers['Cookie'] = cookies
-	#get request
-	current_level, host, html = c.open(1, "http://www.cnblogs.com")
-	print host
-	#post request
-	#html = c.open("http://www.zgyey.com/",{'id':1})
-	if current_level is not -1:
-		c.parser(current_level, host, html)
+	c.filter = "zgyey.com"
+	c.level = 2
+	threadLock = threading.Lock()
+	threads = []
+
+	c.url[0].append("http://zgyey.com/")
+	tmp_url = c.url[0][:]
+	for i in range(0, c.level):
+		l = len(tmp_url)
+		for x in range(l):
+			# 创建新线程
+			thread = myThread(threadLock, i, c, tmp_url[x])
+			# 开启新线程
+			thread.start()
+			# 添加线程到线程列表
+			threads.append(thread)
+		# 等待所有线程完成
+		for t in threads:
+			t.join()
+		print c.url
+		tmp_url = c.host[0][:]
 	print c.url
 	print
 	print
 	print c.host
+	#print
+	#print
+	#print tmp_url
+	print "Exiting Main Thread"
+
+	
+if __name__ == '__main__':
+	main()
 
 
 
