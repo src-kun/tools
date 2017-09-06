@@ -1,0 +1,762 @@
+2017-09-05 03:55:51,566 - connect.open.25 - ERROR - http://baidu.com You must start with http[s]:// !
+None
+2017-09-05 03:55:53,798 - connect.open.25 - ERROR - http://baidu.com You must start with http[s]:// !
+None
+2017-09-05 03:56:58,849 - connect.open.26 - ERROR - http://baidu.com You must start with http[s]:// !
+None
+2017-09-05 03:58:56,917 - connect.open.26 - ERROR - {http://baidu.com} You must start with http[s]:// !
+None
+2017-09-05 03:59:44,817 - connect.open.26 - ERROR - {http://baidu.com} You must start with (http[s]://)
+None
+2017-09-05 04:01:45,896 - connect.open.37 - ERROR - opne http://baidu.comerror
+2017-09-05 04:01:45,896 - connect.open.38 - ERROR - Exception Logged
+Traceback (most recent call last):
+  File "/root/tools/Information-Gathering/info-scan/lib/connection/connect.py", line 33, in open
+    request = urllib2.Request(url, data, self.headers)
+  File "/usr/lib/python2.7/urllib2.py", line 238, in __init__
+    for key, value in headers.items():
+AttributeError: 'NoneType' object has no attribute 'items'
+2017-09-05 04:02:07,914 - connect.open.37 - ERROR - opne http://baidu.comerror
+2017-09-05 04:02:07,915 - connect.open.38 - ERROR - Exception Logged
+Traceback (most recent call last):
+  File "/root/tools/Information-Gathering/info-scan/lib/connection/connect.py", line 33, in open
+    request = urllib2.Request(url, data, self.headers)
+  File "/usr/lib/python2.7/urllib2.py", line 238, in __init__
+    for key, value in headers.items():
+AttributeError: 'NoneType' object has no attribute 'items'
+2017-09-05 04:02:53,727 - connect.open.37 - ERROR - opne {http://baidu.com} error
+2017-09-05 04:02:53,728 - connect.open.38 - ERROR - Exception Logged
+Traceback (most recent call last):
+  File "/root/tools/Information-Gathering/info-scan/lib/connection/connect.py", line 33, in open
+    request = urllib2.Request(url, data, self.headers)
+  File "/usr/lib/python2.7/urllib2.py", line 238, in __init__
+    for key, value in headers.items():
+AttributeError: 'NoneType' object has no attribute 'items'
+2017-09-05 04:07:29,602 - connect.open.30 - ERROR - {baidu.com} You must start with (http[s]://)
+None
+2017-09-05 04:07:48,068 - connect.open.30 - ERROR - {baidu.com} You must start with (http[s]://)
+None
+2017-09-05 04:09:02,709 - connect.open.30 - ERROR - {baidu.com} You must start with (http[s]://)
+None
+2017-09-05 04:09:06,469 - connect.open.30 - ERROR - {baidu.com} You must start with (http[s]://)
+None
+2017-09-05 04:10:37,925 - connect.open.31 - ERROR - {baidu.com} You must start with (http[s]://)
+None
+2017-09-05 04:11:45,552 - bloblast.<module>.10 - ERROR - 1111111
+None
+2017-09-05 04:14:19,413 - log.getLogger.44 - INFO - hello world, i'm log helper in python, may i help you
+2017-09-05 04:14:19,414 - bloblast.<module>.10 - ERROR - 1111111
+None
+2017-09-05 04:14:42,689 - log.getLogger.44 - ERROR - hello world, i'm log helper in python, may i help you
+2017-09-05 04:14:42,689 - bloblast.<module>.10 - ERROR - 1111111
+None
+2017-09-05 04:15:16,739 - log.getLogger.44 - ERROR - hello world, i'm log helper in python, may i help you
+2017-09-05 04:15:16,739 - bloblast.<module>.10 - INFO - 1111111
+2017-09-05 04:15:41,283 - log.getLogger.44 - ERROR - hello world, i'm log helper in python, may i help you
+2017-09-05 04:15:41,283 - bloblast.<module>.10 - ERROR - 1111111
+2017-09-05 04:17:56,425 - log.getLogger.44 - ERROR - hello world, i'm log helper in python, may i help you
+2017-09-05 04:17:56,426 - connect.open.30 - ERROR - {baidu.com} You must start with (http[s]://)
+2017-09-05 04:18:21,337 - log.getLogger.44 - ERROR - hello world, i'm log helper in python, may i help you
+2017-09-05 04:21:26,429 - connect.open.41 - ERROR - opne {httpbaidu.com} error
+2017-09-05 04:21:26,429 - connect.open.42 - ERROR - Exception Logged
+Traceback (most recent call last):
+  File "/root/tools/Information-Gathering/info-scan/lib/connection/connect.py", line 38, in open
+    response = urllib2.urlopen(request, timeout = self.timeout)
+  File "/usr/lib/python2.7/urllib2.py", line 154, in urlopen
+    return opener.open(url, data, timeout)
+  File "/usr/lib/python2.7/urllib2.py", line 421, in open
+    protocol = req.get_type()
+  File "/usr/lib/python2.7/urllib2.py", line 283, in get_type
+    raise ValueError, "unknown url type: %s" % self.__original
+ValueError: unknown url type: httpbaidu.com
+2017-09-05 04:22:01,768 - connect.open.41 - ERROR - opne {httpbaidu.com} error
+2017-09-05 04:22:25,637 - connect.open.41 - ERROR - opne {httpbaidu.com} error
+2017-09-05 04:22:25,638 - connect.open.42 - ERROR - Exception Logged
+Traceback (most recent call last):
+  File "/root/tools/Information-Gathering/info-scan/lib/connection/connect.py", line 38, in open
+    response = urllib2.urlopen(request, timeout = self.timeout)
+  File "/usr/lib/python2.7/urllib2.py", line 154, in urlopen
+    return opener.open(url, data, timeout)
+  File "/usr/lib/python2.7/urllib2.py", line 421, in open
+    protocol = req.get_type()
+  File "/usr/lib/python2.7/urllib2.py", line 283, in get_type
+    raise ValueError, "unknown url type: %s" % self.__original
+ValueError: unknown url type: httpbaidu.com
+2017-09-05 05:06:31,993 - connect.open.42 - ERROR - opne {httpbaidu.com} error
+2017-09-05 05:06:31,993 - connect.open.43 - ERROR - Exception Logged
+Traceback (most recent call last):
+  File "/root/tools/Information-Gathering/info-scan/lib/connection/connect.py", line 39, in open
+    response = urllib2.urlopen(request, timeout = self.timeout)
+  File "/usr/lib/python2.7/urllib2.py", line 154, in urlopen
+    return opener.open(url, data, timeout)
+  File "/usr/lib/python2.7/urllib2.py", line 421, in open
+    protocol = req.get_type()
+  File "/usr/lib/python2.7/urllib2.py", line 283, in get_type
+    raise ValueError, "unknown url type: %s" % self.__original
+ValueError: unknown url type: httpbaidu.com
+2017-09-05 05:42:15,980 - connect.open.42 - ERROR - opne {http://cp.eastmoney.com} error
+2017-09-05 05:42:15,983 - connect.open.43 - ERROR - Exception Logged
+Traceback (most recent call last):
+  File "/root/tools/Information-Gathering/info-scan/lib/connection/connect.py", line 39, in open
+    response = urllib2.urlopen(request, timeout = self.timeout)
+  File "/usr/lib/python2.7/urllib2.py", line 154, in urlopen
+    return opener.open(url, data, timeout)
+  File "/usr/lib/python2.7/urllib2.py", line 435, in open
+    response = meth(req, response)
+  File "/usr/lib/python2.7/urllib2.py", line 548, in http_response
+    'http', request, response, code, msg, hdrs)
+  File "/usr/lib/python2.7/urllib2.py", line 473, in error
+    return self._call_chain(*args)
+  File "/usr/lib/python2.7/urllib2.py", line 407, in _call_chain
+    result = func(*args)
+  File "/usr/lib/python2.7/urllib2.py", line 556, in http_error_default
+    raise HTTPError(req.get_full_url(), code, msg, hdrs, fp)
+HTTPError: HTTP Error 404: Not Found
+2017-09-05 05:42:16,022 - connect.open.42 - ERROR - opne {http://js1.eastmoney.com} error
+2017-09-05 05:42:16,023 - connect.open.43 - ERROR - Exception Logged
+Traceback (most recent call last):
+  File "/root/tools/Information-Gathering/info-scan/lib/connection/connect.py", line 39, in open
+    response = urllib2.urlopen(request, timeout = self.timeout)
+  File "/usr/lib/python2.7/urllib2.py", line 154, in urlopen
+    return opener.open(url, data, timeout)
+  File "/usr/lib/python2.7/urllib2.py", line 435, in open
+    response = meth(req, response)
+  File "/usr/lib/python2.7/urllib2.py", line 548, in http_response
+    'http', request, response, code, msg, hdrs)
+  File "/usr/lib/python2.7/urllib2.py", line 473, in error
+    return self._call_chain(*args)
+  File "/usr/lib/python2.7/urllib2.py", line 407, in _call_chain
+    result = func(*args)
+  File "/usr/lib/python2.7/urllib2.py", line 556, in http_error_default
+    raise HTTPError(req.get_full_url(), code, msg, hdrs, fp)
+HTTPError: HTTP Error 403: Forbidden
+2017-09-05 05:42:16,030 - connect.open.42 - ERROR - opne {http://js5.eastmoney.com} error
+2017-09-05 05:42:16,034 - connect.open.43 - ERROR - Exception Logged
+Traceback (most recent call last):
+  File "/root/tools/Information-Gathering/info-scan/lib/connection/connect.py", line 39, in open
+    response = urllib2.urlopen(request, timeout = self.timeout)
+  File "/usr/lib/python2.7/urllib2.py", line 154, in urlopen
+    return opener.open(url, data, timeout)
+  File "/usr/lib/python2.7/urllib2.py", line 435, in open
+    response = meth(req, response)
+  File "/usr/lib/python2.7/urllib2.py", line 548, in http_response
+    'http', request, response, code, msg, hdrs)
+  File "/usr/lib/python2.7/urllib2.py", line 473, in error
+    return self._call_chain(*args)
+  File "/usr/lib/python2.7/urllib2.py", line 407, in _call_chain
+    result = func(*args)
+  File "/usr/lib/python2.7/urllib2.py", line 556, in http_error_default
+    raise HTTPError(req.get_full_url(), code, msg, hdrs, fp)
+HTTPError: HTTP Error 403: Forbidden
+2017-09-05 05:42:16,138 - connect.open.42 - ERROR - opne {https://passport.eastmoney.com} error
+2017-09-05 05:42:16,140 - connect.open.43 - ERROR - Exception Logged
+Traceback (most recent call last):
+  File "/root/tools/Information-Gathering/info-scan/lib/connection/connect.py", line 39, in open
+    response = urllib2.urlopen(request, timeout = self.timeout)
+  File "/usr/lib/python2.7/urllib2.py", line 154, in urlopen
+    return opener.open(url, data, timeout)
+  File "/usr/lib/python2.7/urllib2.py", line 435, in open
+    response = meth(req, response)
+  File "/usr/lib/python2.7/urllib2.py", line 548, in http_response
+    'http', request, response, code, msg, hdrs)
+  File "/usr/lib/python2.7/urllib2.py", line 473, in error
+    return self._call_chain(*args)
+  File "/usr/lib/python2.7/urllib2.py", line 407, in _call_chain
+    result = func(*args)
+  File "/usr/lib/python2.7/urllib2.py", line 556, in http_error_default
+    raise HTTPError(req.get_full_url(), code, msg, hdrs, fp)
+HTTPError: HTTP Error 403: Forbidden
+2017-09-05 05:42:16,181 - connect.open.42 - ERROR - opne {https://zqhd.eastmoney.com} error
+2017-09-05 05:42:16,182 - connect.open.43 - ERROR - Exception Logged
+Traceback (most recent call last):
+  File "/root/tools/Information-Gathering/info-scan/lib/connection/connect.py", line 39, in open
+    response = urllib2.urlopen(request, timeout = self.timeout)
+  File "/usr/lib/python2.7/urllib2.py", line 154, in urlopen
+    return opener.open(url, data, timeout)
+  File "/usr/lib/python2.7/urllib2.py", line 429, in open
+    response = self._open(req, data)
+  File "/usr/lib/python2.7/urllib2.py", line 447, in _open
+    '_open', req)
+  File "/usr/lib/python2.7/urllib2.py", line 407, in _call_chain
+    result = func(*args)
+  File "/usr/lib/python2.7/urllib2.py", line 1241, in https_open
+    context=self._context)
+  File "/usr/lib/python2.7/urllib2.py", line 1198, in do_open
+    raise URLError(err)
+URLError: <urlopen error [SSL: CERTIFICATE_VERIFY_FAILED] certificate verify failed (_ssl.c:661)>
+2017-09-05 05:42:17,153 - connect.open.42 - ERROR - opne {http://stattg.eastmoney.com} error
+2017-09-05 05:42:17,154 - connect.open.43 - ERROR - Exception Logged
+Traceback (most recent call last):
+  File "/root/tools/Information-Gathering/info-scan/lib/connection/connect.py", line 39, in open
+    response = urllib2.urlopen(request, timeout = self.timeout)
+  File "/usr/lib/python2.7/urllib2.py", line 154, in urlopen
+    return opener.open(url, data, timeout)
+  File "/usr/lib/python2.7/urllib2.py", line 435, in open
+    response = meth(req, response)
+  File "/usr/lib/python2.7/urllib2.py", line 548, in http_response
+    'http', request, response, code, msg, hdrs)
+  File "/usr/lib/python2.7/urllib2.py", line 473, in error
+    return self._call_chain(*args)
+  File "/usr/lib/python2.7/urllib2.py", line 407, in _call_chain
+    result = func(*args)
+  File "/usr/lib/python2.7/urllib2.py", line 556, in http_error_default
+    raise HTTPError(req.get_full_url(), code, msg, hdrs, fp)
+HTTPError: HTTP Error 404: Not Found
+2017-09-05 05:42:42,217 - connect.open.42 - ERROR - opne {http://.eastmoney.com} error
+2017-09-05 05:42:42,219 - connect.open.43 - ERROR - Exception Logged
+Traceback (most recent call last):
+  File "/root/tools/Information-Gathering/info-scan/lib/connection/connect.py", line 39, in open
+    response = urllib2.urlopen(request, timeout = self.timeout)
+  File "/usr/lib/python2.7/urllib2.py", line 154, in urlopen
+    return opener.open(url, data, timeout)
+  File "/usr/lib/python2.7/urllib2.py", line 429, in open
+    response = self._open(req, data)
+  File "/usr/lib/python2.7/urllib2.py", line 447, in _open
+    '_open', req)
+  File "/usr/lib/python2.7/urllib2.py", line 407, in _call_chain
+    result = func(*args)
+  File "/usr/lib/python2.7/urllib2.py", line 1228, in http_open
+    return self.do_open(httplib.HTTPConnection, req)
+  File "/usr/lib/python2.7/urllib2.py", line 1195, in do_open
+    h.request(req.get_method(), req.get_selector(), req.data, headers)
+  File "/usr/lib/python2.7/httplib.py", line 1042, in request
+    self._send_request(method, url, body, headers)
+  File "/usr/lib/python2.7/httplib.py", line 1082, in _send_request
+    self.endheaders(body)
+  File "/usr/lib/python2.7/httplib.py", line 1038, in endheaders
+    self._send_output(message_body)
+  File "/usr/lib/python2.7/httplib.py", line 882, in _send_output
+    self.send(msg)
+  File "/usr/lib/python2.7/httplib.py", line 844, in send
+    self.connect()
+  File "/usr/lib/python2.7/httplib.py", line 821, in connect
+    self.timeout, self.source_address)
+  File "/usr/lib/python2.7/socket.py", line 557, in create_connection
+    for res in getaddrinfo(host, port, 0, SOCK_STREAM):
+  File "/usr/lib/python2.7/encodings/idna.py", line 164, in encode
+    result.append(ToASCII(label))
+  File "/usr/lib/python2.7/encodings/idna.py", line 73, in ToASCII
+    raise UnicodeError("label empty or too long")
+UnicodeError: label empty or too long
+2017-09-05 05:42:42,317 - connect.open.42 - ERROR - opne {http://emhd.eastmoney.com} error
+2017-09-05 05:42:42,317 - connect.open.43 - ERROR - Exception Logged
+Traceback (most recent call last):
+  File "/root/tools/Information-Gathering/info-scan/lib/connection/connect.py", line 39, in open
+    response = urllib2.urlopen(request, timeout = self.timeout)
+  File "/usr/lib/python2.7/urllib2.py", line 154, in urlopen
+    return opener.open(url, data, timeout)
+  File "/usr/lib/python2.7/urllib2.py", line 435, in open
+    response = meth(req, response)
+  File "/usr/lib/python2.7/urllib2.py", line 548, in http_response
+    'http', request, response, code, msg, hdrs)
+  File "/usr/lib/python2.7/urllib2.py", line 473, in error
+    return self._call_chain(*args)
+  File "/usr/lib/python2.7/urllib2.py", line 407, in _call_chain
+    result = func(*args)
+  File "/usr/lib/python2.7/urllib2.py", line 556, in http_error_default
+    raise HTTPError(req.get_full_url(), code, msg, hdrs, fp)
+HTTPError: HTTP Error 403: Forbidden
+2017-09-05 05:42:42,321 - connect.open.42 - ERROR - opne {http://cheba.eastmoney.com} error
+2017-09-05 05:42:42,322 - connect.open.43 - ERROR - Exception Logged
+Traceback (most recent call last):
+  File "/root/tools/Information-Gathering/info-scan/lib/connection/connect.py", line 39, in open
+    response = urllib2.urlopen(request, timeout = self.timeout)
+  File "/usr/lib/python2.7/urllib2.py", line 154, in urlopen
+    return opener.open(url, data, timeout)
+  File "/usr/lib/python2.7/urllib2.py", line 435, in open
+    response = meth(req, response)
+  File "/usr/lib/python2.7/urllib2.py", line 548, in http_response
+    'http', request, response, code, msg, hdrs)
+  File "/usr/lib/python2.7/urllib2.py", line 473, in error
+    return self._call_chain(*args)
+  File "/usr/lib/python2.7/urllib2.py", line 407, in _call_chain
+    result = func(*args)
+  File "/usr/lib/python2.7/urllib2.py", line 556, in http_error_default
+    raise HTTPError(req.get_full_url(), code, msg, hdrs, fp)
+HTTPError: HTTP Error 403: Forbidden
+2017-09-05 05:42:42,465 - connect.open.42 - ERROR - opne {http://f10.eastmoney.com} error
+2017-09-05 05:42:42,476 - connect.open.43 - ERROR - Exception Logged
+Traceback (most recent call last):
+  File "/root/tools/Information-Gathering/info-scan/lib/connection/connect.py", line 39, in open
+    response = urllib2.urlopen(request, timeout = self.timeout)
+  File "/usr/lib/python2.7/urllib2.py", line 154, in urlopen
+    return opener.open(url, data, timeout)
+  File "/usr/lib/python2.7/urllib2.py", line 435, in open
+    response = meth(req, response)
+  File "/usr/lib/python2.7/urllib2.py", line 548, in http_response
+    'http', request, response, code, msg, hdrs)
+  File "/usr/lib/python2.7/urllib2.py", line 467, in error
+    result = self._call_chain(*args)
+  File "/usr/lib/python2.7/urllib2.py", line 407, in _call_chain
+    result = func(*args)
+  File "/usr/lib/python2.7/urllib2.py", line 654, in http_error_302
+    return self.parent.open(new, timeout=req.timeout)
+  File "/usr/lib/python2.7/urllib2.py", line 435, in open
+    response = meth(req, response)
+  File "/usr/lib/python2.7/urllib2.py", line 548, in http_response
+    'http', request, response, code, msg, hdrs)
+  File "/usr/lib/python2.7/urllib2.py", line 473, in error
+    return self._call_chain(*args)
+  File "/usr/lib/python2.7/urllib2.py", line 407, in _call_chain
+    result = func(*args)
+  File "/usr/lib/python2.7/urllib2.py", line 556, in http_error_default
+    raise HTTPError(req.get_full_url(), code, msg, hdrs, fp)
+HTTPError: HTTP Error 403: Forbidden
+2017-09-05 05:43:24,292 - connect.open.42 - ERROR - opne {http://gzqh.eastmoney.com} error
+2017-09-05 05:43:24,293 - connect.open.43 - ERROR - Exception Logged
+Traceback (most recent call last):
+  File "/root/tools/Information-Gathering/info-scan/lib/connection/connect.py", line 39, in open
+    response = urllib2.urlopen(request, timeout = self.timeout)
+  File "/usr/lib/python2.7/urllib2.py", line 154, in urlopen
+    return opener.open(url, data, timeout)
+  File "/usr/lib/python2.7/urllib2.py", line 429, in open
+    response = self._open(req, data)
+  File "/usr/lib/python2.7/urllib2.py", line 447, in _open
+    '_open', req)
+  File "/usr/lib/python2.7/urllib2.py", line 407, in _call_chain
+    result = func(*args)
+  File "/usr/lib/python2.7/urllib2.py", line 1228, in http_open
+    return self.do_open(httplib.HTTPConnection, req)
+  File "/usr/lib/python2.7/urllib2.py", line 1198, in do_open
+    raise URLError(err)
+URLError: <urlopen error [Errno 111] Connection refused>
+2017-09-05 05:43:24,399 - connect.open.42 - ERROR - opne {http://m.eastmoney.com} error
+2017-09-05 05:43:24,399 - connect.open.43 - ERROR - Exception Logged
+Traceback (most recent call last):
+  File "/root/tools/Information-Gathering/info-scan/lib/connection/connect.py", line 39, in open
+    response = urllib2.urlopen(request, timeout = self.timeout)
+  File "/usr/lib/python2.7/urllib2.py", line 154, in urlopen
+    return opener.open(url, data, timeout)
+  File "/usr/lib/python2.7/urllib2.py", line 435, in open
+    response = meth(req, response)
+  File "/usr/lib/python2.7/urllib2.py", line 548, in http_response
+    'http', request, response, code, msg, hdrs)
+  File "/usr/lib/python2.7/urllib2.py", line 473, in error
+    return self._call_chain(*args)
+  File "/usr/lib/python2.7/urllib2.py", line 407, in _call_chain
+    result = func(*args)
+  File "/usr/lib/python2.7/urllib2.py", line 556, in http_error_default
+    raise HTTPError(req.get_full_url(), code, msg, hdrs, fp)
+HTTPError: HTTP Error 404: Not Found
+2017-09-05 05:43:24,570 - connect.open.42 - ERROR - opne {http://zcsaction.eastmoney.com} error
+2017-09-05 05:43:24,571 - connect.open.43 - ERROR - Exception Logged
+Traceback (most recent call last):
+  File "/root/tools/Information-Gathering/info-scan/lib/connection/connect.py", line 39, in open
+    response = urllib2.urlopen(request, timeout = self.timeout)
+  File "/usr/lib/python2.7/urllib2.py", line 154, in urlopen
+    return opener.open(url, data, timeout)
+  File "/usr/lib/python2.7/urllib2.py", line 435, in open
+    response = meth(req, response)
+  File "/usr/lib/python2.7/urllib2.py", line 548, in http_response
+    'http', request, response, code, msg, hdrs)
+  File "/usr/lib/python2.7/urllib2.py", line 473, in error
+    return self._call_chain(*args)
+  File "/usr/lib/python2.7/urllib2.py", line 407, in _call_chain
+    result = func(*args)
+  File "/usr/lib/python2.7/urllib2.py", line 556, in http_error_default
+    raise HTTPError(req.get_full_url(), code, msg, hdrs, fp)
+HTTPError: HTTP Error 403: Forbidden
+2017-09-05 05:43:46,236 - connect.open.42 - ERROR - opne {http://cp.eastmoney.com} error
+2017-09-05 05:43:46,237 - connect.open.43 - ERROR - Exception Logged
+Traceback (most recent call last):
+  File "/root/tools/Information-Gathering/info-scan/lib/connection/connect.py", line 39, in open
+    response = urllib2.urlopen(request, timeout = self.timeout)
+  File "/usr/lib/python2.7/urllib2.py", line 154, in urlopen
+    return opener.open(url, data, timeout)
+  File "/usr/lib/python2.7/urllib2.py", line 435, in open
+    response = meth(req, response)
+  File "/usr/lib/python2.7/urllib2.py", line 548, in http_response
+    'http', request, response, code, msg, hdrs)
+  File "/usr/lib/python2.7/urllib2.py", line 473, in error
+    return self._call_chain(*args)
+  File "/usr/lib/python2.7/urllib2.py", line 407, in _call_chain
+    result = func(*args)
+  File "/usr/lib/python2.7/urllib2.py", line 556, in http_error_default
+    raise HTTPError(req.get_full_url(), code, msg, hdrs, fp)
+HTTPError: HTTP Error 404: Not Found
+2017-09-05 05:43:46,265 - connect.open.42 - ERROR - opne {http://js1.eastmoney.com} error
+2017-09-05 05:43:46,266 - connect.open.43 - ERROR - Exception Logged
+Traceback (most recent call last):
+  File "/root/tools/Information-Gathering/info-scan/lib/connection/connect.py", line 39, in open
+    response = urllib2.urlopen(request, timeout = self.timeout)
+  File "/usr/lib/python2.7/urllib2.py", line 154, in urlopen
+    return opener.open(url, data, timeout)
+  File "/usr/lib/python2.7/urllib2.py", line 435, in open
+    response = meth(req, response)
+  File "/usr/lib/python2.7/urllib2.py", line 548, in http_response
+    'http', request, response, code, msg, hdrs)
+  File "/usr/lib/python2.7/urllib2.py", line 473, in error
+    return self._call_chain(*args)
+  File "/usr/lib/python2.7/urllib2.py", line 407, in _call_chain
+    result = func(*args)
+  File "/usr/lib/python2.7/urllib2.py", line 556, in http_error_default
+    raise HTTPError(req.get_full_url(), code, msg, hdrs, fp)
+HTTPError: HTTP Error 403: Forbidden
+2017-09-05 05:43:46,268 - connect.open.42 - ERROR - opne {http://js5.eastmoney.com} error
+2017-09-05 05:43:46,275 - connect.open.43 - ERROR - Exception Logged
+Traceback (most recent call last):
+  File "/root/tools/Information-Gathering/info-scan/lib/connection/connect.py", line 39, in open
+    response = urllib2.urlopen(request, timeout = self.timeout)
+  File "/usr/lib/python2.7/urllib2.py", line 154, in urlopen
+    return opener.open(url, data, timeout)
+  File "/usr/lib/python2.7/urllib2.py", line 435, in open
+    response = meth(req, response)
+  File "/usr/lib/python2.7/urllib2.py", line 548, in http_response
+    'http', request, response, code, msg, hdrs)
+  File "/usr/lib/python2.7/urllib2.py", line 473, in error
+    return self._call_chain(*args)
+  File "/usr/lib/python2.7/urllib2.py", line 407, in _call_chain
+    result = func(*args)
+  File "/usr/lib/python2.7/urllib2.py", line 556, in http_error_default
+    raise HTTPError(req.get_full_url(), code, msg, hdrs, fp)
+HTTPError: HTTP Error 403: Forbidden
+2017-09-05 05:43:46,368 - connect.open.42 - ERROR - opne {http://stattg.eastmoney.com} error
+2017-09-05 05:43:46,369 - connect.open.43 - ERROR - Exception Logged
+Traceback (most recent call last):
+  File "/root/tools/Information-Gathering/info-scan/lib/connection/connect.py", line 39, in open
+    response = urllib2.urlopen(request, timeout = self.timeout)
+  File "/usr/lib/python2.7/urllib2.py", line 154, in urlopen
+    return opener.open(url, data, timeout)
+  File "/usr/lib/python2.7/urllib2.py", line 435, in open
+    response = meth(req, response)
+  File "/usr/lib/python2.7/urllib2.py", line 548, in http_response
+    'http', request, response, code, msg, hdrs)
+  File "/usr/lib/python2.7/urllib2.py", line 473, in error
+    return self._call_chain(*args)
+  File "/usr/lib/python2.7/urllib2.py", line 407, in _call_chain
+    result = func(*args)
+  File "/usr/lib/python2.7/urllib2.py", line 556, in http_error_default
+    raise HTTPError(req.get_full_url(), code, msg, hdrs, fp)
+HTTPError: HTTP Error 404: Not Found
+2017-09-05 05:43:46,605 - connect.open.42 - ERROR - opne {https://passport.eastmoney.com} error
+2017-09-05 05:43:46,606 - connect.open.43 - ERROR - Exception Logged
+Traceback (most recent call last):
+  File "/root/tools/Information-Gathering/info-scan/lib/connection/connect.py", line 39, in open
+    response = urllib2.urlopen(request, timeout = self.timeout)
+  File "/usr/lib/python2.7/urllib2.py", line 154, in urlopen
+    return opener.open(url, data, timeout)
+  File "/usr/lib/python2.7/urllib2.py", line 435, in open
+    response = meth(req, response)
+  File "/usr/lib/python2.7/urllib2.py", line 548, in http_response
+    'http', request, response, code, msg, hdrs)
+  File "/usr/lib/python2.7/urllib2.py", line 473, in error
+    return self._call_chain(*args)
+  File "/usr/lib/python2.7/urllib2.py", line 407, in _call_chain
+    result = func(*args)
+  File "/usr/lib/python2.7/urllib2.py", line 556, in http_error_default
+    raise HTTPError(req.get_full_url(), code, msg, hdrs, fp)
+HTTPError: HTTP Error 403: Forbidden
+2017-09-05 05:43:48,337 - connect.open.42 - ERROR - opne {https://zqhd.eastmoney.com} error
+2017-09-05 05:43:48,337 - connect.open.43 - ERROR - Exception Logged
+Traceback (most recent call last):
+  File "/root/tools/Information-Gathering/info-scan/lib/connection/connect.py", line 39, in open
+    response = urllib2.urlopen(request, timeout = self.timeout)
+  File "/usr/lib/python2.7/urllib2.py", line 154, in urlopen
+    return opener.open(url, data, timeout)
+  File "/usr/lib/python2.7/urllib2.py", line 429, in open
+    response = self._open(req, data)
+  File "/usr/lib/python2.7/urllib2.py", line 447, in _open
+    '_open', req)
+  File "/usr/lib/python2.7/urllib2.py", line 407, in _call_chain
+    result = func(*args)
+  File "/usr/lib/python2.7/urllib2.py", line 1241, in https_open
+    context=self._context)
+  File "/usr/lib/python2.7/urllib2.py", line 1198, in do_open
+    raise URLError(err)
+URLError: <urlopen error [SSL: CERTIFICATE_VERIFY_FAILED] certificate verify failed (_ssl.c:661)>
+2017-09-05 05:44:12,631 - connect.open.42 - ERROR - opne {http://.eastmoney.com} error
+2017-09-05 05:44:12,633 - connect.open.43 - ERROR - Exception Logged
+Traceback (most recent call last):
+  File "/root/tools/Information-Gathering/info-scan/lib/connection/connect.py", line 39, in open
+    response = urllib2.urlopen(request, timeout = self.timeout)
+  File "/usr/lib/python2.7/urllib2.py", line 154, in urlopen
+    return opener.open(url, data, timeout)
+  File "/usr/lib/python2.7/urllib2.py", line 429, in open
+    response = self._open(req, data)
+  File "/usr/lib/python2.7/urllib2.py", line 447, in _open
+    '_open', req)
+  File "/usr/lib/python2.7/urllib2.py", line 407, in _call_chain
+    result = func(*args)
+  File "/usr/lib/python2.7/urllib2.py", line 1228, in http_open
+    return self.do_open(httplib.HTTPConnection, req)
+  File "/usr/lib/python2.7/urllib2.py", line 1195, in do_open
+    h.request(req.get_method(), req.get_selector(), req.data, headers)
+  File "/usr/lib/python2.7/httplib.py", line 1042, in request
+    self._send_request(method, url, body, headers)
+  File "/usr/lib/python2.7/httplib.py", line 1082, in _send_request
+    self.endheaders(body)
+  File "/usr/lib/python2.7/httplib.py", line 1038, in endheaders
+    self._send_output(message_body)
+  File "/usr/lib/python2.7/httplib.py", line 882, in _send_output
+    self.send(msg)
+  File "/usr/lib/python2.7/httplib.py", line 844, in send
+    self.connect()
+  File "/usr/lib/python2.7/httplib.py", line 821, in connect
+    self.timeout, self.source_address)
+  File "/usr/lib/python2.7/socket.py", line 557, in create_connection
+    for res in getaddrinfo(host, port, 0, SOCK_STREAM):
+  File "/usr/lib/python2.7/encodings/idna.py", line 164, in encode
+    result.append(ToASCII(label))
+  File "/usr/lib/python2.7/encodings/idna.py", line 73, in ToASCII
+    raise UnicodeError("label empty or too long")
+UnicodeError: label empty or too long
+2017-09-05 05:44:12,708 - connect.open.42 - ERROR - opne {http://emhd.eastmoney.com} error
+2017-09-05 05:44:12,708 - connect.open.43 - ERROR - Exception Logged
+Traceback (most recent call last):
+  File "/root/tools/Information-Gathering/info-scan/lib/connection/connect.py", line 39, in open
+    response = urllib2.urlopen(request, timeout = self.timeout)
+  File "/usr/lib/python2.7/urllib2.py", line 154, in urlopen
+    return opener.open(url, data, timeout)
+  File "/usr/lib/python2.7/urllib2.py", line 435, in open
+    response = meth(req, response)
+  File "/usr/lib/python2.7/urllib2.py", line 548, in http_response
+    'http', request, response, code, msg, hdrs)
+  File "/usr/lib/python2.7/urllib2.py", line 473, in error
+    return self._call_chain(*args)
+  File "/usr/lib/python2.7/urllib2.py", line 407, in _call_chain
+    result = func(*args)
+  File "/usr/lib/python2.7/urllib2.py", line 556, in http_error_default
+    raise HTTPError(req.get_full_url(), code, msg, hdrs, fp)
+HTTPError: HTTP Error 403: Forbidden
+2017-09-05 05:44:12,721 - connect.open.42 - ERROR - opne {http://cheba.eastmoney.com} error
+2017-09-05 05:44:12,722 - connect.open.43 - ERROR - Exception Logged
+Traceback (most recent call last):
+  File "/root/tools/Information-Gathering/info-scan/lib/connection/connect.py", line 39, in open
+    response = urllib2.urlopen(request, timeout = self.timeout)
+  File "/usr/lib/python2.7/urllib2.py", line 154, in urlopen
+    return opener.open(url, data, timeout)
+  File "/usr/lib/python2.7/urllib2.py", line 435, in open
+    response = meth(req, response)
+  File "/usr/lib/python2.7/urllib2.py", line 548, in http_response
+    'http', request, response, code, msg, hdrs)
+  File "/usr/lib/python2.7/urllib2.py", line 473, in error
+    return self._call_chain(*args)
+  File "/usr/lib/python2.7/urllib2.py", line 407, in _call_chain
+    result = func(*args)
+  File "/usr/lib/python2.7/urllib2.py", line 556, in http_error_default
+    raise HTTPError(req.get_full_url(), code, msg, hdrs, fp)
+HTTPError: HTTP Error 403: Forbidden
+2017-09-05 05:44:12,843 - connect.open.42 - ERROR - opne {http://f10.eastmoney.com} error
+2017-09-05 05:44:12,849 - connect.open.43 - ERROR - Exception Logged
+Traceback (most recent call last):
+  File "/root/tools/Information-Gathering/info-scan/lib/connection/connect.py", line 39, in open
+    response = urllib2.urlopen(request, timeout = self.timeout)
+  File "/usr/lib/python2.7/urllib2.py", line 154, in urlopen
+    return opener.open(url, data, timeout)
+  File "/usr/lib/python2.7/urllib2.py", line 435, in open
+    response = meth(req, response)
+  File "/usr/lib/python2.7/urllib2.py", line 548, in http_response
+    'http', request, response, code, msg, hdrs)
+  File "/usr/lib/python2.7/urllib2.py", line 467, in error
+    result = self._call_chain(*args)
+  File "/usr/lib/python2.7/urllib2.py", line 407, in _call_chain
+    result = func(*args)
+  File "/usr/lib/python2.7/urllib2.py", line 654, in http_error_302
+    return self.parent.open(new, timeout=req.timeout)
+  File "/usr/lib/python2.7/urllib2.py", line 435, in open
+    response = meth(req, response)
+  File "/usr/lib/python2.7/urllib2.py", line 548, in http_response
+    'http', request, response, code, msg, hdrs)
+  File "/usr/lib/python2.7/urllib2.py", line 473, in error
+    return self._call_chain(*args)
+  File "/usr/lib/python2.7/urllib2.py", line 407, in _call_chain
+    result = func(*args)
+  File "/usr/lib/python2.7/urllib2.py", line 556, in http_error_default
+    raise HTTPError(req.get_full_url(), code, msg, hdrs, fp)
+HTTPError: HTTP Error 403: Forbidden
+2017-09-05 05:44:54,662 - connect.open.42 - ERROR - opne {http://gzqh.eastmoney.com} error
+2017-09-05 05:44:54,663 - connect.open.43 - ERROR - Exception Logged
+Traceback (most recent call last):
+  File "/root/tools/Information-Gathering/info-scan/lib/connection/connect.py", line 39, in open
+    response = urllib2.urlopen(request, timeout = self.timeout)
+  File "/usr/lib/python2.7/urllib2.py", line 154, in urlopen
+    return opener.open(url, data, timeout)
+  File "/usr/lib/python2.7/urllib2.py", line 429, in open
+    response = self._open(req, data)
+  File "/usr/lib/python2.7/urllib2.py", line 447, in _open
+    '_open', req)
+  File "/usr/lib/python2.7/urllib2.py", line 407, in _call_chain
+    result = func(*args)
+  File "/usr/lib/python2.7/urllib2.py", line 1228, in http_open
+    return self.do_open(httplib.HTTPConnection, req)
+  File "/usr/lib/python2.7/urllib2.py", line 1198, in do_open
+    raise URLError(err)
+URLError: <urlopen error [Errno 111] Connection refused>
+2017-09-05 05:44:54,743 - connect.open.42 - ERROR - opne {http://zcsaction.eastmoney.com} error
+2017-09-05 05:44:54,743 - connect.open.43 - ERROR - Exception Logged
+Traceback (most recent call last):
+  File "/root/tools/Information-Gathering/info-scan/lib/connection/connect.py", line 39, in open
+    response = urllib2.urlopen(request, timeout = self.timeout)
+  File "/usr/lib/python2.7/urllib2.py", line 154, in urlopen
+    return opener.open(url, data, timeout)
+  File "/usr/lib/python2.7/urllib2.py", line 435, in open
+    response = meth(req, response)
+  File "/usr/lib/python2.7/urllib2.py", line 548, in http_response
+    'http', request, response, code, msg, hdrs)
+  File "/usr/lib/python2.7/urllib2.py", line 473, in error
+    return self._call_chain(*args)
+  File "/usr/lib/python2.7/urllib2.py", line 407, in _call_chain
+    result = func(*args)
+  File "/usr/lib/python2.7/urllib2.py", line 556, in http_error_default
+    raise HTTPError(req.get_full_url(), code, msg, hdrs, fp)
+HTTPError: HTTP Error 403: Forbidden
+2017-09-05 05:44:54,952 - connect.open.42 - ERROR - opne {http://m.eastmoney.com} error
+2017-09-05 05:44:54,952 - connect.open.43 - ERROR - Exception Logged
+Traceback (most recent call last):
+  File "/root/tools/Information-Gathering/info-scan/lib/connection/connect.py", line 39, in open
+    response = urllib2.urlopen(request, timeout = self.timeout)
+  File "/usr/lib/python2.7/urllib2.py", line 154, in urlopen
+    return opener.open(url, data, timeout)
+  File "/usr/lib/python2.7/urllib2.py", line 435, in open
+    response = meth(req, response)
+  File "/usr/lib/python2.7/urllib2.py", line 548, in http_response
+    'http', request, response, code, msg, hdrs)
+  File "/usr/lib/python2.7/urllib2.py", line 473, in error
+    return self._call_chain(*args)
+  File "/usr/lib/python2.7/urllib2.py", line 407, in _call_chain
+    result = func(*args)
+  File "/usr/lib/python2.7/urllib2.py", line 556, in http_error_default
+    raise HTTPError(req.get_full_url(), code, msg, hdrs, fp)
+HTTPError: HTTP Error 404: Not Found
+2017-09-05 05:44:55,195 - connect.open.42 - ERROR - opne {http://soft-f9.eastmoney.com} error
+2017-09-05 05:44:55,196 - connect.open.43 - ERROR - Exception Logged
+Traceback (most recent call last):
+  File "/root/tools/Information-Gathering/info-scan/lib/connection/connect.py", line 39, in open
+    response = urllib2.urlopen(request, timeout = self.timeout)
+  File "/usr/lib/python2.7/urllib2.py", line 154, in urlopen
+    return opener.open(url, data, timeout)
+  File "/usr/lib/python2.7/urllib2.py", line 435, in open
+    response = meth(req, response)
+  File "/usr/lib/python2.7/urllib2.py", line 548, in http_response
+    'http', request, response, code, msg, hdrs)
+  File "/usr/lib/python2.7/urllib2.py", line 473, in error
+    return self._call_chain(*args)
+  File "/usr/lib/python2.7/urllib2.py", line 407, in _call_chain
+    result = func(*args)
+  File "/usr/lib/python2.7/urllib2.py", line 556, in http_error_default
+    raise HTTPError(req.get_full_url(), code, msg, hdrs, fp)
+HTTPError: HTTP Error 403: Forbidden
+2017-09-05 05:53:14,256 - connect.open.41 - INFO - http://www.eastmoney.com/ 200 ok
+2017-09-05 05:53:14,687 - connect.open.41 - INFO - http://fund.eastmoney.com 200 ok
+2017-09-05 05:53:14,712 - connect.open.41 - INFO - http://www.eastmoney.com 200 ok
+2017-09-05 05:53:14,718 - connect.open.41 - INFO - http://fundact.eastmoney.com 200 ok
+2017-09-05 05:53:14,720 - connect.open.41 - INFO - http://i.eastmoney.com 200 ok
+2017-09-05 05:53:14,726 - connect.open.41 - INFO - http://topic.eastmoney.com 200 ok
+2017-09-05 05:53:14,733 - connect.open.41 - INFO - http://stock.eastmoney.com 200 ok
+2017-09-05 05:53:14,772 - connect.open.41 - INFO - http://group.eastmoney.com 200 ok
+2017-09-05 05:53:14,782 - connect.open.41 - INFO - http://trust.eastmoney.com 200 ok
+2017-09-05 05:53:14,783 - connect.open.41 - INFO - http://bank.eastmoney.com 200 ok
+2017-09-05 05:53:14,791 - connect.open.41 - INFO - http://forex.eastmoney.com 200 ok
+2017-09-05 05:53:14,795 - connect.open.41 - INFO - http://biz.eastmoney.com 200 ok
+2017-09-05 05:53:14,796 - connect.open.41 - INFO - http://gold.eastmoney.com 200 ok
+2017-09-05 05:53:14,797 - connect.open.41 - INFO - http://finance.eastmoney.com 200 ok
+2017-09-05 05:53:14,799 - connect.open.41 - INFO - http://toujiao.eastmoney.com 200 ok
+2017-09-05 05:53:14,803 - connect.open.41 - INFO - http://futures.eastmoney.com 200 ok
+2017-09-05 05:53:14,807 - connect.open.41 - INFO - http://roll.eastmoney.com 200 ok
+2017-09-05 05:53:14,807 - connect.open.41 - INFO - http://caipiao.eastmoney.com 200 ok
+2017-09-05 05:53:14,807 - connect.open.41 - INFO - http://caifuhao.eastmoney.com 200 ok
+2017-09-05 05:53:14,809 - connect.open.41 - INFO - http://auto.eastmoney.com 200 ok
+2017-09-05 05:53:14,817 - connect.open.41 - INFO - http://fundbook.eastmoney.com 200 ok
+2017-09-05 05:53:14,826 - connect.open.41 - INFO - http://jigou.eastmoney.com 200 ok
+2017-09-05 05:53:14,830 - connect.open.41 - INFO - http://mingjia.eastmoney.com 200 ok
+2017-09-05 05:53:14,830 - connect.open.41 - INFO - http://same.eastmoney.com 200 ok
+2017-09-05 05:53:14,830 - connect.open.41 - INFO - http://enterprise.eastmoney.com 200 ok
+2017-09-05 05:53:14,831 - connect.open.41 - INFO - http://gpkh.eastmoney.com 200 ok
+2017-09-05 05:53:14,831 - connect.open.41 - INFO - http://show.eastmoney.com 200 ok
+2017-09-05 05:53:14,832 - connect.open.41 - INFO - http://blog.eastmoney.com 200 ok
+2017-09-05 05:53:14,836 - connect.open.41 - INFO - http://contest.eastmoney.com 200 ok
+2017-09-05 05:53:14,841 - connect.open.41 - INFO - http://kuaixun.eastmoney.com 200 ok
+2017-09-05 05:53:14,857 - connect.open.41 - INFO - http://money.eastmoney.com 200 ok
+2017-09-05 05:53:14,857 - connect.open.41 - INFO - http://vote.eastmoney.com 200 ok
+2017-09-05 05:53:14,883 - connect.open.41 - INFO - http://data.eastmoney.com 200 ok
+2017-09-05 05:53:14,884 - connect.open.41 - INFO - http://guba.eastmoney.com 200 ok
+2017-09-05 05:53:14,884 - connect.open.41 - INFO - http://emhd2.eastmoney.com 200 ok
+2017-09-05 05:53:14,930 - connect.open.41 - INFO - http://quote.eastmoney.com 200 ok
+2017-09-05 05:53:15,199 - connect.open.41 - INFO - http://gubatopic.eastmoney.com 200 ok
+2017-09-05 05:53:15,215 - connect.open.41 - INFO - http://fundsc.eastmoney.com 200 ok
+2017-09-05 05:53:15,325 - connect.open.41 - INFO - http://control.blog.eastmoney.com 200 ok
+2017-09-05 05:53:15,341 - connect.open.41 - INFO - http://so.eastmoney.com 200 ok
+2017-09-05 05:53:15,354 - connect.open.41 - INFO - https://acttg.eastmoney.com 200 ok
+2017-09-05 05:53:15,397 - connect.open.41 - INFO - http://video.eastmoney.com 200 ok
+2017-09-05 05:53:15,763 - connect.open.41 - INFO - http://xinsanban.eastmoney.com 200 ok
+2017-09-05 05:53:15,922 - connect.open.41 - INFO - https://kh.eastmoney.com 200 ok
+2017-09-05 05:53:16,748 - connect.open.41 - INFO - https://contest.securities.eastmoney.com 200 ok
+2017-09-05 05:53:16,759 - connect.open.41 - INFO - http://insurance.eastmoney.com 200 ok
+2017-09-05 05:53:16,763 - connect.open.41 - INFO - http://option.eastmoney.com 200 ok
+2017-09-05 05:53:16,767 - connect.open.41 - INFO - http://bond.eastmoney.com 200 ok
+2017-09-05 05:53:16,903 - connect.open.41 - INFO - http://corp.eastmoney.com 200 ok
+2017-09-05 05:53:17,756 - connect.open.41 - INFO - http://hk.eastmoney.com 200 ok
+2017-09-05 05:53:17,762 - connect.open.41 - INFO - http://renwu.eastmoney.com 200 ok
+2017-09-05 05:53:17,776 - connect.open.41 - INFO - http://choice.eastmoney.com 200 ok
+2017-09-05 05:53:17,799 - connect.open.41 - INFO - http://global.eastmoney.com 200 ok
+2017-09-05 05:53:17,807 - connect.open.41 - INFO - http://life.eastmoney.com 200 ok
+2017-09-05 05:53:17,808 - connect.open.41 - INFO - http://mp.caifuhao.eastmoney.com 200 ok
+2017-09-05 05:53:17,822 - connect.open.41 - INFO - http://about.eastmoney.com 200 ok
+2017-09-05 05:53:17,827 - connect.open.41 - INFO - http://media.eastmoney.com 200 ok
+2017-09-05 05:53:17,871 - connect.open.41 - INFO - http://jijinba.eastmoney.com 200 ok
+2017-09-05 05:53:19,829 - connect.open.41 - INFO - https://hkjy.eastmoney.com 200 ok
+2017-09-05 05:53:19,895 - connect.open.41 - INFO - https://zqhd.eastmoney.com 200 ok
+2017-09-05 05:53:19,930 - connect.open.41 - INFO - http://iguba.eastmoney.com 200 ok
+2017-09-05 05:53:21,158 - connect.open.41 - INFO - http://simu.eastmoney.com 200 ok
+2017-09-05 05:54:36,798 - connect.open.41 - DEBUG - http://www.eastmoney.com/ 200 ok
+2017-09-05 05:54:37,162 - connect.open.41 - DEBUG - http://fund.eastmoney.com 200 ok
+2017-09-05 05:54:37,185 - connect.open.41 - DEBUG - http://quote.eastmoney.com 200 ok
+2017-09-05 05:54:37,188 - connect.open.41 - DEBUG - http://fundact.eastmoney.com 200 ok
+2017-09-05 05:54:37,192 - connect.open.41 - DEBUG - http://stock.eastmoney.com 200 ok
+2017-09-05 05:54:37,197 - connect.open.41 - DEBUG - http://www.eastmoney.com 200 ok
+2017-09-05 05:54:37,208 - connect.open.41 - DEBUG - http://i.eastmoney.com 200 ok
+2017-09-05 05:54:37,252 - connect.open.41 - DEBUG - http://topic.eastmoney.com 200 ok
+2017-09-05 05:54:37,252 - connect.open.41 - DEBUG - http://group.eastmoney.com 200 ok
+2017-09-05 05:54:37,258 - connect.open.41 - DEBUG - http://option.eastmoney.com 200 ok
+2017-09-05 05:54:37,259 - connect.open.41 - DEBUG - http://forex.eastmoney.com 200 ok
+2017-09-05 05:54:37,267 - connect.open.41 - DEBUG - http://money.eastmoney.com 200 ok
+2017-09-05 05:54:37,269 - connect.open.41 - DEBUG - http://media.eastmoney.com 200 ok
+2017-09-05 05:54:37,275 - connect.open.41 - DEBUG - http://contest.eastmoney.com 200 ok
+2017-09-05 05:54:37,276 - connect.open.41 - DEBUG - http://insurance.eastmoney.com 200 ok
+2017-09-05 05:54:37,278 - connect.open.41 - DEBUG - http://enterprise.eastmoney.com 200 ok
+2017-09-05 05:54:37,279 - connect.open.41 - DEBUG - http://trust.eastmoney.com 200 ok
+2017-09-05 05:54:37,281 - connect.open.41 - DEBUG - http://biz.eastmoney.com 200 ok
+2017-09-05 05:54:37,285 - connect.open.41 - DEBUG - http://xinsanban.eastmoney.com 200 ok
+2017-09-05 05:54:37,286 - connect.open.41 - DEBUG - http://video.eastmoney.com 200 ok
+2017-09-05 05:54:37,287 - connect.open.41 - DEBUG - http://data.eastmoney.com 200 ok
+2017-09-05 05:54:37,290 - connect.open.41 - DEBUG - http://gpkh.eastmoney.com 200 ok
+2017-09-05 05:54:37,294 - connect.open.41 - DEBUG - http://caipiao.eastmoney.com 200 ok
+2017-09-05 05:54:37,301 - connect.open.41 - DEBUG - http://caifuhao.eastmoney.com 200 ok
+2017-09-05 05:54:37,309 - connect.open.41 - DEBUG - http://simu.eastmoney.com 200 ok
+2017-09-05 05:54:37,328 - connect.open.41 - DEBUG - https://acttg.eastmoney.com 200 ok
+2017-09-05 05:54:37,337 - connect.open.41 - DEBUG - http://life.eastmoney.com 200 ok
+2017-09-05 05:54:37,347 - connect.open.41 - DEBUG - http://emhd2.eastmoney.com 200 ok
+2017-09-05 05:54:37,361 - connect.open.41 - DEBUG - http://toujiao.eastmoney.com 200 ok
+2017-09-05 05:54:37,498 - connect.open.41 - DEBUG - http://finance.eastmoney.com 200 ok
+2017-09-05 05:54:37,569 - connect.open.41 - DEBUG - http://guba.eastmoney.com 200 ok
+2017-09-05 05:54:37,576 - connect.open.41 - DEBUG - https://contest.securities.eastmoney.com 200 ok
+2017-09-05 05:54:37,699 - connect.open.41 - DEBUG - http://gubatopic.eastmoney.com 200 ok
+2017-09-05 05:54:37,762 - connect.open.41 - DEBUG - http://blog.eastmoney.com 200 ok
+2017-09-05 05:54:37,787 - connect.open.41 - DEBUG - http://jijinba.eastmoney.com 200 ok
+2017-09-05 05:54:37,789 - connect.open.41 - DEBUG - http://fundsc.eastmoney.com 200 ok
+2017-09-05 05:54:37,815 - connect.open.41 - DEBUG - http://so.eastmoney.com 200 ok
+2017-09-05 05:54:37,908 - connect.open.41 - DEBUG - http://renwu.eastmoney.com 200 ok
+2017-09-05 05:54:38,185 - connect.open.41 - DEBUG - http://choice.eastmoney.com 200 ok
+2017-09-05 05:54:38,271 - connect.open.41 - DEBUG - http://auto.eastmoney.com 200 ok
+2017-09-05 05:54:38,369 - connect.open.41 - DEBUG - http://mp.caifuhao.eastmoney.com 200 ok
+2017-09-05 05:54:38,415 - connect.open.41 - DEBUG - http://corp.eastmoney.com 200 ok
+2017-09-05 05:54:38,446 - connect.open.41 - DEBUG - https://kh.eastmoney.com 200 ok
+2017-09-05 05:54:38,615 - connect.open.41 - DEBUG - http://iguba.eastmoney.com 200 ok
+2017-09-05 05:54:38,813 - connect.open.41 - DEBUG - http://jigou.eastmoney.com 200 ok
+2017-09-05 05:54:38,813 - connect.open.41 - DEBUG - http://about.eastmoney.com 200 ok
+2017-09-05 05:54:38,817 - connect.open.41 - DEBUG - http://roll.eastmoney.com 200 ok
+2017-09-05 05:54:39,250 - connect.open.41 - DEBUG - http://fundbook.eastmoney.com 200 ok
+2017-09-05 05:54:39,251 - connect.open.41 - DEBUG - http://show.eastmoney.com 200 ok
+2017-09-05 05:54:39,294 - connect.open.41 - DEBUG - http://kuaixun.eastmoney.com 200 ok
+2017-09-05 05:54:40,227 - connect.open.41 - DEBUG - http://global.eastmoney.com 200 ok
+2017-09-05 05:54:40,228 - connect.open.41 - DEBUG - http://bond.eastmoney.com 200 ok
+2017-09-05 05:54:40,230 - connect.open.41 - DEBUG - http://hk.eastmoney.com 200 ok
+2017-09-05 05:54:40,231 - connect.open.41 - DEBUG - http://gold.eastmoney.com 200 ok
+2017-09-05 05:54:40,231 - connect.open.41 - DEBUG - http://futures.eastmoney.com 200 ok
+2017-09-05 05:54:40,236 - connect.open.41 - DEBUG - http://bank.eastmoney.com 200 ok
+2017-09-05 05:54:40,260 - connect.open.41 - DEBUG - http://vote.eastmoney.com 200 ok
+2017-09-05 05:54:40,294 - connect.open.41 - DEBUG - http://same.eastmoney.com 200 ok
+2017-09-05 05:54:40,318 - connect.open.41 - DEBUG - http://mingjia.eastmoney.com 200 ok
+2017-09-05 05:54:40,389 - connect.open.41 - DEBUG - https://hkjy.eastmoney.com 200 ok
+2017-09-05 05:54:40,397 - connect.open.41 - DEBUG - https://zqhd.eastmoney.com 200 ok
+2017-09-05 05:54:40,932 - connect.open.41 - DEBUG - http://control.blog.eastmoney.com 200 ok
