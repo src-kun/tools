@@ -68,14 +68,14 @@ class Crawler:
 	
 	#成功返回 html / 失败返回 None
 	#url not None时优先爬取url
-	def open(self, current_level, url = None, values = None):
+	def open(self, current_level, url = None, cookies = None, values = None):
 			#检测爬虫深度
 			if current_level > self.level:
 				return None
-			request = connect.Request()
-			response = request.open(url, values)
-			if response:
-				return response.read()
+			if cookies:
+				self.headers['cookies'] = cookies
+			request = connect.Request(self.headers, url, values)
+			return request.getHtml()
 
 
 	#从url中提取出host部分，提取失败返回None
@@ -95,28 +95,30 @@ class Crawler:
 			
 		if url:
 			self.url[current_level].append(url)
+			debMsg = url + " pushed"
+			logger.debug(debMsg)
 		if host:
 			self.host[current_level].append(host)
+			debMsg = host + " pushed"
+			logger.debug(debMsg)
 
 	#解析出html中的链接
 	def parser(self, current_level, current_url, html):
 		url = None
 		host = None
+		debMsg = ""
 		try:
 			#动态获取字符集
 			charset = chardet.detect(str(html))['encoding']
 			soup = BeautifulSoup(str(html).decode(charset, 'ignore'), "html.parser")
 			for a in soup.find_all('a'):
+				debMsg = a
 				try:
 					url, host = self.accept(a['href'], current_url)
 					self.push(current_level, url, host)
 				except Exception,e:
-					#LOG 输出
-					#print e
 					pass
 		except Exception,e:
-			#LOG 输出
-			#print e
 			pass
 
 	#TODO线程控制
@@ -193,7 +195,7 @@ def demo():
 	
 if __name__ == '__main__':
 	#t_demo()
-	#demo()
-	print config.getConfig("http_header", "header");
+	demo()
+	#print config.getConfig("http_header", "header");
 
 

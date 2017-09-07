@@ -12,38 +12,56 @@ class Request():
 	
 	headers = None
 	timeout = None
+	__response = None
+	__url = None
+	code = None
+	__values = None
 
-	def __init__(self, headers = None, timeout = 3):
-		headers = self.headers
-		timeout = self.timeout
+	def __init__(self, headers = None, url = None, values = None, timeout = 5):
+		self.headers = headers
+		self.timeout = timeout
+		self.__url = url
+		self.__values = values
+		self.open()
 		
-	def open(self, url = None, values = None):
-		response = None
-		if url is None:
-			errMsg = "url is None !"
+	def open(self):
+		if self.__url is None:
+			errMsg = "self.__url is None !"
 			logger.error(errMsg) 
 			raise BloblastNoneDataException(errMsg)
-		elif cmp(url[0:4], "http"):
-			errMsg = "{" + url + "}" + " You must start with (http[s]://)"
+		elif cmp(self.__url[0:4], "http"):
+			errMsg = "{" + self.__url + "}" + " You must start with (http[s]://)"
 			logger.error(errMsg)
 			raise BloblastDataException(errMsg)
 
 		data = None
-		if values:
-			data = urllib.urlencode(values)
+		if self.__values:
+			data = urllib.self.urlencode(self.__values)
 		try:
-			request = urllib2.Request(url, data, self.headers)
-			response = urllib2.urlopen(request, timeout = self.timeout)
-			if response.code == 200:
-				logger.debug(url + " 200 ok")
-			else:
-				print response.code
-			return response
+			request = urllib2.Request(self.__url.encode('utf-8'), data, self.headers)
+			self.__response =urllib2.urlopen(request, timeout = self.timeout)
+			if self.__response.code == 200:
+				logger.info(self.__url + " 200 ok")
+			return self.__response
 		except Exception,e:
 			if hasattr(e, 'code'):
-				warnMsg = url + " " + str(e.code) + " failed"
+				warnMsg = self.__url + " " + str(e.code) + " failed"
 				logger.warn(warnMsg)
+				code = e.code
 			else:
-				logger.warn(str(e))
-			logger.exception("Exception Logged") 
+				errMsg = str(e) + " " + self.__url
+				logger.error(errMsg)
+			#logger.exception("Exception Logged");
+			return None
+			
+	def response(self):
+		return self.__response
+	
+	def getHtml(self):
+		try:
+			if self.__response:
+				return self.__response.read()
+		except Exception,e:
+			errMsg = self.__url + " " + str(e)
+			logger.error(errMsg)
 			return None

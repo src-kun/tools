@@ -2,27 +2,25 @@
 #coding=utf-8
 
 import logging  
-import logging.config
 import os  
 import time
 
-level = logging.DEBUG
-#level = logging.ERROR #发布版本
-
-
+#level = logging.DEBUG
+#level = logging.INFO
+level = logging.ERROR #发布版本
 
 #获取当前日期作为文件名
 def getFiltName():
 	ISOTIMEFORMAT='%Y-%m-%d'
 	return time.strftime( ISOTIMEFORMAT, time.localtime())
 	
-def getLogger(lg = 'bloblastLog'):  
+def getLogger(lg = 'bloblastLog'): 
+	
     # 创建一个log,可以考虑如何将它封装  
     log = logging.getLogger(lg)  
     log.setLevel(level)  
       
     # 创建一个handler，用于写入日志文件
-    #fh = logging.FileHandler(os.path.join(os.getcwd(), '../log/' + getFiltName() + '.log'))
     path = os.path.split(os.path.realpath(__file__))[0] + '/../../log/'
     fh = logging.FileHandler(os.path.join(path + getFiltName() + '.log'))
     fh.setLevel(level)
@@ -31,7 +29,7 @@ def getLogger(lg = 'bloblastLog'):
     ch = logging.StreamHandler()  
     ch.setLevel(level)  
       
-    # 定义handler的输出格式  
+    # 定义handler的输出格式
     formatter = logging.Formatter('%(asctime)s - %(module)s.%(funcName)s.%(lineno)d - %(levelname)s - %(message)s')  
     fh.setFormatter(formatter)  
     ch.setFormatter(formatter)  
