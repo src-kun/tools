@@ -3,6 +3,8 @@
 import os,sys
 from time import sleep
 
+#http://rdap.apnic.net/ip/123.57.133.63/24 whois website
+
 suffix = {'.cn':'','.cx':'','.com.cn':'','.wang':'','.cc':'','.xin':'','.com':'','.net':'','.top':'','.tech':'','.org':'','.red':'','.pub':'','.ink':'','.info':'','.xyz':'','.win':''}
 
 def whois(host, mutex):

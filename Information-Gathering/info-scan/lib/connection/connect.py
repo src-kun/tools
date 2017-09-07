@@ -6,6 +6,7 @@ import urllib2
 
 from lib.core.exception import BloblastConnectionException
 from lib.core.exception import BloblastDataException
+from lib.core.exception import BloblastNoneDataException
 from lib.core.log import logger
 
 class Request():

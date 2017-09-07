@@ -22,7 +22,10 @@ from lib.core.log import logger
 
 class Crawler:
 	
+	start_url = None
+	#所有url
 	url = {0:[]}
+	#所有domain
 	host = {0:[]}
 	filter = None
 	#爬虫深度
@@ -34,6 +37,9 @@ class Crawler:
 	#TODO cookie and random User-Agent 
 	headers = settings.headers
 	
+	#过滤器
+	__bloom = None
+	
 	#初始化
 	def __init__(self, bloom):
 		self.bloom = bloom
@@ -41,11 +47,11 @@ class Crawler:
 	#TODO过滤静态资源、无用链接 过滤掉无用字符(#)/非法字符校验修复url格式（http[s]:\\host） 归类（host/url） 去掉最后一个斜杠
 	#TODO 增加相近url匹配过滤，去除相似url 如 host/2345.html host/4567.html
 	#返回格式 (url, host) url/host不符合或重复则赋值为None并返回
-	def accept(self, url, current_url):
+	def __accept(self, url, current_url):
 		if not self.bloom.add(url):
 			#处理url
 			if len(url) > 6 and (not cmp(url[0:5], 'http:') or not cmp(url[0:6], 'https:') or not cmp(url[0:2], '//')):
-				proto, host = self.getHost(url)
+				proto, host = self.__getHost(url)
 				#self.filter 不等于None过滤不需要域名 等于None不过滤掉任何域名全部通过
 				if host and self.filter and self.filter in host or not self.filter:
 					if self.bloom.add(host):
@@ -68,24 +74,25 @@ class Crawler:
 	
 	#成功返回 html / 失败返回 None
 	#url not None时优先爬取url
-	def open(self, current_level, url = None, cookies = None, values = None):
+	def request(self, current_level, url = None, cookies = None, values = None):
 			#检测爬虫深度
 			if current_level > self.level:
 				return None
 			if cookies:
 				self.headers['cookies'] = cookies
-			request = connect.Request(self.headers, url, values)
-			return request.getHtml()
+			response = connect.Request(self.headers, url, values)
+			
+			return response
 
 
 	#从url中提取出host部分，提取失败返回None
-	def getHost(self, url):
+	def __getHost(self, url):
 		proto, rest = urllib.splittype(url)
 		res, rest = urllib.splithost(rest)
 		return (proto, res)
 			
 	#将url和domain压入数组
-	def push(self, current_level, url, host):
+	def __push(self, current_level, url, host):
 	
 		#字典key不存在则创建
 		if not self.url.has_key(current_level):
@@ -95,11 +102,11 @@ class Crawler:
 			
 		if url:
 			self.url[current_level].append(url)
-			debMsg = url + " pushed"
+			debMsg = url + " __pushed"
 			logger.debug(debMsg)
 		if host:
 			self.host[current_level].append(host)
-			debMsg = host + " pushed"
+			debMsg = host + " __pushed"
 			logger.debug(debMsg)
 
 	#解析出html中的链接
@@ -114,18 +121,18 @@ class Crawler:
 			for a in soup.find_all('a'):
 				debMsg = a
 				try:
-					url, host = self.accept(a['href'], current_url)
-					self.push(current_level, url, host)
+					url, host = self.__accept(a['href'], current_url)
+					self.__push(current_level, url, host)
 				except Exception,e:
 					pass
 		except Exception,e:
 			pass
 
 	#TODO线程控制
-	def start(self, url):
+	def start(self):
 		threadLock = threading.Lock()
 		threads = []
-		self.url[0].append(url)
+		self.url[0].append(self.start_url)
 		tmp_host = self.url[0][:]
 		for current_level in range(0, self.level):
 			host_len = len(tmp_host)
@@ -154,16 +161,17 @@ class CrawlerTrd (threading.Thread):
 		
 	def run(self):
 		#get request
-		html = self.crawler.open(self.current_levle, self.url)
+		html = self.crawler.request(self.current_levle, self.url).getHtml()
 		#post request
-		#html = crawler.open(self.current_levle, self.url, self.data)
+		#html = crawler.request(self.current_levle, self.url, self.data)
 		if html:
 			self.crawler.parser(self.current_levle, self.url, html)
 		#threadLock.acquire()
 		# 释放锁
 		#threadLock.release()
 	
-
+def t_crawlerApi(crawler):
+	crawler.start()
 
 #多线程Demo
 def t_demo():
@@ -172,24 +180,25 @@ def t_demo():
 	crawler = Crawler(bloom)
 	crawler.filter = "eastmoney.com"
 	crawler.level = 2
+	crawler.start_url = "http://www.eastmoney.com/"
 	#crawler.proxies = {"type":"socks5", "ip":"192.168.1.206", "port":1080}
-	crawler.start("http://www.eastmoney.com/")
-	print crawler.host
+	t_crawlerApi(crawler)
 	#print crawler.url
 	
-#单线程Demo	
+#Demo
 def demo():
-	url = "http://mp.caifuhao.eastmoney.com"
+	
 	current_levle = 0
 	bloom = BloomFilter(capacity=100000, error_rate=0.001)
 	crawler = Crawler(bloom)
+	crawler.start_url = "http://mp.caifuhao.eastmoney.com"
 	crawler.filter = "eastmoney.com"
 	#get request
-	html = crawler.open(current_levle, url)
+	html = crawler.request(current_levle, crawler.start_url).getHtml()
 	#post request
-	#html = crawler.open("http://www.zgyey.com/", data)
+	#html = crawler.request(current_levle, crawler.start_url, date)
 	if html:
-		crawler.parser(current_levle, url, html)
+		crawler.parser(current_levle, crawler.start_url, html)
 	print crawler.host
 	#print crawler.url
 	
