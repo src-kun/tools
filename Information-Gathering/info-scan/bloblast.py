@@ -9,4 +9,4 @@ from lib.core.domain import network
 
 gp = network()
 print gp.ip("sbaidu.com")
-print gp.location("139.199.215.179")
+print gp.location("140.205.32.12")
