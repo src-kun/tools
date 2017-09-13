@@ -15,3 +15,15 @@ headers={"Accept":"text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0
 
 # colorful banner
 BANNER = "scrawler"
+
+
+#ip138 token
+#token = "3340a497676dd872014dff6f3214a8d0"
+token = ""
+ip_api = "http://api.ip138.com/query/?"
+
+#logger
+#TODO 数字
+#level = logging.DEBUG
+level = 3
+#level = logging.ERROR #发布版本

@@ -5,9 +5,8 @@ import logging
 import os  
 import time
 
-#level = logging.DEBUG
-#level = logging.INFO
-level = logging.ERROR #发布版本
+from lib.core.settings import level
+
 
 #获取当前日期作为文件名
 def getFiltName():

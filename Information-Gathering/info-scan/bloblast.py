@@ -2,7 +2,11 @@
 #coding=utf-8 
 
 from lib.core import scrawler
-from lib.connection import connect
 from lib.core.log import logger
+from lib.core.domain import network
 
-scrawler.t_demo()
+#scrawler.t_demo()
+
+gp = network()
+print gp.ip("sbaidu.com")
+print gp.location("139.199.215.179")

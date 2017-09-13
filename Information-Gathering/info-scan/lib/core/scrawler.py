@@ -15,7 +15,7 @@ import socks
 import socket
 import config
 
-from lib.connection import connect
+from lib.connection import http
 from lib.core import settings
 from lib.core.log import logger
 
@@ -80,9 +80,10 @@ class Crawler:
 				return None
 			if cookies:
 				self.headers['cookies'] = cookies
-			response = connect.Request(self.headers, url, values)
-			
-			return response
+			request = http.Request(self.headers, url, values)
+			request.timeout = self.timeout
+			request.open()
+			return request
 
 
 	#从url中提取出host部分，提取失败返回None
@@ -183,6 +184,7 @@ def t_demo():
 	crawler.start_url = "http://www.eastmoney.com/"
 	#crawler.proxies = {"type":"socks5", "ip":"192.168.1.206", "port":1080}
 	t_crawlerApi(crawler)
+	print crawler.host
 	#print crawler.url
 	
 #Demo

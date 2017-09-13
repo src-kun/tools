@@ -12,18 +12,16 @@ from lib.core.log import logger
 class Request():
 	
 	headers = None
-	timeout = None
+	timeout = 5
 	__response = None
 	__url = None
 	code = None
 	__values = None
 
-	def __init__(self, headers = None, url = None, values = None, timeout = 5):
+	def __init__(self, headers = None, url = None, values = None):
 		self.headers = headers
-		self.timeout = timeout
 		self.__url = url
 		self.__values = values
-		self.open()
 		
 	def open(self):
 		if self.__url is None:
@@ -57,7 +55,13 @@ class Request():
 			
 	def response(self):
 		return self.__response
-	
+		
+	def get():
+		print "get"
+		
+	def post():
+		print "post"
+
 	def getHtml(self):
 		try:
 			if self.__response:
