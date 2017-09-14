@@ -1,0 +1,5 @@
+pip install bs4
+pip install html
+pip install pybloom
+pip install chardet
+pip install censys
