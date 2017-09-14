@@ -28,3 +28,8 @@ ip_api = "http://api.ip138.com/query/?"
 level = 1
 #level = logging.ERROR #发布版本
 
+
+#censys
+UID = "dcd61cfe-36b9-40a6-8a8a-21d7f9ccc37d"
+SECRET = "HFtjvpfa5vJ0pVY4mZIOWxMfmm4sCr9E"
+

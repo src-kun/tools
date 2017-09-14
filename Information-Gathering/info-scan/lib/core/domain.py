@@ -9,6 +9,8 @@ from lib.connection import http
 from lib.core import settings
 from lib.core.log import logger
 
+import censys.ipv4
+
 #真实IP
 REAL_IP = 0
 #云盾防护
@@ -18,7 +20,7 @@ YUN_PROTECT = 1
 yundun_dict = {"\xe4\xb8\xad\xe5\x9b\xbd":['\xe9\x98\xbf\xe9\x87\x8c\xe4\xba\x91', '\xe8\x85\xbe\xe8\xae\xaf\xe9\x9b\x86\xe5\x9b\xa2']}
 
 
-class network():
+class Network():
 	
 	type = REAL_IP
 	#{"baidu.com": ["111.13.101.208":{"location":"location"}, "220.181.57.217":{"location":"location"}, "220.181.57.217":{"location":"location"}]}
@@ -44,12 +46,20 @@ class network():
 		request.open()
 		result = eval(request.getHtml())
 		if cmp(result["ret"],"ok") != -1:
-			if result[data][3]
+			if result[data][3] in yundun_dict["中国"]:
+					print result[data][3]
 			return result
 		else:
 			logger.warn(result["msg"])
-		
-	
-		
-	
-	
+
+			
+class Censysio():
+
+	UID = settings.UID
+	SECRET = settings.SECRET
+
+	def censysIPv4(self, ip, page = 1, fields = ["ip", "location.country", "443.https.tls.certificate.parsed.names"]):
+		ipv4 = censys.ipv4.CensysIPv4(self.UID, self.SECRET)
+		#paged search
+		result = ipv4.paged_search(ip, page = page, fields = fields)
+		return result
