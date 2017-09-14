@@ -1,6 +1,7 @@
 #! usr/bin/python 
 #coding=utf-8 
 
+import sys
 from lib.core import scrawler
 from lib.core.log import logger
 from lib.core.domain import Network

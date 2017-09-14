@@ -4,14 +4,14 @@
 
 import urllib 
 import urllib2 
-from html.parser import HTMLParser
+#from html.parser import HTMLParser
+import html
 from bs4 import BeautifulSoup
 import sys
 from pybloom import BloomFilter
 import json
 import chardet
 import threading
-import socks
 import socket
 import config
 
