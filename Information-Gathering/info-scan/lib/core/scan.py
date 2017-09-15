@@ -1,11 +1,15 @@
 #! usr/bin/python 
 #coding=utf-8 
 
-def nessus():
-	print "nessus"
+class Nessus():
+	def scan(self):
+		print "nessus scan"
 	
-def wvs():
-	print "wvs"
+class Wvs():
+	def scan(self):
+		print "wvs scan"
 	
-def port():
-	print "port"
+def masscan():
+
+	def scan(self):
+		print "wvs scan"

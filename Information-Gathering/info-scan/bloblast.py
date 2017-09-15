@@ -7,9 +7,20 @@ from lib.core.log import logger
 from lib.core.domain import Network
 from lib.core.domain import Censysio
 
-#scrawler.t_demo()
+url = ["http", "csdn.net"]
+domains = scrawler.t_demo(url, url[1])
 
-#gp = Network()
-#print gp.ip("sbaidu.com")
-#print gp.location("140.205.32.12")
-print Censysio().censysIPv4("bit.edu.cn")
+gp = Network()
+#gp.ip(["www.baidu.com"])
+#print gp.location("192.168.136.138")
+#print Censysio().censysIPv4("bit.edu.cn")
+d = Censysio().certificates(url[1])[url[1]]
+print domains
+print 
+
+for key in domains:
+	for ds in domains[key]:
+		d.append(ds[1])
+	
+
+print gp.ip(list(set(d)))

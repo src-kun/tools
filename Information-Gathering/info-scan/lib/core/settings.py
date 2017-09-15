@@ -23,9 +23,10 @@ token = "3340a497676dd872014dff6f3214a8d0"
 ip_api = "http://api.ip138.com/query/?"
 
 #logger
+import logging 
 #TODO 数字
 #level = logging.DEBUG
-level = 1
+level = logging.INFO
 #level = logging.ERROR #发布版本
 
 

@@ -4,7 +4,6 @@
 
 import urllib 
 import urllib2 
-#from html.parser import HTMLParser
 import html
 from bs4 import BeautifulSoup
 import sys
@@ -22,7 +21,7 @@ from lib.core.log import logger
 
 class Crawler:
 	
-	start_url = None
+	start_url = []
 	#所有url
 	url = {0:[]}
 	#所有domain
@@ -57,7 +56,7 @@ class Crawler:
 					if self.bloom.add(host):
 						host = None
 					elif proto and host:
-						host = proto + "://" + host
+						host = [proto , host]
 					return (url, host)
 			#处理不完整url
 			else:
@@ -74,12 +73,13 @@ class Crawler:
 	
 	#成功返回 html / 失败返回 None
 	#url not None时优先爬取url
-	def request(self, current_level, url = None, cookies = None, values = None):
+	def request(self, current_level, url_array, cookies = None, values = None):
 			#检测爬虫深度
 			if current_level > self.level:
 				return None
 			if cookies:
 				self.headers['cookies'] = cookies
+			url = url_array[0] + "://" + url_array[1]
 			request = http.Request(self.headers, url, values)
 			request.timeout = self.timeout
 			request.open()
@@ -175,16 +175,17 @@ def t_crawlerApi(crawler):
 	crawler.start()
 
 #多线程Demo
-def t_demo():
+def t_demo(url, filter):
 	#http://csdn.netn
 	bloom = BloomFilter(capacity=100000, error_rate=0.001)
 	crawler = Crawler(bloom)
-	crawler.filter = "eastmoney.com"
+	crawler.filter = filter
 	crawler.level = 2
-	crawler.start_url = "http://www.eastmoney.com/"
+	crawler.start_url = url
 	#crawler.proxies = {"type":"socks5", "ip":"192.168.1.206", "port":1080}
 	t_crawlerApi(crawler)
-	print crawler.host
+	#print crawler.host
+	return crawler.host
 	#print crawler.url
 	
 #Demo
@@ -193,7 +194,7 @@ def demo():
 	current_levle = 0
 	bloom = BloomFilter(capacity=100000, error_rate=0.001)
 	crawler = Crawler(bloom)
-	crawler.start_url = "http://mp.caifuhao.eastmoney.com"
+	crawler.start_url = ["http","www.bit.edu.cn/"]
 	crawler.filter = "eastmoney.com"
 	#get request
 	html = crawler.request(current_levle, crawler.start_url).getHtml()
@@ -201,7 +202,7 @@ def demo():
 	#html = crawler.request(current_levle, crawler.start_url, date)
 	if html:
 		crawler.parser(current_levle, crawler.start_url, html)
-	print crawler.host
+	#print crawler.host
 	#print crawler.url
 	
 if __name__ == '__main__':
