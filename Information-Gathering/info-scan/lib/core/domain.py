@@ -8,7 +8,6 @@ import urllib
 from lib.connection import http
 from lib.core import settings
 from lib.core.log import logger
-from tld import get_tld
 
 import censys.ipv4
 import censys.certificates

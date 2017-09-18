@@ -24,8 +24,8 @@ class Crawler:
 	start_url = []
 	#所有url
 	url = {0:[]}
-	#所有domain
-	host = {0:[]}
+	#所有domain depth当前收集到的域名深度，自定义爬取的依据
+	host = {0:[],"depth":0}
 	filter = None
 	#爬虫深度
 	level = 0
@@ -100,6 +100,7 @@ class Crawler:
 			self.url[current_level] = []
 		if not self.host.has_key(current_level):
 			self.host[current_level] = []
+			self.host["depth"] = current_level
 			
 		if url:
 			self.url[current_level].append(url)
@@ -135,7 +136,7 @@ class Crawler:
 		threads = []
 		self.url[0].append(self.start_url)
 		tmp_host = self.url[0][:]
-		for current_level in range(0, self.level):
+		for current_level in range(self.host["depth"], self.level):
 			host_len = len(tmp_host)
 			for i in range(host_len):
 				# 创建新线程
@@ -180,12 +181,12 @@ def t_demo(url, filter):
 	bloom = BloomFilter(capacity=100000, error_rate=0.001)
 	crawler = Crawler(bloom)
 	crawler.filter = filter
-	crawler.level = 2
+	crawler.level = 3
 	crawler.start_url = url
 	#crawler.proxies = {"type":"socks5", "ip":"192.168.1.206", "port":1080}
 	t_crawlerApi(crawler)
 	#print crawler.host
-	return crawler.host
+	return list(set(crawler.host))
 	#print crawler.url
 	
 #Demo
