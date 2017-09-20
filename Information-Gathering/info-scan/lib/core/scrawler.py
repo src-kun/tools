@@ -24,7 +24,7 @@ class Crawler:
 	start_url = []
 	#所有url
 	url = {0:[]}
-	#所有domain
+	#所有domain depth当前收集到的域名深度，自定义爬取的依据
 	host = {0:[]}
 	filter = None
 	#爬虫深度
@@ -79,7 +79,11 @@ class Crawler:
 				return None
 			if cookies:
 				self.headers['cookies'] = cookies
-			url = url_array[0] + "://" + url_array[1]
+			url = None
+			if cmp(url_array[:4], "http"):
+				url = url_array[0] + "://" + url_array[1]
+			else:
+				url = url_array
 			request = http.Request(self.headers, url, values)
 			request.timeout = self.timeout
 			request.open()
@@ -100,6 +104,7 @@ class Crawler:
 			self.url[current_level] = []
 		if not self.host.has_key(current_level):
 			self.host[current_level] = []
+			#self.host["depth"] = current_level
 			
 		if url:
 			self.url[current_level].append(url)
@@ -162,6 +167,8 @@ class CrawlerTrd (threading.Thread):
 		
 	def run(self):
 		#get request
+		infoMsg = "open url :{" +  str(self.url) +"}"
+		logger.info(infoMsg)
 		html = self.crawler.request(self.current_levle, self.url).getHtml()
 		#post request
 		#html = crawler.request(self.current_levle, self.url, self.data)
@@ -180,12 +187,12 @@ def t_demo(url, filter):
 	bloom = BloomFilter(capacity=100000, error_rate=0.001)
 	crawler = Crawler(bloom)
 	crawler.filter = filter
-	crawler.level = 2
+	crawler.level = 3
 	crawler.start_url = url
 	#crawler.proxies = {"type":"socks5", "ip":"192.168.1.206", "port":1080}
 	t_crawlerApi(crawler)
 	#print crawler.host
-	return crawler.host
+	return list(set(crawler.host))
 	#print crawler.url
 	
 #Demo
