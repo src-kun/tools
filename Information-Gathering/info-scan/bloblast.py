@@ -34,9 +34,10 @@ def domain_collect():
 		list_diff = [ i for i in domains if i not in crawler.host ]
 		if not list_diff:
 			break
-		depth = crawler.host["depth"] + 1
+		#depth = crawler.host["depth"] + 1
+		break
 		
-		
+	d = []
 	for key in crawler.host:
 		for dommin in crawler.host[key]:
 			d.append(dommin[1])

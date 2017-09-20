@@ -25,7 +25,7 @@ class Crawler:
 	#所有url
 	url = {0:[]}
 	#所有domain depth当前收集到的域名深度，自定义爬取的依据
-	host = {0:[],"depth":0}
+	host = {0:[]}
 	filter = None
 	#爬虫深度
 	level = 0
@@ -100,7 +100,7 @@ class Crawler:
 			self.url[current_level] = []
 		if not self.host.has_key(current_level):
 			self.host[current_level] = []
-			self.host["depth"] = current_level
+			#self.host["depth"] = current_level
 			
 		if url:
 			self.url[current_level].append(url)
@@ -136,7 +136,7 @@ class Crawler:
 		threads = []
 		self.url[0].append(self.start_url)
 		tmp_host = self.url[0][:]
-		for current_level in range(self.host["depth"], self.level):
+		for current_level in range(0, self.level):
 			host_len = len(tmp_host)
 			for i in range(host_len):
 				# 创建新线程
