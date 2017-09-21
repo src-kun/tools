@@ -21,27 +21,26 @@ from lib.core.log import logger
 
 class Crawler:
 	
-	start_url = []
-	#所有url
-	url = {0:[]}
-	#所有domain depth当前收集到的域名深度，自定义爬取的依据
-	host = {0:[]}
-	filter = None
-	#爬虫深度
-	level = 0
-	#代理 {"proxyPool":[{"type":"socks5", "ip":"192.168.1.206", "port",1080},...]}
-	proxies = None
-	timeout = 3
-	
-	#TODO cookie and random User-Agent 
-	headers = settings.headers
-	
 	#过滤器
 	__bloom = None
 	
 	#初始化
 	def __init__(self, bloom):
 		self.bloom = bloom
+		self.start_url = []
+		#所有url
+		self.url = {0:[]}
+		#所有domain depth当前收集到的域名深度，自定义爬取的依据
+		self.host = {0:[]}
+		self.filter = None
+		#爬虫深度
+		self.level = 0
+		#代理 {"proxyPool":[{"type":"socks5", "ip":"192.168.1.206", "port",1080},...]}
+		self.proxies = None
+		self.timeout = 3
+
+		#TODO cookie and random User-Agent 
+		self.headers = settings.headers
 	
 	#TODO过滤静态资源、无用链接 过滤掉无用字符(#)/非法字符校验修复url格式（http[s]:\\host） 归类（host/url） 去掉最后一个斜杠
 	#TODO 增加相近url匹配过滤，去除相似url 如 host/2345.html host/4567.html

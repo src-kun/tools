@@ -12,18 +12,16 @@ from lib.core.log import logger
 from lib.core.domain import Network
 from lib.core.domain import Censysio
 
-
+bloom = BloomFilter(capacity=100000, error_rate=0.001)
 #域名收集
 #TODO 
-def domain_collect():
+def domain_collect(url):
 
-	url = ["http", "www.walhao.com"]
-	filter = "walhao."
+	filter = url[1]
+	if not cmp(filter[0:4],"www."):
+		filter = url[1].replace("www.","")
 	network = Network()
 	domains = list(set(Censysio().certificates(url[1])[url[1]]))
-	print domains
-
-	bloom = BloomFilter(capacity=100000, error_rate=0.001)
 	crawler = Crawler(bloom)
 	crawler.filter = filter
 	crawler.start_url = url
@@ -36,12 +34,18 @@ def domain_collect():
 			break
 		#depth = crawler.host["depth"] + 1
 		break
-		
-	d = []
+
 	for key in crawler.host:
-		for dommin in crawler.host[key]:
-			d.append(dommin[1])
+		for domain in crawler.host[key]:
+			domains.append(domain[1])
 	
-	return network.ip(list(set(d)))
-	
-print domain_collect()
+	return network.ip(list(set(domains)))
+
+file = open("domain")
+ 
+while 1:
+    lines = file.readlines(100000)
+    if not lines:
+        break
+    for line in lines:
+        print domain_collect(["http", line.replace("\n","")])
