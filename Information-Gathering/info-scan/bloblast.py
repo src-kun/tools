@@ -18,7 +18,9 @@ bloom = BloomFilter(capacity=100000, error_rate=0.001)
 def domain_collect(dom):
 
 	url = ["http", dom]
-	filter = dom.replace("www.","")
+	filter = url[1]
+	if not cmp(filter[0:4],"www."):
+		filter = dom.replace("www.","")
 	network = Network()
 	domains = list(set(Censysio().certificates(url[1])[url[1]]))
 
@@ -40,12 +42,12 @@ def domain_collect(dom):
 		for dommin in crawler.host[key]:
 			d.append(dommin[1])
 	
-	return network.ip(list(set(d)))
+	d,ip_arry = network.ip(list(set(d)))
+	for key in d:
+		print key
+	ip_arry = list(set(ip_arry))
+	for ip in ip_arry:
+		print ip 
+	return list(set(ip_arry))
 
-file = open("domain")
-while True:
-	lines = file.readlines(10000)
-	if not lines:
-		break
-	for line in lines:
-		print domain_collect(line.replace("\n",""))	
+domain_collect(sys.argv[1])	

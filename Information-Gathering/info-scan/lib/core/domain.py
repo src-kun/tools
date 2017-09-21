@@ -28,7 +28,8 @@ class Network():
 	#获取域名ip
 	#return {'www.baidu.com': '61.135.169.125'}
 	def ip(self, domain = []):
-		
+	
+		ip_arry = []	
 		ip_dict = {}
 		for dm in domain:
 			try:
@@ -38,13 +39,14 @@ class Network():
 					debMsg = "%s %s %s {%s}"%(subdomain, domain, suffix, dm)
 					logger.debug(debMsg)
 					ip = socket.getaddrinfo(dm,'http')[0][4][0]
+					ip_arry.append(ip)
 					ip_dict[dm] = ip
 			except Exception,e:
 				ip_dict[dm] = ""
 				errMsg = '%s {%s}'%(e, dm)
 				logger.error(errMsg)
 		logger.debug(ip_dict)
-		return ip_dict
+		return (ip_dict,ip_arry)
 		
 	
 	
