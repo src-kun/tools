@@ -4,6 +4,7 @@
 import threading 
 import sys,socket
 import urllib
+import types 
 
 from lib.connection import http
 from lib.core import settings
@@ -25,29 +26,55 @@ base_operator = ["", "联通", "电信", "移动", "铁通"]
 
 class Network():
 	
-	#获取域名ip
-	#return {'www.baidu.com': '61.135.169.125'}
-	def ip(self, domain = []):
+	#批量获取域名ip 
+	#ip数组的顺序和domain数组内的域名一一对应
+	#return {'ip': [ip,ip1,...]}
+	def __ip_bat(self, domain_arry):
 		
-		ip_dict = {}
-		for dm in domain:
+		ip_dict = {"ip":[]}
+		index = 0
+		for domain in domain_arry:
 			try:
-				subdomain, domain, suffix = tldextract.extract(dm)
+				subdomain, subject, suffix = tldextract.extract(domain)
 				#过滤掉非法域名
-				if not '*' in subdomain and len(domain) and len(suffix):
-					debMsg = "%s %s %s {%s}"%(subdomain, domain, suffix, dm)
+				if not '*' in subdomain and len(subject) and cmp(subject,"com") and len(suffix):
+					debMsg = "%s %s %s {%s}"%(subdomain, subject, suffix, domain)
 					logger.debug(debMsg)
-					ip = socket.getaddrinfo(dm,'http')[0][4][0]
-					ip_dict[dm] = ip
+					ip = socket.getaddrinfo(domain,'http')[0][4][0]
+					ip_dict["ip"][index] = ip
 			except Exception,e:
-				ip_dict[dm] = ""
-				errMsg = '%s {%s}'%(e, dm)
+				ip_dict[domain] = ""
+				errMsg = '%s {%s}'%(e, domain)
 				logger.error(errMsg)
+			index += 1
 		logger.debug(ip_dict)
 		return ip_dict
+	
+	#获取域名ip
+	#return ip
+	def __ip_sin(self, domain):
+		ip = None
+		try:
+			subdomain, subject, suffix = tldextract.extract(domain)
+			#过滤掉非法域名
+			if not '*' in subdomain and len(subject) and cmp(subject, "com") and len(suffix):
+				debMsg = "%s %s %s {%s}"%(subdomain, subject, suffix, domain)
+				logger.debug(debMsg)
+				ip = socket.getaddrinfo(domain,'http')[0][4][0]
+		except Exception,e:
+			errMsg = '%s {%s}'%(e, domain)
+			logger.error(errMsg)
+		return ip
+	
+	
+	#获取域名ip的对外接口
+	def ip(self, domain):
+		if type(domain) is types.ListType:
+			return self.__ip_bat(domain)
+		if type(domain) is types.StringType:
+			return self.__ip_sin(domain)
 		
-	
-	
+
 	#获取本地位置信息和云厂商
 	#return {"ip":"139.199.215.179", "location":["中国","广东","广州","腾讯集团","",""], "cloud":""}
 	def location(self, ip):
@@ -85,7 +112,9 @@ class Censysio():
 		#paged search
 		result = ipv4.paged_search(ip, page = page, fields = fields)
 		return result
-		
+	
+	#domain ip
+	#{"domain":[]}
 	def certificates(self, domain, page = 1, fields = ["parsed.__expanded_names"]):
 		try:
 			c = censys.certificates.CensysCertificates(self.UID, self.SECRET)
