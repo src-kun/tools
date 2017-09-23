@@ -23,7 +23,8 @@ def domain_collect(filter, url):
 	crawler = Crawler(bloom)
 	(proto, subdomain, domain, resources, suffix) = crawler.separate(url)
 	print domain
-	domains = Censysio().certificates(domain)[domain]
+	domains = Censysio().certificates(domain)
+	print domains
 	crawler.filter = filter
 	crawler.start_url = url
 	crawler.level = 3
@@ -51,4 +52,6 @@ while 1:
         break
     for line in lines:
         print domain_collect(["http", line.replace("\n","")])"""
-domain_collect("csdn.net", "http://www.csdn.net/")
+#domain_collect("csdn.net", "http://www.csdn.net/")
+domains = Censysio().certificates("csdn.net")
+print domains

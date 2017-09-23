@@ -35,7 +35,7 @@ def getLogger(lg = 'bloblastLog'):
       
     # 给log添加handler  
     log.addHandler(fh)  
-    #log.addHandler(ch)  
+    log.addHandler(ch)  
       
     # test  
     #log.error('hello world, i\'m log helper in python, may i help you')  
