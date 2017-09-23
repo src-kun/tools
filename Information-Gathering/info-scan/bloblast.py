@@ -5,7 +5,7 @@ import sys
 
 from pybloom import BloomFilter
 
-
+from lib.core import scrawler
 from lib.core.scrawler import Crawler
 from lib.core.scrawler import t_crawlerApi
 from lib.core.log import logger
@@ -13,6 +13,7 @@ from lib.core.domain import Network
 from lib.core.domain import Censysio
 
 bloom = BloomFilter(capacity=100000, error_rate=0.001)
+
 #域名收集
 #TODO 
 def domain_collect(url):
@@ -21,7 +22,7 @@ def domain_collect(url):
 	if not cmp(filter[0:4],"www."):
 		filter = url[1].replace("www.","")
 	network = Network()
-	domains = list(set(Censysio().certificates(url[1])[url[1]]))
+	domains = []#list(set(Censysio().certificates(url[1])[url[1]]))
 	crawler = Crawler(bloom)
 	crawler.filter = filter
 	crawler.start_url = url
@@ -41,11 +42,13 @@ def domain_collect(url):
 	
 	return network.ip(list(set(domains)))
 
-file = open("domain")
+"""file = open("domain")
  
 while 1:
     lines = file.readlines(100000)
     if not lines:
         break
     for line in lines:
-        print domain_collect(["http", line.replace("\n","")])
+        print domain_collect(["http", line.replace("\n","")])"""
+host = scrawler.t_demo("http://www.cnblogs.com","cnblogs.com")
+print host['domain']
