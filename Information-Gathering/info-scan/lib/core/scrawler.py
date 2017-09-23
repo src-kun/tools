@@ -36,10 +36,7 @@ class Crawler:
 		self.bloom = bloom
 		self.start_url = None
 		self.depth = 0
-		#所有url
-		self.url = {0:[]}
-		#所有domain depth当前收集到的域名深度，自定义爬取的依据
-		#{'domain':{0: {'http':['www.sdrd.gov.cn','www.sdrd.gov.cn'],'https':['dblz.sdrd.gov.cn','www.sdrd.gov.cn']} }, 'depth':0}
+		# depth当前收集到的域名深度，自定义爬取的依据
 		self.__host = {'domain':{0:[]}, 'url':{0:[]}, 'depth':self.depth}
 		#TODO 过滤掉了不同域名格式的url（.com/.net/.org...）
 		self.filter = None
@@ -50,10 +47,7 @@ class Crawler:
 	
 	#成功返回 html / 失败返回 None
 	#url not None时优先爬取url
-	def request(self, current_level, url, cookies = None, values = None):
-			#检测爬虫深度
-			if current_level > self.level:
-				return None
+	def request(self, url, cookies = None, values = None):
 			if cookies:
 				self.headers['cookies'] = cookies
 			request = http.Request(self.headers, url, values)
@@ -69,7 +63,7 @@ class Crawler:
 
 	#分解url
 	#return ('协议', '子域名', '域名', '资源路径', '域名类型')
-	def __separate(self, url):
+	def separate(self, url):
 		proto, position = urllib.splittype(url)
 		domain, resources = urllib.splithost(position)
 		tldext = tldextract.extract(url)
@@ -89,7 +83,7 @@ class Crawler:
 	def __accept(self, current_url, url):
 		if not url in self.bloom:
 			#处理url
-			(proto, subdomain, domain, resources, suffix) = self.__separate(url)
+			(proto, subdomain, domain, resources, suffix) = self.separate(url)
 			#过滤掉非self.filter下的域名 或 self.filter == None 全部通过不过滤
 			if (proto and proto in support_proto) and domain and (not self.filter or self.filter in domain):
 				if domain in self.bloom:
@@ -154,7 +148,7 @@ class Crawler:
 	def start(self):
 		threadLock = threading.Lock()
 		threads = []
-		(proto, subdomain, domain, resources, suffix) = self.__separate(self.start_url)
+		(proto, subdomain, domain, resources, suffix) = self.separate(self.start_url)
 		self.__push(self.__host['depth'], domain, domain)
 		tmp_domain = self.__host['url'][self.__host['depth']][:]
 		start_index = self.__host['depth']
@@ -188,7 +182,7 @@ class CrawlerTrd (threading.Thread):
 		
 	def run(self):
 		#get request
-		html = self.crawler.request(self.current_levle, self.url).getHtml()
+		html = self.crawler.request(self.url).getHtml()
 		#post request
 		#html = crawler.request(self.current_levle, self.url, self.data)
 		current_url = self.url

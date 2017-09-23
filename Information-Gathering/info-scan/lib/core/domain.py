@@ -127,6 +127,3 @@ class Censysio():
 			return domain_dict
 		except Exception,e:
 			logger.warn(e)
-			
-			
-			
