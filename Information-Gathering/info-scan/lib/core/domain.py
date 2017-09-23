@@ -124,7 +124,7 @@ class Censysio():
 			result = c.paged_search('parsed.names: %s'%domain, page = page, fields = fields)
 			infoMsg = "{%s} syscen search result ==> %s"%(domain, result)
 			logger.info(infoMsg)
-			if 'ok' in domain_dict['status']:
+			if 'ok' in result['status']:
 				domain_dict['metadata'] = result['metadata']
 				for res in result['results']:
 					domain_dict['domain'].extend(res['parsed.__expanded_names'])
@@ -135,5 +135,5 @@ class Censysio():
 				pass
 			return domain_dict
 		except Exception,e:
-			logger.warn(e)
-			print e
+			warnMsg = '{parsed.names: %s} %s'%(domain,str(e))
+			logger.warn(warnMsg)

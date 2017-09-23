@@ -35,9 +35,8 @@ class Crawler:
 	def __init__(self, bloom):
 		self.bloom = bloom
 		self.start_url = None
-		self.depth = 0
 		# depth当前收集到的域名深度，自定义爬取的依据
-		self.__host = {'domain':{0:[]}, 'url':{0:[]}, 'depth':self.depth}
+		self.__host = {'domain':{0:[]}, 'url':{0:[]}, 'depth':0}
 		#TODO 过滤掉了不同域名格式的url（.com/.net/.org...）
 		self.filter = None
 		#爬虫深度
@@ -61,6 +60,8 @@ class Crawler:
 			self.__host['url'][key] = list(set(self.__host['url'][key]))
 		return self.__host
 
+	def depthInc(self):
+		 self.__host['depth'] += 1
 	#分解url
 	#return ('协议', '子域名', '域名', '资源路径', '域名类型')
 	def separate(self, url):
