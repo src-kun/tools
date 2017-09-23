@@ -22,6 +22,7 @@ def domain_collect(filter, url):
 	
 	crawler = Crawler(bloom)
 	(proto, subdomain, domain, resources, suffix) = crawler.separate(url)
+	print domain
 	domains = Censysio().certificates(domain)[domain]
 	crawler.filter = filter
 	crawler.start_url = url
@@ -29,16 +30,17 @@ def domain_collect(filter, url):
 	while True:
 		crawler.start()
 		#对比两个集合，确认爬虫收集的域名与syscen搜索引擎搜索的域名是否存在差异，如果存在继续爬一次差异的域名
-		list_diff = [ i for i in domains if i not in crawler.host ]
+		domain_arry = crawler.getHost()["domain"]
+		list_diff = [ i for i in domains if i not in domain_arry ]
 		print list_diff
 		if not list_diff:
 			break
 		crawler.host["depth"] += 1
-
-	for key in crawler.host:
-		for domain in crawler.host[key]:
-			domains.append(domain[1])
-	
+	domain_arry = crawler.getHost()["domain"]
+	for key in domain_arry:
+		for domain in domain_arry[key]:
+			domains.append(domain)
+	print domains
 	return network.ip(list(set(domains)))
 
 """file = open("domain")
@@ -49,5 +51,4 @@ while 1:
         break
     for line in lines:
         print domain_collect(["http", line.replace("\n","")])"""
-host = domain_collect("csdn.net", "http://www.csdn.net/")
-print host["domain"]
+domain_collect("csdn.net", "http://www.csdn.net/")
