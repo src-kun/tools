@@ -3,7 +3,6 @@
 
 import threading 
 import sys,socket
-import urllib
 import types 
 
 from lib.connection import http
@@ -13,6 +12,7 @@ from lib.core.log import logger
 import censys.ipv4
 import censys.certificates
 import tldextract
+import urllib
 
 #真实IP
 REAL_IP = 0
@@ -71,7 +71,7 @@ class Network():
 	def ip(self, domain):
 		if type(domain) is types.ListType:
 			return self.__ip_bat(domain)
-		if type(domain) is types.StringType:
+		elif type(domain) is types.StringType:
 			return self.__ip_sin(domain)
 		
 
