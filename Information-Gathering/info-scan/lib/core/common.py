@@ -1,5 +1,0 @@
-
-class scan():
-	
-	def port():
-		

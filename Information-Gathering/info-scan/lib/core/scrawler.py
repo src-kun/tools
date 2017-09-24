@@ -5,7 +5,6 @@ import sys
 
 import urllib 
 import urllib2
-import tldextract
 import html
 from bs4 import BeautifulSoup
 from pybloom import BloomFilter
@@ -19,16 +18,16 @@ import types
 from lib.connection import http
 from lib.core import settings
 from lib.core.log import logger
+from lib.utils.common import separate
 
 #支持的协议
 support_proto = ['http', 'https']
+#代理 {'proxyPool':{'socks5':['192.168.1.206', 1080], 'socks4':['192.168.1.207', 1080],...}}
+proxies = None
 
 class Crawler:
 
-	#代理 {'proxyPool':{'socks5':['192.168.1.206', 1080], 'socks4':['192.168.1.207', 1080],...}}
-	proxies = None
 	timeout = 3
-
 	#过滤器
 	__bloom = None
 	
@@ -36,7 +35,7 @@ class Crawler:
 	def __init__(self, bloom):
 		self.bloom = bloom
 		# depth当前收集到的域名深度，自定义爬取的依据
-		self.__host = {'domain':{0:[]}, 'url':{0:[]}, 'depth':0}
+		self.__host = {'full_domain':{0:[]}, 'domain':[], 'url':{0:[]}, 'depth':0}
 		#TODO 过滤掉了不同域名格式的url（.com/.net/.org...）
 		self.filter = None
 		#爬虫深度
@@ -47,71 +46,54 @@ class Crawler:
 	#成功返回 html / 失败返回 None
 	#url not None时优先爬取url
 	def request(self, url, cookies = None, values = None):
-			if cookies:
-				self.headers['cookies'] = cookies
-			request = http.Request(self.headers, url, values)
-			request.timeout = self.timeout
-			request.open()
-			return request
+		if cookies:
+			self.headers['cookies'] = cookies
+		request = http.Request(self.headers, url, values)
+		request.timeout = self.timeout
+		request.open()
+		return request
 	
 	def getHost(self):
 		for key in self.__host['url']:
-			self.__host['domain'][key] = list(set(self.__host['domain'][key]))
+			self.__host['full_domain'][key] = list(set(self.__host['full_domain'][key]))
 			self.__host['url'][key] = list(set(self.__host['url'][key]))
 		return self.__host
 
 	def depthInc(self):
 		 self.__host['depth'] += 1
 	
-	def appendDomain(self, domain):
+	def appendDomain(self, full_domain_arry):
 		num = 0
-		if type(domain) is types.ListType:
-			domain_arry = list(set(domain))
-			for domain in domain_arry:
-				if not domain in self.bloom:
+		if type(full_domain_arry) is types.ListType:
+			full_domain_arry = list(set(full_domain_arry))
+			for full_domain in full_domain_arry:
+				if not full_domain in self.bloom:
 					num += 1
-				self.__push(self.__host['depth'], domain, domain)
-		elif type(domain) is types.StringType:
-			if not domain in self.bloom:
+				self.__push(self.__host['depth'], full_domain, full_domain)
+		elif type(full_domain_arry) is types.StringType:
+			if not full_domain_arry in self.bloom:
 				num += 1
-			self.__push(self.__host['depth'], domain, domain)
+			self.__push(self.__host['depth'], full_domain_arry, full_domain_arry)
 		return num
-		
-
-	#分解url
-	#return ('协议', '子域名', '域名', '资源路径', '域名类型')
-	def separate(self, url):
-		proto, position = urllib.splittype(url)
-		domain, resources = urllib.splithost(position)
-		tldext = tldextract.extract(url)
-		if not tldext.domain and not proto:
-			domain = None
-		elif tldext.suffix:
-			if tldext.subdomain:
-				domain = '%s://%s.%s.%s'%(proto, tldext.subdomain, tldext.domain, tldext.suffix)
-			else:
-				domain = '%s://%s.%s'%(proto, tldext.domain, tldext.suffix)
-		else:
-			domain = '%s://%s'%(proto, tldext.domain)
-		return (proto, tldext.subdomain, domain, resources, tldext.suffix)
 	
 	#TODO 增加相近url匹配过滤，去除相似url 如 host/2345.html host/4567.html
 	#return (url, proto, domain)
 	def __accept(self, current_url, url):
 		if not url in self.bloom:
 			#处理url
-			(proto, subdomain, domain, resources, suffix) = self.separate(url)
+			(proto, substr, domain, resources, suffix) = separate(url)
 			#过滤掉非self.filter下的域名 或 self.filter == None 全部通过不过滤
 			if (proto and proto in support_proto) and domain and (not self.filter or self.filter in domain):
-				if domain in self.bloom:
-					domain = None
-				return (url, proto, domain)
+				full_domain = "%s://%s"%(proto, domain)
+				if full_domain in self.bloom:
+					full_domain = None
+				return (url, proto, full_domain, domain)
 			#处理不完整url 不完整url识别；域名 and 协议不存在 and 资源路径存在
 			elif not domain and not proto and resources:
-					url_ret = '%s/%s'%(current_url, resources)
+					full_url = '%s/%s'%(current_url, resources)
 					#self.filter 等于domain保留拼接后的url过滤掉所有不完整url 或 self.filter为None不过滤任何不完整url
 					if self.filter in current_url or not self.filter:
-						return (url_ret, proto, domain)
+						return (full_url, proto, None, None)
 			elif proto not in support_proto:
 				#TODO处理其它协议
 				pass
@@ -125,25 +107,24 @@ class Crawler:
 	#将url和domain压入字典中
 	def __push(self, current_level, current_url, url):
 		if url:
-			(url, proto, domain) = self.__accept(current_url, url)
+			(url, proto, full_domain, domain) = self.__accept(current_url, url)
 			#字典key不存在则创建
 			if not self.__host['url'].has_key(current_level):
 				self.__host['url'][current_level] = []
-			if not self.__host['domain'].has_key(current_level):
-				self.__host['domain'][current_level] = []
+			if not self.__host['full_domain'].has_key(current_level):
+				self.__host['full_domain'][current_level] = []
 				self.__host['depth'] = current_level
 
-			if domain and not self.bloom.add(domain):
-				self.__host['domain'][current_level].append(domain)
-				debMsg = '{%s} __pushed'%domain
+			if full_domain and not self.bloom.add(full_domain):
+				self.__host['full_domain'][current_level].append(full_domain)
+				self.__host['domain'].append(domain)
+				debMsg = '{%s} __pushed'%full_domain
 				logger.debug(debMsg)
-			
+				
 			if url and not self.bloom.add(url):
 				self.__host['url'][current_level].append(url)
 				debMsg = '{%s} __pushed'%url
 				logger.debug(debMsg)
-
-			
 
 	#解析出html中的链接
 	def parser(self, current_level, current_url, html):
@@ -167,7 +148,7 @@ class Crawler:
 		threadLock = threading.Lock()
 		threads = []
 		start_index = self.__host['depth']
-		tmp_domain = self.__host['domain'][self.__host['depth']][:]
+		tmp_domain = self.__host['full_domain'][self.__host['depth']][:]
 		for current_level in range(start_index, self.level):
 			host_len = len(tmp_domain)
 			if not host_len:
@@ -182,14 +163,14 @@ class Crawler:
 			# 等待线程完成
 			for t in threads:
 				t.join()
-			if not self.__host['domain'].has_key(current_level):
+			if not self.__host['full_domain'].has_key(current_level):
 				break
-			tmp_domain = self.__host['domain'][self.__host['depth']][:]
+			tmp_domain = self.__host['full_domain'][self.__host['depth']][:]
 		if tmp_domain:
 			self.__host['depth'] += 1
-			self.__host['domain'][self.__host['depth']] = []
-		logger.info('='*50)
-		logger.info(self.__host['domain'])
+			self.__host['full_domain'][self.__host['depth']] = []
+		logger.info('{doamin}' + '='*50)
+		logger.info(self.__host['full_domain'])
 		logger.info('='*50)
 	 
 class CrawlerTrd (threading.Thread):

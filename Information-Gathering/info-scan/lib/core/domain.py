@@ -5,14 +5,15 @@ import threading
 import sys,socket
 import types 
 
-from lib.connection import http
-from lib.core import settings
-from lib.core.log import logger
-
 import censys.ipv4
 import censys.certificates
 import tldextract
 import urllib
+
+from lib.connection import http
+from lib.core import settings
+from lib.core.log import logger
+from lib.utils.common import separate
 
 #真实IP
 REAL_IP = 0
@@ -30,20 +31,15 @@ class Network():
 	#ip数组的顺序和domain数组内的域名一一对应
 	#return {'ip': [ip,ip1,...]}
 	def __ip_bat(self, domain_arry):
-		
 		ip_dict = {'ip':[]}
 		index = 0
 		for domain in domain_arry:
 			try:
-				subdomain, subject, suffix = tldextract.extract(domain)
-				#过滤掉非法域名
-				if not '*' in subdomain and len(subject) and cmp(subject,'com') and len(suffix):
-					debMsg = '%s %s %s {%s}'%(subdomain, subject, suffix, domain)
-					logger.debug(debMsg)
-					ip = socket.getaddrinfo(domain,'http')[0][4][0]
-					ip_dict['ip'][index] = ip
+				(proto, substr, domain, resources, suffix) = separate(domain)
+				ip = socket.getaddrinfo(domain,'http')[0][4][0]
+				ip_dict['ip'].append(ip)
 			except Exception,e:
-				ip_dict[domain] = ''
+				ip_dict['ip'].append('')
 				errMsg = '%s {%s}'%(e, domain)
 				logger.error(errMsg)
 			index += 1
