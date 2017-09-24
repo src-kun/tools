@@ -64,12 +64,18 @@ class Crawler:
 		 self.__host['depth'] += 1
 	
 	def appendDomain(self, domain):
+		num = 0
 		if type(domain) is types.ListType:
 			domain_arry = list(set(domain))
 			for domain in domain_arry:
+				if not domain in self.bloom:
+					num += 1
 				self.__push(self.__host['depth'], domain, domain)
 		elif type(domain) is types.StringType:
+			if not domain in self.bloom:
+				num += 1
 			self.__push(self.__host['depth'], domain, domain)
+		return num
 		
 
 	#分解url
@@ -156,7 +162,8 @@ class Crawler:
 			pass
 
 	#TODO 线程控制
-	def start(self):
+	#depth :从host那一层开始，为-1时默认使用self.__host['depth']
+	def start(self, depth = -1):
 		threadLock = threading.Lock()
 		threads = []
 		start_index = self.__host['depth']
@@ -179,12 +186,11 @@ class Crawler:
 				break
 			tmp_domain = self.__host['domain'][self.__host['depth']][:]
 		if tmp_domain:
-			print self.__host['depth']
 			self.__host['depth'] += 1
 			self.__host['domain'][self.__host['depth']] = []
-		logger.info('='*100)
+		logger.info('='*50)
 		logger.info(self.__host['domain'])
-		logger.info('='*100)
+		logger.info('='*50)
 	 
 class CrawlerTrd (threading.Thread):
 	def __init__(self, threadLock, current_levle, crawler, url, data = None):
