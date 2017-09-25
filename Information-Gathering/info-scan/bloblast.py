@@ -12,6 +12,7 @@ from lib.core.log import logger
 from lib.core.domain import Network
 from lib.core.domain import Censysio
 from lib.utils.common import separate
+from lib.core.scan import Masscan
 
 bloom = BloomFilter(capacity=100000, error_rate=0.001)
 
@@ -49,7 +50,8 @@ while 1:
     for line in lines:
         print domain_collect(['http', line.replace('\n','')])'''
 
-#print domain_collect('csdn.net','http://www.csdn.net')
-blob['domain'].extend(domain_collect('cnblogs.','https://www.cnblogs.com'))
+"""blob['domain'].extend(domain_collect('cnblogs.','https://www.cnblogs.com'))
 blob.update(ip_collect(blob['domain']))
-print blob
+print blob"""
+masscan = Masscan()
+masscan.scan('115.29.192.1/24', '1-1000')

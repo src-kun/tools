@@ -54,11 +54,6 @@ class Crawler:
 		return request
 	
 	def getHost(self):
-		print
-		print
-		print self.__host['raw']['url']
-		print
-		print
 		for key in self.__host['raw']['url']:
 			self.__host['full_domain'][key] = list(set(self.__host['full_domain'][key]))
 			self.__host['raw']['url'][key] = list(set(self.__host['raw']['url'][key]))
