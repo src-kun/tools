@@ -34,11 +34,6 @@ def domain_collect(filter, url):
 		infoMsg = "censys and crawler diff ==> %s"%str(domains)
 		logger.info(infoMsg)
 		crawler.start()
-	print
-	print
-	print crawler.getHost()['raw']['url']
-	print
-	print
 	return crawler.getHost()['domain']
 	
 #ip 采集
