@@ -1,3 +1,4 @@
 find ./ -name "*.pyc" | xargs rm -rf
 rm -rf ./log/*.log
-rm *.json
+find ./ -name "*.json" | xargs rm -rf
+../../clean

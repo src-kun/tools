@@ -1,5 +1,6 @@
 #! usr/bin/python 
 #coding=utf-8 
+from lib.utils.common import current_path
 
 #项目基本信息
 VERSION = "1.1.9.3"
@@ -34,3 +35,6 @@ level = logging.INFO
 UID = "dcd61cfe-36b9-40a6-8a8a-21d7f9ccc37d"
 SECRET = "HFtjvpfa5vJ0pVY4mZIOWxMfmm4sCr9E"
 
+#项目路径
+global_obj_path = "%s/../../"%current_path()
+log_path = "%slog/"%global_obj_path
