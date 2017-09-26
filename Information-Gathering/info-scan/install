@@ -1,6 +1,7 @@
-pip install bs4
-pip install html
-pip install pybloom
-pip install chardet
-pip install censys
-pip install tldextract
+#pip install bs4
+#pip install html
+#pip install pybloom
+#pip install chardet
+#pip install censys
+#pip install tldextract
+bin/masscan/install

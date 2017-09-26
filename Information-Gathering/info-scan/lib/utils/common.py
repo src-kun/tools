@@ -31,3 +31,26 @@ def current_path():
 def chk_dir(path):
 	if not os.path.exists(path):
 		os.makedirs(path)
+		
+#检查文件 不存在创建
+def chk_file(path):
+	if not os.path.exists(path):
+		os.mknod(path)
+
+def read(path):
+	lines_arry = []
+	file = open(path)
+	while True:
+		lines = file.readlines(100000)
+		if not lines:
+			break
+		lines_arry.extend(lines)
+	return lines_arry
+
+def list_dir(path):
+	return os.listdir(path)
+
+def list_dir_nohidden(path):
+	for f in os.listdir(path):
+		if not f.startswith('.'):
+			yield f

@@ -1,0 +1,9 @@
+cd bin/masscan
+rm -rf masscan-v1.0
+git clone https://github.com/src-kun/masscan-v1.0.git
+cd masscan-v1.0
+make
+rm ../masscan
+mv bin/masscan ../
+rm -rf ../masscan-v1.0
+
