@@ -55,5 +55,5 @@ while 1:
 blob.update(ip_collect(blob['domain']))
 print blob"""
 masscan = Masscan()
-#token = masscan.scan('59.108.137.195', '22,80,8080,7001,21,443,3389')
-print eval(masscan.report_json('9de301698cdca801a396fa1bdf69c6a2')[1])['ip']
+token = masscan.scan('59.108.137.195', '22,80,8080,7001,21,443,3389')
+print eval(masscan.report_json(token)[1])['ip']
