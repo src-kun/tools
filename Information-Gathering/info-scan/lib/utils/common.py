@@ -37,6 +37,14 @@ def chk_file(path):
 	if not os.path.exists(path):
 		os.mknod(path)
 
+def list_dir(path):
+	return os.listdir(path)
+
+def list_dir_nohidden(path):
+	for f in os.listdir(path):
+		if not f.startswith('.'):
+			yield f
+
 def read(path):
 	lines_arry = []
 	file = open(path)
@@ -47,10 +55,9 @@ def read(path):
 		lines_arry.extend(lines)
 	return lines_arry
 
-def list_dir(path):
-	return os.listdir(path)
-
-def list_dir_nohidden(path):
-	for f in os.listdir(path):
-		if not f.startswith('.'):
-			yield f
+#写文件 text不存在则返回文件句柄
+def write(path = None, text = None, pattern = 'a'):
+	file_handle = open(path, 'a')
+	file_handle.write(text)
+	file_handle.close()
+	return file_handle

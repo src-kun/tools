@@ -38,12 +38,37 @@ log_path = "%slog/"%bash_obj_path
 UID = "dcd61cfe-36b9-40a6-8a8a-21d7f9ccc37d"
 SECRET = "HFtjvpfa5vJ0pVY4mZIOWxMfmm4sCr9E"
 
-#masscan
-#执行脚本
-masscan_shell = '%s %s -p%s --banners --rate 10000 --adapter-ip 192.168.1.105 -oJ %s --wait=3 > /dev/null 2>&1'
-#物理路径
-masscan_path = "%sbin/masscan/masscan"%bash_obj_path
-#输出的报告路径
-masscan_report_path = "%sdata/masscan_report/"%bash_obj_path
-#扫描记录map文件
-masscan_report_map_path = "%sdata/masscan_report/.masscan"%bash_obj_path
+class Maseting():
+	
+	
+	def __init__(self):
+		#masscan
+		#执行脚本
+		self.masscan_shell = '%s %s -p%s --banners --rate 10000 --adapter-ip 192.168.1.105 -oJ %s --wait=3 > /dev/null 2>&1'
+		#物理路径
+		self.masscan_path = "%sbin/masscan/masscan"%bash_obj_path
+		#输出的报告路径
+		self.masscan_report_path = "%sdata/masscan_report/"%bash_obj_path
+		#扫描记录map文件
+		self.masscan_report_map_path = "%sdata/masscan_report/.masscan"%bash_obj_path
+		self.map_handle = None
+		self.main()
+
+	def main(self):
+		self.__check_env()
+		self.__init_var()
+	
+	#检查调用时的所需环境
+	def __check_env(self):
+		from lib.utils.common import chk_file
+		from lib.utils.common import chk_dir
+		#检测masscan report 文件夹 不存在则创建
+		chk_dir(self.masscan_report_path)
+		#检查map文件 不存在则创建
+		chk_file(self.masscan_report_map_path)
+
+	def __init_var(self):
+		self.map_handle = open(self.masscan_report_map_path, 'a')
+		
+
+maseting = Maseting()

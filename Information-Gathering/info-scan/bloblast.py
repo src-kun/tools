@@ -25,7 +25,7 @@ def domain_collect(filter, url):
 	(proto, substr, domain, resources, suffix) = separate(url)
 	domains = []#Censysio().certificates(filter)['domain']
 	crawler.filter = filter
-	crawler.level = 3
+	crawler.level = 5
 	crawler.appendDomain(url)
 	crawler.start()
 	
@@ -50,10 +50,12 @@ while 1:
     for line in lines:
         print domain_collect(['http', line.replace('\n','')])'''
 #blob['domain'].extend(domain_collect('cnblogs.','https://www.cnblogs.com'))
-
-"""blob['domain'].extend(domain_collect('cnblogs.','https://www.cnblogs.com'))
+#http://www.mlr.gov.cn/
+"""blob['domain'].extend(domain_collect('mlr.gov.cn','http://www.mlr.gov.cn'))
 blob.update(ip_collect(blob['domain']))
 print blob"""
+
 masscan = Masscan()
-token = masscan.scan('59.108.137.195', '22,80,8080,7001,21,443,3389')
+print masscan.history()
+token = masscan.scan('111.202.114.53', '22,80,8080,7001,21,443,3389')
 print eval(masscan.report_json(token)[1])['ip']
