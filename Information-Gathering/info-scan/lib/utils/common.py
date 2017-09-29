@@ -56,8 +56,8 @@ def read(path):
 	return lines_arry
 
 #写文件 text不存在则返回文件句柄
-def write(path = None, text = None, pattern = 'a'):
-	file_handle = open(path, 'a')
+def write(path = None, text = None, pattern = 'r+'):
+	file_handle = open(path, pattern)
 	file_handle.write(text)
 	file_handle.close()
 	return file_handle

@@ -39,7 +39,14 @@ UID = "dcd61cfe-36b9-40a6-8a8a-21d7f9ccc37d"
 SECRET = "HFtjvpfa5vJ0pVY4mZIOWxMfmm4sCr9E"
 
 class Maseting():
-	
+
+	ALL_HISTORY = 0
+	#最常见端口
+	QUICK_SCAN = '80,8080,3128,8081,9080,1080,21,23,443,69,22,25,110,7001,9090,3389,1521,1158,2100,1433'
+	#TODO 全部常见端口
+	COMPLEX_SCAN = '80,8080,3128,8081,9080,1080,21,23,443,69,22,25,110,7001,9090,3389,1521,1158,2100,1433'
+	#全端口
+	FULL_SCAN = '1-65535'
 	
 	def __init__(self):
 		#masscan
@@ -68,7 +75,9 @@ class Maseting():
 		chk_file(self.masscan_report_map_path)
 
 	def __init_var(self):
-		self.map_handle = open(self.masscan_report_map_path, 'a')
-		
+		self.map_handle = open(self.masscan_report_map_path, 'r+')
+
+	def __del__( self ):
+		self.map_handle.close()
 
 maseting = Maseting()

@@ -13,6 +13,7 @@ from lib.core.domain import Network
 from lib.core.domain import Censysio
 from lib.utils.common import separate
 from lib.core.scan import Masscan
+from lib.core.settings import maseting
 
 bloom = BloomFilter(capacity=100000, error_rate=0.001)
 
@@ -56,6 +57,6 @@ blob.update(ip_collect(blob['domain']))
 print blob"""
 
 masscan = Masscan()
-print masscan.history()
-token = masscan.scan('111.202.114.53', '22,80,8080,7001,21,443,3389')
-print eval(masscan.report_json(token)[1])['ip']
+#token = masscan.scan('111.202.114.53', maseting.QUICK_SCAN)
+print masscan.report_json('d764e00935b9f128619361ddab83d925')
+print masscan.history
