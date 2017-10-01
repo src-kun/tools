@@ -57,6 +57,8 @@ blob.update(ip_collect(blob['domain']))
 print blob"""
 
 masscan = Masscan()
-#token = masscan.scan('111.202.114.53', maseting.QUICK_SCAN)
-print masscan.report_json('d764e00935b9f128619361ddab83d925')
-print masscan.history
+scan_dict = masscan.scan('111.202.114.53', maseting.QUICK_SCAN, 'airtel.com')
+print masscan.report_json(scan_dict['name'])
+print 
+print 
+print masscan.select_history(group_id=scan_dict['group_id'])

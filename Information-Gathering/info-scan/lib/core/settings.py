@@ -41,6 +41,7 @@ SECRET = "HFtjvpfa5vJ0pVY4mZIOWxMfmm4sCr9E"
 class Maseting():
 
 	ALL_HISTORY = 0
+	ALL_GROUP = 0
 	#最常见端口
 	QUICK_SCAN = '80,8080,3128,8081,9080,1080,21,23,443,69,22,25,110,7001,9090,3389,1521,1158,2100,1433'
 	#TODO 全部常见端口
@@ -58,7 +59,11 @@ class Maseting():
 		self.masscan_report_path = "%sdata/masscan_report/"%bash_obj_path
 		#扫描记录map文件
 		self.masscan_report_map_path = "%sdata/masscan_report/.masscan"%bash_obj_path
+		self.masscan_report_group_path = "%sdata/masscan_report/.group"%bash_obj_path
+		self.history_format = "{'name':'%s', 'scan':{'token':'%s', 'target':{'ip':'%s', 'port':'%s'},'time':%s}, 'group_id':'%s'}\n"
+		self.group_format = "{'id':'%s', 'name':'%s', 'time':%s}\n"
 		self.map_handle = None
+		self.group_handle = None
 		self.main()
 
 	def main(self):
@@ -73,11 +78,15 @@ class Maseting():
 		chk_dir(self.masscan_report_path)
 		#检查map文件 不存在则创建
 		chk_file(self.masscan_report_map_path)
+		#检查group文件 不存在则创建
+		chk_file(self.masscan_report_group_path)
 
 	def __init_var(self):
 		self.map_handle = open(self.masscan_report_map_path, 'r+')
+		self.group_handle = open(self.masscan_report_group_path, 'r+')
 
 	def __del__( self ):
 		self.map_handle.close()
+		self.group_handle.close()
 
 maseting = Maseting()

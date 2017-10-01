@@ -2,4 +2,5 @@ find ./ -name "*.pyc" | xargs rm -rf
 rm -rf ./log/*.log
 find ./ -name "*.json" | xargs rm -rf
 rm -f data/masscan_report/.masscan
+rm -f data/masscan_report/.group
 ../../clean
