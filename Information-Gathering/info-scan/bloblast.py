@@ -13,6 +13,7 @@ from lib.core.domain import Network
 from lib.core.domain import Censysio
 from lib.utils.common import separate
 from lib.core.scan import Masscan
+from lib.core.scan import Nessus
 from lib.core.settings import maseting
 
 bloom = BloomFilter(capacity=100000, error_rate=0.001)
@@ -56,9 +57,11 @@ while 1:
 blob.update(ip_collect(blob['domain']))
 print blob"""
 
-masscan = Masscan()
+"""masscan = Masscan()
 scan_dict = masscan.scan('111.202.114.53', maseting.QUICK_SCAN, 'airtel.com')
 print masscan.report_json(scan_dict['name'])
 print 
 print 
-print masscan.select_history(group_id=scan_dict['group_id'])
+print masscan.select_history(group_id=scan_dict['group_id'])"""
+nessus = Nessus()
+nessus.scan('https://45.76.110.94:8834')

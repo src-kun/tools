@@ -38,6 +38,14 @@ log_path = "%slog/"%bash_obj_path
 UID = "dcd61cfe-36b9-40a6-8a8a-21d7f9ccc37d"
 SECRET = "HFtjvpfa5vJ0pVY4mZIOWxMfmm4sCr9E"
 
+class Neseting():
+	
+	def __init__(self):
+		self.access = '920a60cf4fc7e5abb75ff18b1b8d1fd639857e62eb64aa1f4c0a8e363e00b840'
+		self.secret = '6cac509040aa7e13ab6b158cbcefa84d487901cd04733803f86f833745c0e6d5'
+
+neseting = Neseting()
+
 class Maseting():
 
 	ALL_HISTORY = 0

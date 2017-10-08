@@ -4,16 +4,24 @@ import os
 import time
 
 import hashlib
+from nessrest import ness6rest
 
 from lib.core.log import logger
 from lib.utils.common import read
 from lib.utils.common import list_dir_nohidden
 from lib.core.settings import maseting
+from lib.core.settings import neseting
 from lib.utils.common import write
+from lib.connection.http import Request
 
 class Nessus():
-	def scan(self):
-		print "nessus scan"
+
+	def __init__(self):
+		self.template = None
+		
+	def scan(self, url):
+		request = Request(headers = {'X-ApiKeys':'accessKey={%s}; secretKey={%s};'%(neseting.access, neseting.secret)}, url = url)
+		print request.open()
 	
 class Wvs():
 	def scan(self):
