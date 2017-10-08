@@ -28,8 +28,8 @@ ip_api = "http://api.ip138.com/query/?"
 #logger
 import logging 
 #TODO 数字
-#level = logging.DEBUG
-level = logging.INFO
+level = logging.DEBUG
+#level = logging.INFO
 #level = logging.ERROR #发布版本
 #路径
 log_path = "%slog/"%bash_obj_path
@@ -41,8 +41,10 @@ SECRET = "HFtjvpfa5vJ0pVY4mZIOWxMfmm4sCr9E"
 class Neseting():
 	
 	def __init__(self):
-		self.access = '920a60cf4fc7e5abb75ff18b1b8d1fd639857e62eb64aa1f4c0a8e363e00b840'
-		self.secret = '6cac509040aa7e13ab6b158cbcefa84d487901cd04733803f86f833745c0e6d5'
+		self.access = '9ce1ca30eb7ec4511af9c29cb74e96cd35a7dc400439459599454d079a176f3d'
+		self.secret = 'b289fedbb80c0a405609b7493299ebf3235b9cb847554807afdbe00e654d2f29'
+		self.base_url = 'https://192.168.1.100:8834/'
+		#self.url = 'http://127.0.0.1:8834/scans/'
 
 neseting = Neseting()
 

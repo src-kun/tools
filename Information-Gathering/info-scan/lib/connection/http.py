@@ -18,10 +18,11 @@ class Request():
 	code = None
 	__values = None
 
-	def __init__(self, headers = None, url = None, values = None):
+	def __init__(self, headers = None, url = None, values = None, context = None):
 		self.headers = headers
 		self.__url = url
 		self.__values = values
+		self.context = context
 		
 	def open(self):
 		if self.__url is None:
@@ -38,7 +39,7 @@ class Request():
 			data = urllib.self.urlencode(self.__values)
 		try:
 			request = urllib2.Request(self.__url.encode('utf-8'), data, self.headers)
-			self.__response =urllib2.urlopen(request, timeout = self.timeout)
+			self.__response = urllib2.urlopen(request, timeout = self.timeout, context = self.context)
 			if self.__response.code == 200:
 				logger.info(self.__url + " 200 ok")
 			return self.__response

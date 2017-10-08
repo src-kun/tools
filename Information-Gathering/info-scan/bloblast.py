@@ -15,6 +15,7 @@ from lib.utils.common import separate
 from lib.core.scan import Masscan
 from lib.core.scan import Nessus
 from lib.core.settings import maseting
+from lib.core.ness6scan import Scan
 
 bloom = BloomFilter(capacity=100000, error_rate=0.001)
 
@@ -64,4 +65,5 @@ print
 print 
 print masscan.select_history(group_id=scan_dict['group_id'])"""
 nessus = Nessus()
-nessus.scan('https://45.76.110.94:8834')
+print nessus.folders('test')
+print nessus.templates('scan', nessus.templates_arry[4])

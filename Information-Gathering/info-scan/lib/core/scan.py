@@ -2,6 +2,8 @@
 #coding=utf-8 
 import os
 import time
+import ssl
+import json
 
 import hashlib
 from nessrest import ness6rest
@@ -15,14 +17,41 @@ from lib.utils.common import write
 from lib.connection.http import Request
 
 class Nessus():
-
+	templates_arry = ['PCI Quarterly External Scan', 'Host Discovery', 'WannaCry Ransomware', 'Intel AMT Security Bypass', 'Basic Network Scan', 'Credentialed Patch Audit', 'Web Application Tests', 'Malware Scan', 'Mobile Device Scan', 'MDM Config Audit', 'Policy Compliance Auditing', 'Internal PCI Network Scan', 'Offline Config Audit', 'Audit Cloud Infrastructure', 'SCAP and OVAL Auditing', 'Bash Shellshock Detection', 'GHOST (glibc) Detection', 'DROWN Detection', 'Badlock Detection', 'Shadow Brokers Scan', 'Advanced Scan']
+	lanch = ['ON_DEMAND', 'DAILY', 'WEEKLY,' 'MONTHLY', 'YEARLY']
 	def __init__(self):
 		self.template = None
 		
-	def scan(self, url):
-		request = Request(headers = {'X-ApiKeys':'accessKey={%s}; secretKey={%s};'%(neseting.access, neseting.secret)}, url = url)
-		print request.open()
-	
+	def folders(self, folder = None):
+		url = neseting.base_url + 'scans'
+		flods = self.action(url)['folders']
+		if folder:
+			for f in flods:
+				if not cmp(folder, f['name']):
+					return f
+		else:
+			return flods
+		
+	def templates(self, type, template = None):
+		url = neseting.base_url + 'editor/' + type + '/templates'
+		tems = self.action(url)['templates']
+		if template:
+			for t in tems:
+				if not cmp(template, t['title']):
+					return t
+		else:
+			return tems
+				
+		
+	def action(self, url):
+		context = ssl._create_unverified_context()
+		headers = {'X-ApiKeys': 'accessKey=' + neseting.access +'; secretKey=' + neseting.secret}
+		request = Request(headers = headers, url = url, context = context)
+		request.open()
+		result = request.getHtml()
+		if result:
+			return json.loads(result)
+		
 class Wvs():
 	def scan(self):
 		print "wvs scan"
