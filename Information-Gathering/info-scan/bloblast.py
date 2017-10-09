@@ -63,5 +63,10 @@ nessus = Nessus()
 #print nessus.create_scan("731a8e52-3ea6-a291-ec0a-d2ff0619c19d7bd788d6be818b65", 'test1234544', '127.0.0.1', policy_id = 11, folder_id = 4, description = 'test')
 #print nessus.policies(neseting.POLICIE_COMPLEX)
 #print nessus.folders('test')['id']
-print nessus.start_scan(17)
+#print nessus.start_scan(17)
 #print nessus.list_scan(4)
+#print nessus.status_scan(17)
+file_id = nessus.file_id_scan(17)['file']
+import time
+time.sleep(1)
+nessus.download_scan(17,file_id)

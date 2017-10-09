@@ -20,6 +20,8 @@ from lib.connection.http import Request
 class Nessus():
 	templates_arry = ['PCI Quarterly External Scan', 'Host Discovery', 'WannaCry Ransomware', 'Intel AMT Security Bypass', 'Basic Network Scan', 'Credentialed Patch Audit', 'Web Application Tests', 'Malware Scan', 'Mobile Device Scan', 'MDM Config Audit', 'Policy Compliance Auditing', 'Internal PCI Network Scan', 'Offline Config Audit', 'Audit Cloud Infrastructure', 'SCAP and OVAL Auditing', 'Bash Shellshock Detection', 'GHOST (glibc) Detection', 'DROWN Detection', 'Badlock Detection', 'Shadow Brokers Scan', 'Advanced Scan']
 	lanch = ['ON_DEMAND', 'DAILY', 'WEEKLY,' 'MONTHLY', 'YEARLY']
+	download_format = ['Nessus', 'HTML', 'PDF', 'CSV', 'DB']
+	
 	def __init__(self):
 		self.template = None
 		self.context = ssl._create_unverified_context()
@@ -45,19 +47,21 @@ class Nessus():
 					return t
 		else:
 			return tems
-		
-	def action(self, url, data = None, method = 'GET', content = ''):
+	
+	#TODO 文件下载
+	def action(self, url, data = None, method = 'GET', content = '', todo = None):
 		self.request.headers[settings.CONTENT_TYPE] = content
 		if not cmp(method, 'POST'):
 			response = self.request.post(url, data)
+		elif not cmp(method, 'PUT'):
+			response = self.request.put(url, data)
 		else:
 			response = self.request.get(url)
 		result = self.request.read(response)
+		if todo:
+			return result
 		if result:
 			return json.loads(result)
-	
-	def scan(self):
-		pass
 	
 	def policies(self, policie = None):
 		url = neseting.base_url + 'policies'
@@ -96,10 +100,25 @@ class Nessus():
 			data['settings']['launch'] = launch
 			
 		return self.action(url, data, method = 'POST', content = "application/json")
-	def start_scan(self, scan_id):
-		url = neseting.base_url + 'scans/%s/launch'%scan_id
-		#print self.action(url)
 
+	def start_scan(self, scan_id):
+		url = neseting.base_url + 'scans/%d/launch'%(scan_id)
+		return self.action(url, method = 'POST')
+	
+	def status_scan(self, scan_id, read = True):
+		url = neseting.base_url + 'scans/%d/status'%(scan_id)
+		return self.action(url, {"read":read}, method = 'PUT', content = "application/json")
+	
+	def file_id_scan(self, scan_id, format = 'pdf'):
+		url =  neseting.base_url + 'scans/%d/export'%(scan_id)
+		values = {"format":format,"filter.search_type":"and"}
+		return self.action(url, values, method = 'POST', content = "application/json") 
+	
+	def download_scan(self, scan_id, file_id, format = 'pdf'):
+		url =  neseting.base_url + 'scans/%d/export/%d/download'%(scan_id, file_id)
+		data = self.action(url, method = 'GET', content = "application/json", todo='todo') 
+		with open("demo2.zip", "wb") as code:     
+			code.write(data)
 class Wvs():
 	def scan(self):
 		print "wvs scan"

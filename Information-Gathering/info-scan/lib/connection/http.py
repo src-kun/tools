@@ -27,11 +27,11 @@ class Request():
 			logger.error(errMsg)
 			raise BloblastDataException(errMsg)
 	
-	def get(self, url = None):
+	def get(self, url = None, lamb = 'GET'):
 		self.__accept(url)
 		try:
 			request = urllib2.Request(url.encode('utf-8'), headers = self.headers)
-			request.get_method = lambda: 'GET'
+			request.get_method = lambda: lamb
 			response = urllib2.urlopen(request, timeout = self.timeout, context = self.context)
 			if response.code == 200:
 				logger.info(url + " 200 ok")
@@ -47,7 +47,7 @@ class Request():
 			#logger.exception("Exception Logged");
 			return None
 		
-	def post(self, url = None, values = None):
+	def post(self, url = None, values = None, lamb = 'POST'):
 		self.__accept(url)
 
 		data = None
@@ -57,7 +57,7 @@ class Request():
 			data = urllib.urlencode(values)
 		try:
 			request = urllib2.Request(url.encode('utf-8'), data, self.headers)
-			request.get_method = lambda: 'POST'
+			request.get_method = lambda: lamb
 			response = urllib2.urlopen(request, timeout = self.timeout, context = self.context)
 			if response.code == 200:
 				logger.info(url + " 200 ok")
@@ -72,6 +72,9 @@ class Request():
 				logger.error(errMsg)
 			#logger.exception("Exception Logged");
 			return None
+
+	def put(self, url, values):
+		return self.post(url, values, 'PUT')
 
 	def read(self, response):
 		try:
