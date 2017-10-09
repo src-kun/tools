@@ -15,8 +15,7 @@ from lib.utils.common import separate
 from lib.core.scan import Masscan
 from lib.core.scan import Nessus
 from lib.core.settings import maseting
-from lib.core.ness6scan import Scan
-
+from lib.connection.http import Request
 bloom = BloomFilter(capacity=100000, error_rate=0.001)
 
 blob = {'domain':[]}
@@ -44,19 +43,12 @@ def domain_collect(filter, url):
 def ip_collect(domain_arry):
 	return Network().ip(domain_arry)
 
-'''file = open('domain')
- 
-while 1:
-    lines = file.readlines(100000)
-    if not lines:
-        break
-    for line in lines:
-        print domain_collect(['http', line.replace('\n','')])'''
+
 #blob['domain'].extend(domain_collect('cnblogs.','https://www.cnblogs.com'))
 #http://www.mlr.gov.cn/
-"""blob['domain'].extend(domain_collect('mlr.gov.cn','http://www.mlr.gov.cn'))
+blob['domain'].extend(domain_collect('mlr.gov.cn','http://www.mlr.gov.cn'))
 blob.update(ip_collect(blob['domain']))
-print blob"""
+print blob
 
 """masscan = Masscan()
 scan_dict = masscan.scan('111.202.114.53', maseting.QUICK_SCAN, 'airtel.com')
@@ -64,6 +56,9 @@ print masscan.report_json(scan_dict['name'])
 print 
 print 
 print masscan.select_history(group_id=scan_dict['group_id'])"""
-nessus = Nessus()
+"""nessus = Nessus()
 print nessus.folders('test')
-print nessus.templates('scan', nessus.templates_arry[4])
+print nessus.templates('scan', nessus.templates_arry[4])"""
+from lib.core import settings
+request = Request(settings.headers)
+request.post('http://127.0.0.1', {})

@@ -10,63 +10,99 @@ from lib.core.exception import BloblastNoneDataException
 from lib.core.log import logger
 
 class Request():
-	
-	headers = None
-	timeout = 5
-	__response = None
-	__url = None
-	code = None
-	__values = None
 
-	def __init__(self, headers = None, url = None, values = None, context = None):
+	def __init__(self, headers = {}, context = None):
 		self.headers = headers
-		self.__url = url
-		self.__values = values
 		self.context = context
+		self.timeout = 5
 		
-	def open(self):
-		if self.__url is None:
-			errMsg = "self.__url is None !"
-			logger.error(errMsg) 
-			raise BloblastNoneDataException(errMsg)
-		elif cmp(self.__url[0:4], "http"):
-			errMsg = "{" + self.__url + "}" + " You must start with (http[s]://)"
-			logger.error(errMsg)
-			raise BloblastDataException(errMsg)
+	def open(self, url = None, values = None):
+		self.__accept(url)
 
 		data = None
-		if self.__values:
-			data = urllib.self.urlencode(self.__values)
+		if values:
+			data = urllib.self.urlencode(self.values)
 		try:
-			request = urllib2.Request(self.__url.encode('utf-8'), data, self.headers)
+			request = urllib2.Request(url.encode('utf-8'), data, self.headers)
 			self.__response = urllib2.urlopen(request, timeout = self.timeout, context = self.context)
 			if self.__response.code == 200:
-				logger.info(self.__url + " 200 ok")
+				logger.info(url + " 200 ok")
 			return self.__response
 		except Exception,e:
 			if hasattr(e, 'code'):
-				warnMsg = self.__url + " " + str(e.code) + " failed"
+				warnMsg =url + " " + str(e.code) + " failed"
 				logger.warn(warnMsg)
 				code = e.code
 			else:
-				errMsg = str(e) + " " + self.__url
+				errMsg = str(e) + " " +url
 				logger.error(errMsg)
 			#logger.exception("Exception Logged");
 			return None
-			
+	
+	def __accept(self, url):
+		if url is None:
+			errMsg = "url is None !"
+			logger.error(errMsg)
+			raise BloblastNoneDataException(errMsg)
+		elif cmp(url[0:4], "http"):
+			errMsg = "{" +url + "}" + " You must start with (http[s]://)"
+			logger.error(errMsg)
+			raise BloblastDataException(errMsg)
+	
 	def response(self):
 		return self.__response
-		
-	def get():
-		print "get"
-		
-	def post():
-		print "post"
-
-	def getHtml(self):
+	
+	def setCookie():
+		self.headers['cookie']
+	
+	def get(self, url = None):
+		self.__accept(url)
 		try:
-			if self.__response:
-				return self.__response.read()
+			request = urllib2.Request(url.encode('utf-8'), headers = self.headers)
+			request.get_method = lambda: 'GET'
+			response = urllib2.urlopen(request, timeout = self.timeout, context = self.context)
+			if response.code == 200:
+				logger.info(url + " 200 ok")
+			return response
+		except Exception,e:
+			if hasattr(e, 'code'):
+				warnMsg =url + " " + str(e.code) + " failed"
+				logger.warn(warnMsg)
+				code = e.code
+			else:
+				errMsg = str(e) + " " +url
+				logger.error(errMsg)
+			#logger.exception("Exception Logged");
+			return None
+		
+	def post(self, url = None, values = None):
+		self.__accept(url)
+
+		data = None
+		if values:
+			data = urllib.self.urlencode(self.values)
+		try:
+			request = urllib2.Request(url.encode('utf-8'), data, self.headers)
+			request.get_method = lambda: 'POST'
+			response = urllib2.urlopen(request, timeout = self.timeout, context = self.context)
+			if response.code == 200:
+				logger.info(url + " 200 ok")
+			return response
+		except Exception,e:
+			if hasattr(e, 'code'):
+				warnMsg =url + " " + str(e.code) + " failed"
+				logger.warn(warnMsg)
+				code = e.code
+			else:
+				errMsg = str(e) + " " +url
+				logger.error(errMsg)
+			#logger.exception("Exception Logged");
+			return None
+
+	def read(self, response):
+		try:
+			if response:
+				return response.read()
 		except Exception,e:
 			errMsg = self.__url + " " + str(e)
 			logger.error(errMsg)

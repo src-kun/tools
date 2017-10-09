@@ -41,17 +41,16 @@ class Crawler:
 		#爬虫深度
 		self.level = 0
 		#TODO cookie and random User-Agent 
-		self.headers = settings.headers
+		self.request = http.Request(settings.headers)
 	
 	#成功返回 html / 失败返回 None
 	#url not None时优先爬取url
-	def request(self, url, cookies = None, values = None):
+	def open(self, url, cookies = None, values = None):
 		if cookies:
-			self.headers['cookies'] = cookies
-		request = http.Request(self.headers, url, values)
-		request.timeout = self.timeout
-		request.open()
-		return request
+			self.request.headers['cookies'] = cookies
+		self.request.timeout = self.timeout
+		respose = self.request.get(url)
+		return respose
 	
 	def getHost(self):
 		for key in self.__host['raw']['url']:
@@ -204,12 +203,12 @@ class CrawlerTrd (threading.Thread):
 		
 	def run(self):
 		#get request
-		respose = self.crawler.request(self.url)
+		respose = self.crawler.open(self.url)
 		#post request
 		#html = crawler.request(self.current_levle, self.url, self.data)
 		current_url = self.url
 		if respose:
-			html = respose.getHtml()
+			html = self.crawler.request.read(respose)
 			self.crawler.parser(self.current_levle, current_url, html)
 		#threadLock.acquire()
 		# 释放锁
