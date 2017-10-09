@@ -46,9 +46,9 @@ def ip_collect(domain_arry):
 
 #blob['domain'].extend(domain_collect('cnblogs.','https://www.cnblogs.com'))
 #http://www.mlr.gov.cn/
-blob['domain'].extend(domain_collect('mlr.gov.cn','http://www.mlr.gov.cn'))
+"""blob['domain'].extend(domain_collect('mlr.gov.cn','http://www.mlr.gov.cn'))
 blob.update(ip_collect(blob['domain']))
-print blob
+print blob"""
 
 """masscan = Masscan()
 scan_dict = masscan.scan('111.202.114.53', maseting.QUICK_SCAN, 'airtel.com')
