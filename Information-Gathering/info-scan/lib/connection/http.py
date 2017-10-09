@@ -3,6 +3,7 @@
 
 import urllib 
 import urllib2
+import json
 
 from lib.core.exception import BloblastConnectionException
 from lib.core.exception import BloblastDataException
@@ -50,8 +51,10 @@ class Request():
 		self.__accept(url)
 
 		data = None
-		if values:
-			data = urllib.self.urlencode(self.values)
+		if not cmp(self.headers['Content-Type'], 'application/json'):
+			data = json.dumps(values)
+		elif values:
+			data = urllib.urlencode(values)
 		try:
 			request = urllib2.Request(url.encode('utf-8'), data, self.headers)
 			request.get_method = lambda: 'POST'

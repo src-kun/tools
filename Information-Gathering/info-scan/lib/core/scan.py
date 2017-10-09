@@ -13,6 +13,7 @@ from lib.utils.common import read
 from lib.utils.common import list_dir_nohidden
 from lib.core.settings import maseting
 from lib.core.settings import neseting
+from lib.core import settings
 from lib.utils.common import write
 from lib.connection.http import Request
 
@@ -21,12 +22,15 @@ class Nessus():
 	lanch = ['ON_DEMAND', 'DAILY', 'WEEKLY,' 'MONTHLY', 'YEARLY']
 	def __init__(self):
 		self.template = None
+		self.context = ssl._create_unverified_context()
+		self.headers = {'X-ApiKeys': 'accessKey=' + neseting.access +'; secretKey=' + neseting.secret}
+		self.request = Request(headers = self.headers, context = self.context)
 		
 	def folders(self, folder = None):
 		url = neseting.base_url + 'scans'
-		flods = self.action(url)['folders']
-		if folder:
-			for f in flods:
+		flods = self.action(url)
+		if flods and folder:
+			for f in flods['folders']:
 				if not cmp(folder, f['name']):
 					return f
 		else:
@@ -34,24 +38,68 @@ class Nessus():
 		
 	def templates(self, type, template = None):
 		url = neseting.base_url + 'editor/' + type + '/templates'
-		tems = self.action(url)['templates']
-		if template:
-			for t in tems:
+		tems = self.action(url)
+		if tems and template:
+			for t in tems['templates']:
 				if not cmp(template, t['title']):
 					return t
 		else:
 			return tems
-				
 		
-	def action(self, url):
-		context = ssl._create_unverified_context()
-		headers = {'X-ApiKeys': 'accessKey=' + neseting.access +'; secretKey=' + neseting.secret}
-		request = Request(headers = headers, url = url, context = context)
-		request.open()
-		result = request.getHtml()
+	def action(self, url, data = None, method = 'GET', content = ''):
+		self.request.headers[settings.CONTENT_TYPE] = content
+		if not cmp(method, 'POST'):
+			response = self.request.post(url, data)
+		else:
+			response = self.request.get(url)
+		result = self.request.read(response)
 		if result:
 			return json.loads(result)
-		
+	
+	def scan(self):
+		pass
+	
+	def policies(self, policie = None):
+		url = neseting.base_url + 'policies'
+		policies = self.action(url)
+		if policie and policies:
+			for p in policies['policies']:
+				if not cmp(policie, p['name']):
+					return p
+		else:
+			return policies
+	
+	def list_scan(self, folder_id = None, date = None):
+		url = neseting.base_url + 'scans'
+		#TODO 增加date过滤
+		if folder_id:
+			url += '?folder_id=' + str(folder_id)
+		return self.action(url)
+	
+	def create_scan(self, uuid, name, targets, enabled = 'false', policy_id = None, folder_id = None, description = None, launch = None):
+		url = neseting.base_url + 'scans'
+		data = {
+		"uuid": uuid,
+		"settings": {
+			"name": name,
+			"enabled": enabled,
+			"text_targets": targets
+			}
+		}
+		if policy_id:
+			data['settings']['policy_id'] = policy_id
+		if folder_id:
+			data['settings']['folder_id'] = folder_id
+		if description:
+			data['settings']['description'] = description 
+		if launch:
+			data['settings']['launch'] = launch
+			
+		return self.action(url, data, method = 'POST', content = "application/json")
+	def start_scan(self, scan_id):
+		url = neseting.base_url + 'scans/%s/launch'%scan_id
+		#print self.action(url)
+
 class Wvs():
 	def scan(self):
 		print "wvs scan"

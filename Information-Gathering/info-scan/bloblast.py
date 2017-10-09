@@ -15,6 +15,7 @@ from lib.utils.common import separate
 from lib.core.scan import Masscan
 from lib.core.scan import Nessus
 from lib.core.settings import maseting
+from lib.core.settings import neseting
 from lib.connection.http import Request
 bloom = BloomFilter(capacity=100000, error_rate=0.001)
 
@@ -56,9 +57,11 @@ print masscan.report_json(scan_dict['name'])
 print 
 print 
 print masscan.select_history(group_id=scan_dict['group_id'])"""
-"""nessus = Nessus()
-print nessus.folders('test')
-print nessus.templates('scan', nessus.templates_arry[4])"""
-from lib.core import settings
-request = Request(settings.headers)
-request.post('http://127.0.0.1', {})
+nessus = Nessus()
+
+#print nessus.templates('policy', nessus.templates_arry[neseting.BASIC_NETWORK_SCAN])
+#print nessus.create_scan("731a8e52-3ea6-a291-ec0a-d2ff0619c19d7bd788d6be818b65", 'test1234544', '127.0.0.1', policy_id = 11, folder_id = 4, description = 'test')
+#print nessus.policies(neseting.POLICIE_COMPLEX)
+#print nessus.folders('test')['id']
+print nessus.start_scan(17)
+#print nessus.list_scan(4)

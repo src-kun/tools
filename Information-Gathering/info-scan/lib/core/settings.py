@@ -9,11 +9,14 @@ author = """zk
 #项目路径
 bash_obj_path = "%s/../../"%current_path()
 
+CONTENT_TYPE = "Content-Type"
+COOKIE = "Cookie"
 #定义http请求头
 headers={"Accept":"text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8",
  "Accept-Language":"zh-CN,zh;q=0.8,en-US;q=0.5,en;q=0.3",
+ CONTENT_TYPE:"",
  "Referer":"https://baidu.com",
- "Cookie":" dc_session_id=1502790073620_0.12930882713190395",
+ COOKIE:" dc_session_id=1502790073620_0.12930882713190395",
  "User-Agent":"Mozilla/5.0 (Windows NT 10.0; WOW64; rv:55.0) Gecko/20100101 Firefox/55.0"}
 
 # colorful banner
@@ -40,12 +43,15 @@ SECRET = "HFtjvpfa5vJ0pVY4mZIOWxMfmm4sCr9E"
 
 class Neseting():
 	
+	BASIC_NETWORK_SCAN = 4
+	POLICIE_COMPLEX = 'complex'
+	
 	def __init__(self):
 		self.access = '9ce1ca30eb7ec4511af9c29cb74e96cd35a7dc400439459599454d079a176f3d'
 		self.secret = 'b289fedbb80c0a405609b7493299ebf3235b9cb847554807afdbe00e654d2f29'
-		self.base_url = 'https://192.168.1.100:8834/'
-		#self.url = 'http://127.0.0.1:8834/scans/'
-
+		self.base_url = 'http://127.0.0.1/'
+		self.base_url = 'https://10.102.16.196:8834/'
+		
 neseting = Neseting()
 
 class Maseting():
