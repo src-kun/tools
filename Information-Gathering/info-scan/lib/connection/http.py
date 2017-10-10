@@ -48,7 +48,7 @@ class Request():
 		
 	def get(self, url):
 		response = self.connect(url, lamb = 'GET')
-		if response.code == 200:
+		if response and response.code == 200:
 			logger.info(url + " 200 ok")
 		return response
 		
@@ -78,7 +78,7 @@ class Request():
 		return response"""
 	def post(self, url, values = None):
 		response = self.connect(url, values = values, lamb = 'POST')
-		if response.code == 200:
+		if  response and response.code == 200:
 			logger.info(url + " 200 ok")
 		return response
 
@@ -102,6 +102,7 @@ class Request():
 			print e.geturl()  
 			print e.read()
 			"""
+		except Exception,e:
 			if hasattr(e, 'code'):
 				warnMsg =url + " " + str(e.code) + " failed"
 				logger.warn(warnMsg)
@@ -113,13 +114,13 @@ class Request():
 
 	def put(self, url, values):
 		response = self.connect(url, values = values, lamb = 'PUT')
-		if response.code == 200:
+		if response and response.code == 200:
 			logger.info(url + " 200 ok")
 		return response
 		
 	def delete(self, url, values):
 		response = self.connect(url, lamb = 'DELETE')
-		if response.code == 200:
+		if response and esponse.code == 200:
 			logger.info(url + " 200 ok")
 		return response
 
@@ -127,7 +128,9 @@ class Request():
 		try:
 			if response:
 				return response.read()
-		except Exception,e:
-			errMsg = self.__url + " " + str(e)
+		except urllib2.HTTPError,e:
+			errMsg = e.geturl() + " " + str(e)
 			logger.error(errMsg)
-			return None
+		except Exception,e:
+			pass
+		return None
