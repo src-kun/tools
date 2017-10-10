@@ -16,6 +16,7 @@ from lib.core.scan import Masscan
 from lib.core.scan import Nessus
 from lib.core.settings import maseting
 from lib.core.settings import neseting
+from lib.core import settings
 from lib.connection.http import Request
 bloom = BloomFilter(capacity=100000, error_rate=0.001)
 
@@ -47,26 +48,36 @@ def ip_collect(domain_arry):
 
 #blob['domain'].extend(domain_collect('cnblogs.','https://www.cnblogs.com'))
 #http://www.mlr.gov.cn/
-"""blob['domain'].extend(domain_collect('mlr.gov.cn','http://www.mlr.gov.cn'))
+blob['domain'].extend(domain_collect('mlr.gov.cn','http://www.mlr.gov.cn'))
 blob.update(ip_collect(blob['domain']))
-print blob"""
+print blob
 
 """masscan = Masscan()
 scan_dict = masscan.scan('111.202.114.53', maseting.QUICK_SCAN, 'airtel.com')
-print masscan.report_json(scan_dict['name'])
+print masscan.export_json(scan_dict['name'])
 print 
 print 
 print masscan.select_history(group_id=scan_dict['group_id'])"""
 nessus = Nessus()
-
+scan_id = 17
 #print nessus.templates('policy', nessus.templates_arry[neseting.BASIC_NETWORK_SCAN])
-#print nessus.create_scan("731a8e52-3ea6-a291-ec0a-d2ff0619c19d7bd788d6be818b65", 'test1234544', '127.0.0.1', policy_id = 11, folder_id = 4, description = 'test')
+#print nessus.create_scan("731a8e52-3ea6-a291-ec0a-d2ff0619c19d7bd788d6be818b65", 'testone', '127.0.0.1', policy_id = 11, folder_id = 4, description = 'test')
 #print nessus.policies(neseting.POLICIE_COMPLEX)
 #print nessus.folders('test')['id']
 #print nessus.start_scan(17)
 #print nessus.list_scan(4)
-#print nessus.status_scan(17)
-file_id = nessus.file_id_scan(17)['file']
+#print nessus.status_scan(9)
 import time
-time.sleep(1)
-nessus.download_scan(17,file_id)
+file_id = nessus.file_id_scan(9)['file']
+print file_id
+while nessus.export_status(scan_id, file_id):
+	time.sleep(0.3)
+nessus.download_export(scan_id,file_id)
+#print nessus.status_scan(scan_id)
+#print nessus.details_scan(scan_id)
+#检测nessus运行状态
+"""scan_status = nessus.details_scan(25)['history'][0]['status']
+while cmp(scan_status,'completed'):
+	time.sleep(3)
+	print scan_status
+"""

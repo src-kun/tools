@@ -31,8 +31,8 @@ ip_api = "http://api.ip138.com/query/?"
 #logger
 import logging 
 #TODO 数字
-level = logging.DEBUG
-#level = logging.INFO
+#level = logging.DEBUG
+level = logging.INFO
 #level = logging.ERROR #发布版本
 #路径
 log_path = "%slog/"%bash_obj_path
@@ -52,7 +52,16 @@ class Neseting():
 		self.base_url = 'http://127.0.0.1/'
 		#self.base_url = 'https://10.102.16.196:8834/'
 		self.base_url = 'https://192.168.1.100:8834/'
+		self.export_path = "%sdata/nessus/report/"%bash_obj_path
+		self.__check_env()
 		
+	#检查调用时的所需环境
+	def __check_env(self):
+		from lib.utils.common import chk_file
+		from lib.utils.common import chk_dir
+		#检测masscan report 文件夹 不存在则创建
+		chk_dir(self.export_path)
+
 neseting = Neseting()
 
 class Maseting():

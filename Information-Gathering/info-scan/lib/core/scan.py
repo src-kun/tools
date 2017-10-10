@@ -25,9 +25,10 @@ class Nessus():
 	def __init__(self):
 		self.template = None
 		self.context = ssl._create_unverified_context()
-		self.headers = {'X-ApiKeys': 'accessKey=' + neseting.access +'; secretKey=' + neseting.secret}
-		self.request = Request(headers = self.headers, context = self.context)
-		
+		self.__headers = {'X-ApiKeys': 'accessKey=' + neseting.access +'; secretKey=' + neseting.secret}
+		self.request = Request(headers = self.__headers, context = self.context)
+	
+	#获取文件夹内扫描任务
 	def folders(self, folder = None):
 		url = neseting.base_url + 'scans'
 		flods = self.action(url)
@@ -37,7 +38,8 @@ class Nessus():
 					return f
 		else:
 			return flods
-		
+	
+	#获取所有扫描模板
 	def templates(self, type, template = None):
 		url = neseting.base_url + 'editor/' + type + '/templates'
 		tems = self.action(url)
@@ -58,11 +60,16 @@ class Nessus():
 		else:
 			response = self.request.get(url)
 		result = self.request.read(response)
+		
+		#清理添加的content
+		if content:
+			del self.request.headers[settings.CONTENT_TYPE]
 		if todo:
 			return result
 		if result:
 			return json.loads(result)
 	
+	#获取策略
 	def policies(self, policie = None):
 		url = neseting.base_url + 'policies'
 		policies = self.action(url)
@@ -73,6 +80,7 @@ class Nessus():
 		else:
 			return policies
 	
+	#获取folder_id文件夹内扫描任务
 	def list_scan(self, folder_id = None, date = None):
 		url = neseting.base_url + 'scans'
 		#TODO 增加date过滤
@@ -80,12 +88,13 @@ class Nessus():
 			url += '?folder_id=' + str(folder_id)
 		return self.action(url)
 	
-	def create_scan(self, uuid, name, targets, enabled = 'false', policy_id = None, folder_id = None, description = None, launch = None):
+	#创建扫描
+	def create_scan(self, template_uuid, scan_name, targets, enabled = 'false', policy_id = None, folder_id = None, description = None, launch = None):
 		url = neseting.base_url + 'scans'
 		data = {
-		"uuid": uuid,
+		"uuid": template_uuid,
 		"settings": {
-			"name": name,
+			"name": scan_name,
 			"enabled": enabled,
 			"text_targets": targets
 			}
@@ -100,25 +109,59 @@ class Nessus():
 			data['settings']['launch'] = launch
 			
 		return self.action(url, data, method = 'POST', content = "application/json")
-
+	
+	#开始扫描
 	def start_scan(self, scan_id):
 		url = neseting.base_url + 'scans/%d/launch'%(scan_id)
 		return self.action(url, method = 'POST')
 	
+	#停止扫描
+	def stop_scan(self, scan_id):
+		url = neseting.base_url + '/scans/%d/stop'%(scan_id)
+		return self.action(url, method = 'POST')
+	
+	#TODO 无返回值
 	def status_scan(self, scan_id, read = True):
 		url = neseting.base_url + 'scans/%d/status'%(scan_id)
 		return self.action(url, {"read":read}, method = 'PUT', content = "application/json")
 	
-	def file_id_scan(self, scan_id, format = 'pdf'):
+	#获取扫描任务、漏洞、描述、历史扫描记录
+	def details_scan(self, scan_id, history_id = None):
+		url = neseting.base_url + 'scans/%d'%(scan_id)
+		if history_id:
+			url += '?history_id=%d'%history_id
+		return self.action(url)
+
+	#通知nessus生成报告
+	#return {u'token': u'c8f9425c44306088a383ed7045ceb346c10de51bbc8edd4428c15024b7d20c0c', u'file': 2056893300}
+	def file_id_scan(self, scan_id, format = 'nessus'):
 		url =  neseting.base_url + 'scans/%d/export'%(scan_id)
 		values = {"format":format,"filter.search_type":"and"}
 		return self.action(url, values, method = 'POST', content = "application/json") 
 	
-	def download_scan(self, scan_id, file_id, format = 'pdf'):
+	#查看报告是否可以下载，生成报告有延迟，首先需要判断是否可以下载
+	#return 0 可以下载
+	def export_status(self, scan_id, file_id):
+		url =  neseting.base_url + 'scans/%d/export/%d/status'%(scan_id, file_id)
+		return cmp(self.action(url)['status'], 'ready')
+	
+	#TODO 获取删除记录
+	def export_history(self, scan_id):
+		pass
+		
+	#TODO 下载pdf失败
+	def download_export(self, scan_id, file_id, name = None, format = 'nessus'):
 		url =  neseting.base_url + 'scans/%d/export/%d/download'%(scan_id, file_id)
 		data = self.action(url, method = 'GET', content = "application/json", todo='todo') 
-		with open("demo2.zip", "wb") as code:     
+		if not name:
+			name = str(file_id)
+		path = neseting.export_path
+		with open('%s%s.%s'%(path, name, format), 'wb') as code:     
 			code.write(data)
+			
+	def vuln_info():
+		pass
+		
 class Wvs():
 	def scan(self):
 		print "wvs scan"
@@ -293,8 +336,8 @@ class Masscan():
 	def scan(self, ip, port, group_name = None):
 		name = self.md5("%s%s%s"%(ip, port, str(time.time())))
 		group_id = ''
-		currten_report_path = "%s%s.json"%(maseting.masscan_report_path, name)
-		scan_shell = maseting.masscan_shell%(maseting.masscan_path, ip, port, currten_report_path)
+		currten_export_path = "%s%s.json"%(maseting.masscan_export_path, name)
+		scan_shell = maseting.masscan_shell%(maseting.masscan_path, ip, port, currten_export_path)
 		output = os.popen(scan_shell)
 		if group_name:
 			group = self.select_group(name=group_name)
@@ -310,17 +353,17 @@ class Masscan():
 	报告
 
 	"""
-	def __report_path(self, name):
-		return "%s%s.json"%(maseting.masscan_report_path, name)
+	def __export_path(self, name):
+		return "%s%s.json"%(maseting.masscan_export_path, name)
 
 	#return [{"ip": "111.202.114.53","timestamp": "1506482040", "ports": [ {"port": 80, "proto": "tcp", "status": "open", "reason": "syn-ack", "ttl": 128}]},...]
-	def report_json(self, name):
-		report_dict = {'reports':[],'count':0}
-		report_arry = read(self.__report_path(name))
-		report_dict['count'] = len(report_arry)
-		for i in range(0, report_dict['count']):
+	def export_json(self, name):
+		export_dict = {'exports':[],'count':0}
+		export_arry = read(self.__export_path(name))
+		export_dict['count'] = len(export_arry)
+		for i in range(0, export_dict['count']):
 			try:
-				report_dict['reports'].append(eval(report_arry[i]))
+				export_dict['exports'].append(eval(export_arry[i]))
 			except Exception, e:
 				pass
-		return report_dict
+		return export_dict
