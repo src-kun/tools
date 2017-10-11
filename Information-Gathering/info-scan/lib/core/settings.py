@@ -10,6 +10,7 @@ author = """zk
 bash_obj_path = "%s/../../"%current_path()
 
 CONTENT_TYPE = "Content-Type"
+CONTENT_JSON = {'Content-Type':'application/json'}
 COOKIE = "Cookie"
 #定义http请求头
 headers={"Accept":"text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8",
@@ -63,6 +64,13 @@ class Neseting():
 		chk_dir(self.export_path)
 
 neseting = Neseting()
+
+class Wvseting():
+	def __init__(self):
+		self.api_key = '1986ad8c0a5b3df4d7028d5f3c06e936c10a743b8beb644cd852d9320bd0e3a4e'
+		self.base_url = 'https://10.102.16.196:3443/'
+		
+wvseting = Wvseting()
 
 class Maseting():
 

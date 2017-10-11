@@ -12,6 +12,7 @@ from lib.core.log import logger
 from lib.utils.common import read
 from lib.utils.common import list_dir_nohidden
 from lib.core.settings import maseting
+from lib.core.settings import wvseting
 from lib.core.settings import neseting
 from lib.core import settings
 from lib.utils.common import write
@@ -163,8 +164,47 @@ class Nessus():
 		pass
 		
 class Wvs():
-	def scan(self):
-		print "wvs scan"
+	
+	FULL_SCAN = "11111111-1111-1111-1111-111111111111"
+	
+	def __init__(self):
+		self.context = ssl._create_unverified_context()
+		self.__headers = {'X-Auth':wvseting.api_key}
+		self.__request = Request(headers = self.__headers, context = self.context)
+
+	def action(self, url, data = None, method = 'GET', content = {}):
+		self.__request.headers.update(content)
+		if not cmp(method, 'POST'):
+			response = self.__request.post(url, data)
+		elif not cmp(method, 'PUT'):
+			response = self.__request.put(url, data)
+		else:
+			response = self.__request.get(url)
+		result = self.__request.read(response)
+		
+		#清理添加的content
+		if content:
+			for key in content:
+				del self.__request.headers[key]
+		if result:
+			return json.loads(result)
+	
+	def add_target(self, target, description = '', criticality = 10):
+		url = wvseting.base_url + '/api/v1/targets'
+		data = {'address':target,'description':description,"criticality":criticality}
+		return self.action(url, data, 'POST', settings.CONTENT_JSON)
+	def type_scan(self)
+		url = wvseting.base_url + '/api/v1/scanning_profiles'
+		return self.action(url)
+
+	def start_scan(self, target_id, 
+						profile_id = FULL_SCAN,
+						disable = False,
+						start_date = None,
+						time_sensitive = False):
+		url = wvseting.base_url + '/api/v1/scans'
+		data = {"target_id":target_id,"profile_id":profile_id,"schedule":{"disable":disable,"start_date":start_date,"time_sensitive":time_sensitive}}
+		return self.action(url, data, 'POST', settings.CONTENT_JSON)
 
 class BloblastGroupExistException(Exception):
     pass
