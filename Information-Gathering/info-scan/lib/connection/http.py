@@ -86,7 +86,7 @@ class Request():
 		self.__accept(url)
 		response = None
 		data = None
-		if not cmp(self.headers['Content-Type'], 'application/json') and values:
+		if self.headers.has_key('Content-Type') and not cmp(self.headers['Content-Type'], 'application/json') and values:
 			data = json.dumps(values)
 		elif values:
 			data = urllib.urlencode(values)
