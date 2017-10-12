@@ -36,7 +36,9 @@ if LINUX in systype.lower():
 	if not os.path.exists(hydseting.lock_path):
 		#安装hydra所需环境
 		os.system('sh %s'%hydseting.install_path)
-		#TODO安装masscan所需环境
+	if not os.path.exists(maseting.lock_path):
+		#安装masscan所需环境
+		os.system('sh %s'%maseting.install_path)
 elif WINDOWS in systype.lower():
 	#TODO
 	pass
