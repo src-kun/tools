@@ -118,9 +118,9 @@ class Request():
 			logger.info(url + " 200 ok")
 		return response
 		
-	def delete(self, url, values):
+	def delete(self, url):
 		response = self.connect(url, lamb = 'DELETE')
-		if response and esponse.code == 200:
+		if response and response.code == 200:
 			logger.info(url + " 200 ok")
 		return response
 
