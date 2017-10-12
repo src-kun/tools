@@ -6,7 +6,6 @@ import ssl
 import json
 
 import hashlib
-from nessrest import ness6rest
 
 from lib.core.log import logger
 from lib.utils.common import read
