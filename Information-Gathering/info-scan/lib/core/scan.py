@@ -65,7 +65,8 @@ class Nessus():
 		if content:
 			for key in content:
 				del self.__request.headers[key]
-				
+		
+		#TODO 支持二进制文件下载
 		if download:
 			return result
 
@@ -180,6 +181,8 @@ class Wvs():
 			response = self.__request.post(url, data)
 		elif not cmp(method, 'PUT'):
 			response = self.__request.put(url, data)
+		elif not cmp(method, 'DELETE'):
+			response = self.__request.delete(url)
 		else:
 			response = self.__request.get(url)
 		result = self.__request.read(response)
@@ -192,23 +195,40 @@ class Wvs():
 			return json.loads(result)
 	
 	def add_target(self, target, description = '', criticality = 10):
-		url = wvseting.base_url + '/api/v1/targets'
+		url = wvseting.base_url + 'api/v1/targets'
 		data = {'address':target,'description':description,"criticality":criticality}
 		return self.action(url, data, 'POST', settings.CONTENT_JSON)
 
-	def list_target(self, target_name = None, group_name = None):
-		pass
-		
-	def type_scan(self):
-		url = wvseting.base_url + '/api/v1/scanning_profiles'
+	def list_target(self, target_id = None, group_name = None):
+		url = wvseting.base_url +  'api/v1/targets'
+		if target_id:
+			url += '/' + target_id
 		return self.action(url)
+		
+	def del_target(self, target_id):
+		url = wvseting.base_url +  'api/v1/targets/' + target_id
+		return self.action(url, method = 'DELETE')
+	
+	def list_scans(self, scan_id = None):
+		url = wvseting.base_url +  'api/v1/scans'
+		if scan_id:
+			url += '/' + scan_id
+		return self.action(url)
+		
+	def del_scan(self, scan_id):
+		url = wvseting.base_url +  'api/v1/scans/' + scan_id
+		return self.action(url, method = 'DELETE')
 
+	def type_scan(self):
+		url = wvseting.base_url + 'api/v1/scanning_profiles'
+		return self.action(url)
+	
 	def start_scan(self, target_id, 
 						profile_id = FULL_SCAN,
 						disable = False,
 						start_date = None,
 						time_sensitive = False):
-		url = wvseting.base_url + '/api/v1/scans'
+		url = wvseting.base_url + 'api/v1/scans'
 		data = {"target_id":target_id,"profile_id":profile_id,"schedule":{"disable":disable,"start_date":start_date,"time_sensitive":time_sensitive}}
 		return self.action(url, data, 'POST', settings.CONTENT_JSON)
 

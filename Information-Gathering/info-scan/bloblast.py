@@ -68,12 +68,12 @@ scan_id = 17
 #print nessus.start_scan(17)
 #print nessus.list_scan(4)
 #print nessus.status_scan(9)
-import time
+"""import time
 file_id = nessus.file_id_scan(9)['file']
 print file_id
 while nessus.export_status(scan_id, file_id):
 	time.sleep(0.3)
-nessus.download_export(scan_id,file_id)
+nessus.download_export(scan_id,file_id)"""
 #print nessus.status_scan(scan_id)
 #print nessus.details_scan(scan_id)
 #检测nessus运行状态
@@ -87,3 +87,7 @@ wvs = Wvs()
 #print wvs.add_target('https://www.q28.me/')
 #print wvs.start_scan('e01a9096-d2aa-40da-b564-6ac5196d249f')
 #print wvs.type_scan()
+#print wvs.list_target()
+print wvs.del_target('820d6a15-c555-4411-ba00-03fe82ce3811')
+#print wvs.list_scans()
+#print wvs.del_scan('0a6f24d7-b6be-422e-a4d2-8795b77b3ec4')

@@ -69,6 +69,7 @@ class Wvseting():
 	def __init__(self):
 		self.api_key = '1986ad8c0a5b3df4d7028d5f3c06e936c10a743b8beb644cd852d9320bd0e3a4e'
 		self.base_url = 'https://10.102.16.196:3443/'
+		#self.base_url = 'http://127.0.0.1:8080/'
 		
 wvseting = Wvseting()
 
