@@ -1,0 +1,12 @@
+#!/bin/sh
+
+if [ ! -d "hydra" ]; then
+  rm -f hydra
+fi
+git clone https://github.com/vanhauser-thc/thc-hydra.git
+cd thc-hydra
+./configure
+make
+mv hydra ../
+cd ../
+rm -rf thc-hydra

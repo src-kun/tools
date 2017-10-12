@@ -17,6 +17,7 @@ from lib.core.scan import Nessus
 from lib.core.scan import Wvs
 from lib.core.settings import maseting
 from lib.core.settings import neseting
+from lib.core.crack import Hydra
 from lib.core import settings
 from lib.connection.http import Request
 bloom = BloomFilter(capacity=100000, error_rate=0.001)
@@ -88,6 +89,8 @@ wvs = Wvs()
 #print wvs.start_scan('e01a9096-d2aa-40da-b564-6ac5196d249f')
 #print wvs.type_scan()
 #print wvs.list_target()
-print wvs.del_target('820d6a15-c555-4411-ba00-03fe82ce3811')
+#print wvs.del_target('820d6a15-c555-4411-ba00-03fe82ce3811')
 #print wvs.list_scans()
 #print wvs.del_scan('0a6f24d7-b6be-422e-a4d2-8795b77b3ec4')
+hydra = Hydra()
+hydra.start()

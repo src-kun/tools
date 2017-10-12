@@ -125,3 +125,11 @@ class Maseting():
 		self.group_handle.close()
 
 maseting = Maseting()
+
+class Hydseting():
+	
+	def __init__(self):
+		self.install_path = bash_obj_path + 'bin/hydra/install'
+		self.hydra_path = bash_obj_path + 'bin/hydra/hydra'
+		
+hydseting = Hydseting()
