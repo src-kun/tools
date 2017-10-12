@@ -2,6 +2,7 @@
 #coding=utf-8 
 
 import sys
+import os
 
 from pybloom import BloomFilter
 
@@ -17,12 +18,31 @@ from lib.core.scan import Nessus
 from lib.core.scan import Wvs
 from lib.core.settings import maseting
 from lib.core.settings import neseting
+from lib.core.settings import hydseting
 from lib.core.crack import Hydra
 from lib.core import settings
 from lib.connection.http import Request
 bloom = BloomFilter(capacity=100000, error_rate=0.001)
 
 blob = {'domain':[]}
+
+#初始化项目
+import platform
+LINUX = 'linux'
+WINDOWS = 'windows'
+
+(systype, hostname, kernel, version, graphics, bit) = platform.uname()
+if LINUX in systype.lower():
+	if not os.path.exists(hydseting.lock_path):
+		#安装hydra所需环境
+		os.system('sh %s'%hydseting.install_path)
+		#TODO安装masscan所需环境
+elif WINDOWS in systype.lower():
+	#TODO
+	pass
+else:
+	print 'unkown operating system'
+#self.__bin_check()
 
 #域名收集
 def domain_collect(filter, url):
@@ -93,4 +113,4 @@ wvs = Wvs()
 #print wvs.list_scans()
 #print wvs.del_scan('0a6f24d7-b6be-422e-a4d2-8795b77b3ec4')
 hydra = Hydra()
-hydra.start()
+#hydra.start()

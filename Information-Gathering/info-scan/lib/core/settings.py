@@ -131,5 +131,6 @@ class Hydseting():
 	def __init__(self):
 		self.install_path = bash_obj_path + 'bin/hydra/install'
 		self.hydra_path = bash_obj_path + 'bin/hydra/hydra'
+		self.lock_path = bash_obj_path + 'bin/hydra/lock'
 		
 hydseting = Hydseting()

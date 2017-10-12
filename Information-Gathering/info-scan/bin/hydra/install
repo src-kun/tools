@@ -10,3 +10,4 @@ make
 mv hydra ../
 cd ../
 rm -rf thc-hydra
+touch lock
