@@ -1,5 +1,10 @@
+#! usr/bin/python 
+#coding=utf-8
 
+def hydra():
 
+	def __init__(self):
+		pass
 
-def dict():
-	print "TODO: 字典生成 domain 拆解"
+	def start(self):
+		pass

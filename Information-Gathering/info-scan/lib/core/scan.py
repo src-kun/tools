@@ -27,7 +27,7 @@ class Nessus():
 		self.template = None
 		self.context = ssl._create_unverified_context()
 		self.__headers = {'X-ApiKeys': 'accessKey=' + neseting.access +'; secretKey=' + neseting.secret}
-		self.request = Request(headers = self.__headers, context = self.context)
+		self.__request = Request(headers = self.__headers, context = self.context)
 	
 	#获取文件夹内扫描任务
 	def folders(self, folder = None):
@@ -51,22 +51,24 @@ class Nessus():
 		else:
 			return tems
 	
-	#TODO 文件下载
-	def action(self, url, data = None, method = 'GET', content = '', todo = None):
-		self.request.headers[settings.CONTENT_TYPE] = content
+	def action(self, url, data = None, method = 'GET', content = {}, download = False):
+		self.__request.headers.update(content)
 		if not cmp(method, 'POST'):
-			response = self.request.post(url, data)
+			response = self.__request.post(url, data)
 		elif not cmp(method, 'PUT'):
-			response = self.request.put(url, data)
+			response = self.__request.put(url, data)
 		else:
-			response = self.request.get(url)
-		result = self.request.read(response)
+			response = self.__request.get(url)
+		result = self.__request.read(response)
 		
 		#清理添加的content
 		if content:
-			del self.request.headers[settings.CONTENT_TYPE]
-		if todo:
+			for key in content:
+				del self.__request.headers[key]
+				
+		if download:
 			return result
+
 		if result:
 			return json.loads(result)
 	
@@ -109,7 +111,7 @@ class Nessus():
 		if launch:
 			data['settings']['launch'] = launch
 			
-		return self.action(url, data, method = 'POST', content = "application/json")
+		return self.action(url, data, method = 'POST', content = settings.CONTENT_JSON)
 	
 	#开始扫描
 	def start_scan(self, scan_id):
@@ -124,7 +126,7 @@ class Nessus():
 	#TODO 无返回值
 	def status_scan(self, scan_id, read = True):
 		url = neseting.base_url + 'scans/%d/status'%(scan_id)
-		return self.action(url, {"read":read}, method = 'PUT', content = "application/json")
+		return self.action(url, {"read":read}, method = 'PUT', content = settings.CONTENT_JSON)
 	
 	#获取扫描任务、漏洞、描述、历史扫描记录
 	def details_scan(self, scan_id, history_id = None):
@@ -138,7 +140,7 @@ class Nessus():
 	def file_id_scan(self, scan_id, format = 'nessus'):
 		url =  neseting.base_url + 'scans/%d/export'%(scan_id)
 		values = {"format":format,"filter.search_type":"and"}
-		return self.action(url, values, method = 'POST', content = "application/json") 
+		return self.action(url, values, method = 'POST', content = settings.CONTENT_JSON) 
 	
 	#查看报告是否可以下载，生成报告有延迟，首先需要判断是否可以下载
 	#return 0 可以下载
@@ -153,7 +155,7 @@ class Nessus():
 	#TODO 下载pdf失败
 	def download_export(self, scan_id, file_id, name = None, format = 'nessus'):
 		url =  neseting.base_url + 'scans/%d/export/%d/download'%(scan_id, file_id)
-		data = self.action(url, method = 'GET', content = "application/json", todo='todo') 
+		data = self.action(url, method = 'GET', content = settings.CONTENT_JSON, download = True) 
 		if not name:
 			name = str(file_id)
 		path = neseting.export_path
@@ -193,7 +195,11 @@ class Wvs():
 		url = wvseting.base_url + '/api/v1/targets'
 		data = {'address':target,'description':description,"criticality":criticality}
 		return self.action(url, data, 'POST', settings.CONTENT_JSON)
-	def type_scan(self)
+
+	def list_target(self, target_name = None, group_name = None):
+		pass
+		
+	def type_scan(self):
 		url = wvseting.base_url + '/api/v1/scanning_profiles'
 		return self.action(url)
 
