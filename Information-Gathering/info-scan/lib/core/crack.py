@@ -14,5 +14,5 @@ class Hydra():
 	def __bin_check(self):
 		os.system('sh %s'%hydseting.install_path)
 
-	def start(self, report_path):
-		os.system('%s -h '%self.hydra_path);
+	def start(self, report_path = None):
+		os.system('%s -h '%hydseting.hydra_path);
