@@ -133,5 +133,7 @@ class Hydseting():
 		self.install_path = bash_obj_path + 'bin/hydra/install'
 		self.hydra_path = bash_obj_path + 'bin/hydra/hydra'
 		self.lock_path = bash_obj_path + 'bin/hydra/lock'
+		self.report_path = bash_obj_path + 'data/hydra/report'
+		chk_file(self.report_path)
 		
 hydseting = Hydseting()
