@@ -1,6 +1,8 @@
 #! usr/bin/python 
 #coding=utf-8 
 from lib.utils.common import current_path
+from lib.utils.common import chk_file
+from lib.utils.common import chk_dir
 
 #项目基本信息
 VERSION = "1.1.9.3"
@@ -53,13 +55,12 @@ class Neseting():
 		self.base_url = 'http://127.0.0.1/'
 		self.base_url = 'https://10.102.16.196:8834/'
 		#self.base_url = 'https://192.168.1.100:8834/'
-		self.export_path = "%sdata/nessus/report/"%bash_obj_path
+		self.data = bash_obj_path + 'data/nessus/'
+		self.export_path = self.data + 'report'
 		self.__check_env()
 		
 	#检查调用时的所需环境
 	def __check_env(self):
-		from lib.utils.common import chk_file
-		from lib.utils.common import chk_dir
 		#检测masscan report 文件夹 不存在则创建
 		chk_dir(self.export_path)
 
@@ -85,17 +86,19 @@ class Maseting():
 	FULL_SCAN = '1-65535'
 	
 	def __init__(self):
-		self.lock_path = bash_obj_path + 'bin/masscan/lock'
-		self.install_path = bash_obj_path + 'bin/masscan/install'
+		self.bin = bash_obj_path + 'bin/masscan/'
+		self.data =  "%sdata/masscan/"%bash_obj_path
+		self.lock_path = self.bin + 'lock'
+		self.install_path =self.bin + 'install'
 		#执行脚本
 		self.masscan_shell = '%s %s -p%s --banners --rate 10000 --adapter-ip 192.168.1.105 -oJ %s --wait=3 > /dev/null 2>&1'
 		#物理路径
-		self.masscan_path = "%sbin/masscan/masscan"%bash_obj_path
+		self.masscan_path = self.bin + 'masscan'
 		#输出的报告路径
-		self.masscan_report_path = "%sdata/masscan_report/"%bash_obj_path
+		self.report_path = self.data + 'report'
 		#扫描记录map文件
-		self.masscan_report_map_path = "%sdata/masscan_report/.masscan"%bash_obj_path
-		self.masscan_report_group_path = "%sdata/masscan_report/.group"%bash_obj_path
+		self.report_map_path = self.data + '.masscan'
+		self.report_group_path =  self.data + '.group'
 		self.history_format = "{'name':'%s', 'scan':{'token':'%s', 'target':{'ip':'%s', 'port':'%s'},'time':%s}, 'group_id':'%s'}\n"
 		self.group_format = "{'id':'%s', 'name':'%s', 'time':%s}\n"
 		self.map_handle = None
@@ -108,18 +111,16 @@ class Maseting():
 	
 	#检查调用时的所需环境
 	def __check_env(self):
-		from lib.utils.common import chk_file
-		from lib.utils.common import chk_dir
 		#检测masscan report 文件夹 不存在则创建
-		chk_dir(self.masscan_report_path)
+		chk_dir(self.data)
 		#检查map文件 不存在则创建
-		chk_file(self.masscan_report_map_path)
+		chk_file(self.report_map_path)
 		#检查group文件 不存在则创建
-		chk_file(self.masscan_report_group_path)
+		chk_file(self.report_group_path)
 
 	def __init_var(self):
-		self.map_handle = open(self.masscan_report_map_path, 'r+')
-		self.group_handle = open(self.masscan_report_group_path, 'r+')
+		self.map_handle = open(self.report_map_path, 'r+')
+		self.group_handle = open(self.report_group_path, 'r+')
 
 	def __del__( self ):
 		self.map_handle.close()
@@ -130,10 +131,17 @@ maseting = Maseting()
 class Hydseting():
 	
 	def __init__(self):
-		self.install_path = bash_obj_path + 'bin/hydra/install'
-		self.hydra_path = bash_obj_path + 'bin/hydra/hydra'
-		self.lock_path = bash_obj_path + 'bin/hydra/lock'
-		self.report_path = bash_obj_path + 'data/hydra/report'
-		chk_file(self.report_path)
+		self.data =  bash_obj_path + 'data/hydra/'
+		self.bin = bash_obj_path + 'bin/hydra/'
+		self.install_path = self.bin + 'install'
+		self.hydra_path = self.bin + 'hydra'
+		self.hydra_path = 'hydra'
+		self.lock_path = self.bin + 'lock'
+		self.restore =  self.data + 'restore/'
+		self.report_path = self.data + 'report'
+		self.user_dict_path = self.data + 'dict/user.list'
+		self.password_dict_path =  self.data + 'dict/password.list'
+		chk_dir(self.report_path)
+		chk_dir(self.restore)
 		
 hydseting = Hydseting()

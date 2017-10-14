@@ -401,7 +401,7 @@ class Masscan():
 	def scan(self, ip, port, group_name = None):
 		name = self.md5("%s%s%s"%(ip, port, str(time.time())))
 		group_id = ''
-		currten_export_path = "%s%s.json"%(maseting.masscan_export_path, name)
+		currten_export_path = "%s%s.json"%(maseting.export_path, name)
 		scan_shell = maseting.masscan_shell%(maseting.masscan_path, ip, port, currten_export_path)
 		output = os.popen(scan_shell)
 		if group_name:
@@ -419,7 +419,7 @@ class Masscan():
 
 	"""
 	def __export_path(self, name):
-		return "%s%s.json"%(maseting.masscan_export_path, name)
+		return "%s%s.json"%(maseting.export_path, name)
 
 	#return [{"ip": "111.202.114.53","timestamp": "1506482040", "ports": [ {"port": 80, "proto": "tcp", "status": "open", "reason": "syn-ack", "ttl": 128}]},...]
 	def export_json(self, name):

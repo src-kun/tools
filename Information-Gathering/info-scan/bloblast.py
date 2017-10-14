@@ -35,10 +35,10 @@ WINDOWS = 'windows'
 if LINUX in systype.lower():
 	if not os.path.exists(hydseting.lock_path):
 		#安装hydra所需环境
-		os.system('sh %s'%hydseting.install_path)
+		os.system('cd %s && sh %s'%(hydseting.bin, hydseting.install_path))
 	if not os.path.exists(maseting.lock_path):
 		#安装masscan所需环境
-		os.system('sh %s'%maseting.install_path)
+		os.system('cd %s && sh %s'%(maseting.bin, maseting.install_path))
 elif WINDOWS in systype.lower():
 	#TODO
 	pass
@@ -115,4 +115,4 @@ wvs = Wvs()
 #print wvs.list_scans()
 #print wvs.del_scan('0a6f24d7-b6be-422e-a4d2-8795b77b3ec4')
 hydra = Hydra()
-#hydra.start()
+hydra.start(target = '127.0.0.1', user_dict_path = hydseting.user_dict_path, password_dict_path =  hydseting.password_dict_path, proto = 'ssh')
