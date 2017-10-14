@@ -89,7 +89,7 @@ class Maseting():
 		self.bin = bash_obj_path + 'bin/masscan/'
 		self.data =  "%sdata/masscan/"%bash_obj_path
 		self.lock_path = self.bin + 'lock'
-		self.install_path =self.bin + 'install'
+		self.install_path = self.bin + 'install'
 		#执行脚本
 		self.masscan_shell = '%s %s -p%s --banners --rate 10000 --adapter-ip 192.168.1.105 -oJ %s --wait=3 > /dev/null 2>&1'
 		#物理路径
