@@ -1,5 +1,4 @@
 #!/bin/sh
-cd bin/masscan
 if [ ! -d "hydra" ]; then
   rm -f hydra
 fi
