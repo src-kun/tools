@@ -1,5 +1,13 @@
 #!/bin/sh
-cd bin/hydra
+
+debin_install()
+{
+	apt-get install libssl-dev libssh-dev libidn11-dev libpcre3-dev \
+                 libgtk2.0-dev libmysqlclient-dev libpq-dev libsvn-dev \
+                 firebird-dev libncp-dev
+}
+#TODO 安装相关包
+#debin_install
 if [ ! -d "hydra" ]; then
   rm -f hydra
 fi
