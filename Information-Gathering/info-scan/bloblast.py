@@ -20,6 +20,7 @@ from lib.core.settings import maseting
 from lib.core.settings import neseting
 from lib.core.settings import hydseting
 from lib.core.crack import Hydra
+from lib.utils.common import input
 from lib.core import settings
 from lib.connection.http import Request
 bloom = BloomFilter(capacity=100000, error_rate=0.001)
@@ -121,25 +122,47 @@ class Information():
 		#未写描述时，默认使用mark作为描述
 		if not description:
 			description = self.mark
-		target_ret = wvs.add_target(url, description = description)
+		msg = wvs.add_target(url, description = description)
 		
-		if not target_ret.has_key('message'):
+		if not wvs.getError(msg):
 			infoMsg = "add target {%s} success"%url
 			logger.info(infoMsg)
-			wvs.start_scan(target_ret['target_id'])
-			infoMsg = "start scan target {%s} success"%url
-			logger.info(infoMsg)
+			#msg = wvs.start_scan(msg['target_id'])
+			#infoMsg = "start scan target {%s} success"%url
+			#logger.info(infoMsg)
 		else:
-			warnMsg = "add target {%s} %s ! "%(url, target_ret['message'])
+			warnMsg = "add target {%s} %s ! "%(url, msg)
 			logger.warn(warnMsg)
-		#print wvs.start_scan('e01a9096-d2aa-40da-b564-6ac5196d249f')
-		#print wvs.type_scan()
-		#print wvs.list_target()
-		#print wvs.del_target('820d6a15-c555-4411-ba00-03fe82ce3811')
-		#print wvs.list_scans()
-		#print wvs.del_scan('0a6f24d7-b6be-422e-a4d2-8795b77b3ec4')
-		#blob['domain'].extend(domain_collect('cnblogs.','https://www.cnblogs.com'))
-		#http://www.mlr.gov.cn/
+			msg = None
+		return msg
+		
+	def clean_scans():
+		pass
+	
+	#confirm = True 时需要确认是否删除targets
+	def clean_targets(self, group_name = None, confirm = True):
+		
+		if confirm:
+			msg = 'Are you sure you want to clean targets? (Y/N) :'
+			if not cmp(input(msg).lower(), 'y'):
+				logger.info('Are you sure you want to clean targets? (Y/N) :Y')
+			else:
+				logger.info('Are you sure you want to clean targets? (Y/N) :N')
+				return
+				
+		if group_name:
+			#删除一个分组的target
+			targets = wvs.search_target(group_name)['targets']
+		else:
+			#删除全部target
+			targets = wvs.list_targets()['targets']
+		
+		#开始删除
+		for target in targets:
+			wvs.del_target(target['target_id'])
+			logger.info('del target {%s} success'%target['address'])
+		
+		return targets
 	
 	def port_scan(ip):
 		masscan = Masscan()
@@ -194,13 +217,22 @@ wvs = Wvs()
 #print wvs.add_target('http://www.q28.me/')
 #print wvs.start_scan('f334a59b-b179-4439-b0bf-ac41e23e2d7f')
 #print wvs.type_scan()
-#print wvs.list_target()
+#print wvs.list_targets()
 #print wvs.del_target('820d6a15-c555-4411-ba00-03fe82ce3811')
 #print wvs.list_scans()
 #print wvs.del_scan('0a6f24d7-b6be-422e-a4d2-8795b77b3ec4')
+#print wvs.search_target('csdn.net')
+#print wvs.create_group_target('test')
+#print wvs.del_group_target('008ba33b-af79-4ffb-aba5-6ab78bb47aac')
+#print wvs.list_groups_target()
+#print wvs.search_scans('cd9f576f-11cb-40ad-8692-e4b3d5271c79')
 hydra = Hydra()
 #hydra.start(target = '127.0.0.1', user_dict_path = hydseting.user_dict_path, password_dict_path =  hydseting.password_dict_path, proto = 'ssh')
 #hydra.restore(hydseting.restore + 'hydra.restore')
 info = Information('http://www.csdn.net/')
-targets = ','.join(info.domain_collect())
-print info.network_scan(targets)
+#targets = ','.join(info.domain_collect())
+#print info.network_scan(targets)
+targets = info.domain_collect()
+for target in targets:
+	info.application_scan(target)
+info.clean_targets('test')

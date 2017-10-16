@@ -61,3 +61,7 @@ def write(path = None, text = None, pattern = 'r+'):
 	file_handle.write(text)
 	file_handle.close()
 	return file_handle
+	
+def input(msg):
+	str = raw_input(msg); 
+	return str

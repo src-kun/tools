@@ -199,20 +199,53 @@ class Wvs():
 		data = {'address':target,'description':description,"criticality":criticality}
 		return self.action(url, data, 'POST', settings.CONTENT_JSON)
 
-	def list_target(self, target_id = None, group_name = None):
+	def list_targets(self, target_id = None, group_name = None):
 		url = wvseting.base_url +  'api/v1/targets'
 		if target_id:
 			url += '/' + target_id
 		return self.action(url)
 		
+	#搜索target
+	def search_target(self, text = None, group_id = None):
+		url = wvseting.base_url + 'api/v1/targets'
+		if text:
+			url += '?q=text_search:*' + text
+		elif group_id:
+			url += '?q=group_id:' + group_id
+		return self.action(url)
+	
 	def del_target(self, target_id):
 		url = wvseting.base_url +  'api/v1/targets/' + target_id
+		return self.action(url, method = 'DELETE')
+	
+	#添加target分组
+	def create_group_target(self, group_name, description = ''):
+		url = wvseting.base_url +  'api/v1/target_groups'
+		data = {'name':group_name, 'description': description}
+		return self.action(url, data = data, method = 'POST', content = settings.CONTENT_JSON)
+	
+	#获取所有target分组
+	#return {u'pagination': {u'previous_cursor': 0, u'next_cursor': None}, u'groups': [{u'group_id': u'cd9f576f-11cb-40ad-8692-e4b3d5271c79', u'description': u'', u'name': u'test', u'target_count': 1}]}
+	def list_groups_target(self):
+		url = wvseting.base_url +  '/api/v1/target_groups'
+		return self.action(url)
+	
+	#TODO 将某个target添加到某个分组
+	def add_target_to_group(self, group_id, target_id):
+		pass
+		
+	def del_group_target(self, group_id):
+		url = wvseting.base_url + 'api/v1/target_groups/' + group_id
 		return self.action(url, method = 'DELETE')
 	
 	def list_scans(self, scan_id = None):
 		url = wvseting.base_url +  'api/v1/scans'
 		if scan_id:
 			url += '/' + scan_id
+		return self.action(url)
+		
+	def search_scans(self, group_id):
+		url = wvseting.base_url +  '/api/v1/scans?q=group_id:' + group_id
 		return self.action(url)
 		
 	def del_scan(self, scan_id):
@@ -222,6 +255,7 @@ class Wvs():
 	def type_scan(self):
 		url = wvseting.base_url + 'api/v1/scanning_profiles'
 		return self.action(url)
+	
 	#{u'ui_session_id': None, u'profile_id': u'11111111-1111-1111-1111-111111111111', u'target_id': u'f334a59b-b179-4439-b0bf-ac41e23e2d7f', u'schedule': {u'disable': False, u'time_sensitive': False, u'start_date': None}}
 	def start_scan(self, target_id, 
 						profile_id = FULL_SCAN,
@@ -256,6 +290,10 @@ class Wvs():
 
 		if result:
 			return json.loads(result)
+		
+	def getError(self, msg):
+		if msg and msg.has_key('message'):
+			return msg['message']
 
 class BloblastGroupExistException(Exception):
     pass
