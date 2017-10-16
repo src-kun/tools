@@ -28,16 +28,28 @@ class Nessus():
 		self.__headers = {'X-ApiKeys': 'accessKey=' + neseting.access +'; secretKey=' + neseting.secret}
 		self.__request = Request(headers = self.__headers, context = self.context)
 	
-	#获取文件夹内扫描任务
+	#获取文件夹相关信息
 	def folders(self, folder = None):
 		url = neseting.base_url + 'scans'
 		flods = self.action(url)
 		if flods and folder:
 			for f in flods['folders']:
 				if not cmp(folder, f['name']):
+					#{u'name': u'test', u'custom': 1, u'unread_count': 1, u'default_tag': 0, u'type': u'custom', u'id': 4}
 					return f
 		else:
 			return flods
+	
+	#创建文件夹
+	def create_folder(self, folder_name):
+		url = neseting.base_url + 'folders'
+		data = {"name":folder_name}
+		return self.action(url, data = data, method = 'POST', content = settings.CONTENT_JSON)
+		
+	#删除文件夹
+	def del_folder(self, folder_id):
+		url = neseting.base_url + 'folders/%d'%folder_id
+		return self.action(url, method = 'DELETE')
 	
 	#获取所有扫描模板
 	def templates(self, type, template = None):
@@ -49,28 +61,6 @@ class Nessus():
 					return t
 		else:
 			return tems
-	
-	def action(self, url, data = None, method = 'GET', content = {}, download = False):
-		self.__request.headers.update(content)
-		if not cmp(method, 'POST'):
-			response = self.__request.post(url, data)
-		elif not cmp(method, 'PUT'):
-			response = self.__request.put(url, data)
-		else:
-			response = self.__request.get(url)
-		result = self.__request.read(response)
-		
-		#清理添加的content
-		if content:
-			for key in content:
-				del self.__request.headers[key]
-		
-		#TODO 支持二进制文件下载
-		if download:
-			return result
-
-		if result:
-			return json.loads(result)
 	
 	#获取策略
 	def policies(self, policie = None):
@@ -123,7 +113,7 @@ class Nessus():
 		url = neseting.base_url + '/scans/%d/stop'%(scan_id)
 		return self.action(url, method = 'POST')
 	
-	#TODO 无返回值
+	#无返回值
 	def status_scan(self, scan_id, read = True):
 		url = neseting.base_url + 'scans/%d/status'%(scan_id)
 		return self.action(url, {"read":read}, method = 'PUT', content = settings.CONTENT_JSON)
@@ -165,6 +155,35 @@ class Nessus():
 	def vuln_info():
 		pass
 		
+	def action(self, url, data = None, method = 'GET', content = {}, download = False):
+		self.__request.headers.update(content)
+		if not cmp(method, 'POST'):
+			response = self.__request.post(url, data)
+		elif not cmp(method, 'PUT'):
+			response = self.__request.put(url, data)
+		elif not cmp(method, 'GET'):
+			response = self.__request.get(url)
+		elif not cmp(method, 'DELETE'):
+			response = self.__request.delete(url)
+		
+		result = self.__request.read(response)
+		
+		#清理添加的content
+		if content:
+			for key in content:
+				del self.__request.headers[key]
+		
+		#TODO 支持二进制文件下载
+		if download:
+			return result
+
+		if result:
+			return json.loads(result)
+		
+	def getError(self, msg):
+		if msg and msg.has_key('error'):
+			return msg['error']
+		
 class Wvs():
 	
 	FULL_SCAN = "11111111-1111-1111-1111-111111111111"
@@ -174,25 +193,7 @@ class Wvs():
 		self.__headers = {'X-Auth':wvseting.api_key}
 		self.__request = Request(headers = self.__headers, context = self.context)
 
-	def action(self, url, data = None, method = 'GET', content = {}):
-		self.__request.headers.update(content)
-		if not cmp(method, 'POST'):
-			response = self.__request.post(url, data)
-		elif not cmp(method, 'PUT'):
-			response = self.__request.put(url, data)
-		elif not cmp(method, 'DELETE'):
-			response = self.__request.delete(url)
-		else:
-			response = self.__request.get(url)
-		result = self.__request.read(response)
-		
-		#清理添加的content
-		if content:
-			for key in content:
-				del self.__request.headers[key]
-		if result:
-			return json.loads(result)
-	
+	#return {u'target_id': u'f334a59b-b179-4439-b0bf-ac41e23e2d7f', u'description': u'', u'criticality': 10, u'address': u'https://www.xxx.com/'}
 	def add_target(self, target, description = '', criticality = 10):
 		url = wvseting.base_url + 'api/v1/targets'
 		data = {'address':target,'description':description,"criticality":criticality}
@@ -221,7 +222,7 @@ class Wvs():
 	def type_scan(self):
 		url = wvseting.base_url + 'api/v1/scanning_profiles'
 		return self.action(url)
-	
+	#{u'ui_session_id': None, u'profile_id': u'11111111-1111-1111-1111-111111111111', u'target_id': u'f334a59b-b179-4439-b0bf-ac41e23e2d7f', u'schedule': {u'disable': False, u'time_sensitive': False, u'start_date': None}}
 	def start_scan(self, target_id, 
 						profile_id = FULL_SCAN,
 						disable = False,
@@ -230,6 +231,31 @@ class Wvs():
 		url = wvseting.base_url + 'api/v1/scans'
 		data = {"target_id":target_id,"profile_id":profile_id,"schedule":{"disable":disable,"start_date":start_date,"time_sensitive":time_sensitive}}
 		return self.action(url, data, 'POST', settings.CONTENT_JSON)
+	
+	def action(self, url, data = None, method = 'GET', content = {}, download = False):
+		self.__request.headers.update(content)
+		if not cmp(method, 'POST'):
+			response = self.__request.post(url, data)
+		elif not cmp(method, 'PUT'):
+			response = self.__request.put(url, data)
+		elif not cmp(method, 'GET'):
+			response = self.__request.get(url)
+		elif not cmp(method, 'DELETE'):
+			response = self.__request.delete(url)
+		
+		result = self.__request.read(response)
+		
+		#清理添加的content
+		if content:
+			for key in content:
+				del self.__request.headers[key]
+		
+		#TODO 支持二进制文件下载
+		if download:
+			return result
+
+		if result:
+			return json.loads(result)
 
 class BloblastGroupExistException(Exception):
     pass

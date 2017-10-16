@@ -63,20 +63,20 @@ class Crawler:
 	def depthInc(self):
 		 self.__host['depth'] += 1
 
-	#添加domain并返回添加成功的个数
+	#添加domain并返回未爬取到的域名
 	def appendDomain(self, full_domain_arry):
-		num = 0
+		domains = []
 		if type(full_domain_arry) is types.ListType:
 			full_domain_arry = list(set(full_domain_arry))
 			for full_domain in full_domain_arry:
 				if not full_domain in self.bloom:
-					num += 1
+					domains.extend(full_domain)
 				self.__push(self.__host['depth'], full_domain, full_domain)
 		elif type(full_domain_arry) is types.StringType:
 			if not full_domain_arry in self.bloom:
-				num += 1
+				domains.append(full_domain_arry)
 			self.__push(self.__host['depth'], full_domain_arry, full_domain_arry)
-		return num
+		return domains
 	
 	#TODO 增加相近url匹配过滤，去除相似url 如 host/2345.html host/4567.html
 	#return ('url', '协议', '完整域名', '域名', '非域名链接')

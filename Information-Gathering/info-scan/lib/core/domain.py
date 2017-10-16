@@ -62,7 +62,6 @@ class Network():
 			logger.error(errMsg)
 		return ip
 	
-	
 	#获取域名ip的对外接口
 	def ip(self, domain):
 		if type(domain) is types.ListType:
@@ -129,7 +128,7 @@ class Censysio():
 			else:
 				#TODO 处理失败
 				pass
-			return domain_dict
 		except Exception,e:
 			warnMsg = '{parsed.names: %s} %s'%(domain,str(e))
 			logger.warn(warnMsg)
+		return domain_dict
