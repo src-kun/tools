@@ -1,498 +1,144 @@
 #! usr/bin/python 
 #coding=utf-8 
-import os
-import time
-import ssl
-import json
 
-import hashlib
-
+from lib.core.rest import NessusRest
+from lib.core.rest import NessusRest
+from lib.core.rest import WvsRest
 from lib.core.log import logger
-from lib.utils.common import read
-from lib.utils.common import list_dir_nohidden
-from lib.core.settings import maseting
-from lib.core.settings import wvseting
-from lib.core.settings import neseting
-from lib.core import settings
-from lib.utils.common import write
-from lib.connection.http import Request
+from lib.utils.common import input
 
-class Nessus():
-	templates_arry = ['PCI Quarterly External Scan', 'Host Discovery', 'WannaCry Ransomware', 'Intel AMT Security Bypass', 'Basic Network Scan', 'Credentialed Patch Audit', 'Web Application Tests', 'Malware Scan', 'Mobile Device Scan', 'MDM Config Audit', 'Policy Compliance Auditing', 'Internal PCI Network Scan', 'Offline Config Audit', 'Audit Cloud Infrastructure', 'SCAP and OVAL Auditing', 'Bash Shellshock Detection', 'GHOST (glibc) Detection', 'DROWN Detection', 'Badlock Detection', 'Shadow Brokers Scan', 'Advanced Scan']
-	lanch = ['ON_DEMAND', 'DAILY', 'WEEKLY,' 'MONTHLY', 'YEARLY']
-	download_format = ['Nessus', 'HTML', 'PDF', 'CSV', 'DB']
+class WvsScan():
+	#终止状态
+	SCAN_STATUS_ABORT = 'aborted'
+	#运行状态
+	SCAN_STATUS_PROCESSING = 'processing'
+	#等待状态
+	SCAN_STATUS_QUEUED = 'queued'
+	#完成状态
+	SCAN_STATUS_COMPLETED = 'completed'
 	
 	def __init__(self):
-		self.template = None
-		self.context = ssl._create_unverified_context()
-		self.__headers = {'X-ApiKeys': 'accessKey=' + neseting.access +'; secretKey=' + neseting.secret}
-		self.__request = Request(headers = self.__headers, context = self.context)
+		self.__wvsrest = WvsRest()
 	
-	#获取文件夹相关信息
-	def folders(self, folder = None):
-		url = neseting.base_url + 'scans'
-		flods = self.action(url)
-		if flods and folder:
-			for f in flods['folders']:
-				if not cmp(folder, f['name']):
-					#{u'name': u'test', u'custom': 1, u'unread_count': 1, u'default_tag': 0, u'type': u'custom', u'id': 4}
-					return f
-		else:
-			return flods
-	
-	#创建文件夹
-	def create_folder(self, folder_name):
-		url = neseting.base_url + 'folders'
-		data = {"name":folder_name}
-		return self.action(url, data = data, method = 'POST', content = settings.CONTENT_JSON)
+	#url_arry 需要扫描的url数组
+	#description 备注
+	def scan(self, url_arry, description = '', group_name = None):
 		
-	#删除文件夹
-	def del_folder(self, folder_id):
-		url = neseting.base_url + 'folders/%d'%folder_id
-		return self.action(url, method = 'DELETE')
-	
-	#获取所有扫描模板
-	def templates(self, type, template = None):
-		url = neseting.base_url + 'editor/' + type + '/templates'
-		tems = self.action(url)
-		if tems and template:
-			for t in tems['templates']:
-				if not cmp(template, t['title']):
-					return t
-		else:
-			return tems
-	
-	#获取策略
-	def policies(self, policie = None):
-		url = neseting.base_url + 'policies'
-		policies = self.action(url)
-		if policie and policies:
-			for p in policies['policies']:
-				if not cmp(policie, p['name']):
-					return p
-		else:
-			return policies
-	
-	#获取folder_id文件夹内扫描任务
-	def list_scan(self, folder_id = None, date = None):
-		url = neseting.base_url + 'scans'
-		#TODO 增加date过滤
-		if folder_id:
-			url += '?folder_id=' + str(folder_id)
-		return self.action(url)
-	
-	#创建扫描
-	def create_scan(self, template_uuid, scan_name, targets, enabled = 'false', policy_id = None, folder_id = None, description = None, launch = None):
-		url = neseting.base_url + 'scans'
-		data = {
-		"uuid": template_uuid,
-		"settings": {
-			"name": scan_name,
-			"enabled": enabled,
-			"text_targets": targets
-			}
-		}
-		if policy_id:
-			data['settings']['policy_id'] = policy_id
-		if folder_id:
-			data['settings']['folder_id'] = folder_id
-		if description:
-			data['settings']['description'] = description 
-		if launch:
-			data['settings']['launch'] = launch
+		target_id_arry = []
+		for url in url_arry:
+			#添加到target
+			target = self.__wvsrest.add_target(url, description = description)
 			
-		return self.action(url, data, method = 'POST', content = settings.CONTENT_JSON)
-	
-	#开始扫描
-	def start_scan(self, scan_id):
-		url = neseting.base_url + 'scans/%d/launch'%(scan_id)
-		return self.action(url, method = 'POST')
-	
-	#停止扫描
-	def stop_scan(self, scan_id):
-		url = neseting.base_url + '/scans/%d/stop'%(scan_id)
-		return self.action(url, method = 'POST')
-	
-	#无返回值
-	def status_scan(self, scan_id, read = True):
-		url = neseting.base_url + 'scans/%d/status'%(scan_id)
-		return self.action(url, {"read":read}, method = 'PUT', content = settings.CONTENT_JSON)
-	
-	#获取扫描任务、漏洞、描述、历史扫描记录
-	def details_scan(self, scan_id, history_id = None):
-		url = neseting.base_url + 'scans/%d'%(scan_id)
-		if history_id:
-			url += '?history_id=%d'%history_id
-		return self.action(url)
-
-	#通知nessus生成报告
-	#return {u'token': u'c8f9425c44306088a383ed7045ceb346c10de51bbc8edd4428c15024b7d20c0c', u'file': 2056893300}
-	def file_id_scan(self, scan_id, format = 'nessus'):
-		url =  neseting.base_url + 'scans/%d/export'%(scan_id)
-		values = {"format":format,"filter.search_type":"and"}
-		return self.action(url, values, method = 'POST', content = settings.CONTENT_JSON) 
-	
-	#查看报告是否可以下载，生成报告有延迟，首先需要判断是否可以下载
-	#return 0 可以下载
-	def export_status(self, scan_id, file_id):
-		url =  neseting.base_url + 'scans/%d/export/%d/status'%(scan_id, file_id)
-		return cmp(self.action(url)['status'], 'ready')
-	
-	#TODO 获取删除记录
-	def export_history(self, scan_id):
-		pass
-		
-	#TODO 下载pdf失败
-	def download_export(self, scan_id, file_id, name = None, format = 'nessus'):
-		url =  neseting.base_url + 'scans/%d/export/%d/download'%(scan_id, file_id)
-		data = self.action(url, method = 'GET', content = settings.CONTENT_JSON, download = True) 
-		if not name:
-			name = str(file_id)
-		path = neseting.export_path
-		with open('%s%s.%s'%(path, name, format), 'wb') as code:     
-			code.write(data)
-			
-	def vuln_info():
-		pass
-		
-	def action(self, url, data = None, method = 'GET', content = {}, download = False):
-		self.__request.headers.update(content)
-		if not cmp(method, 'POST'):
-			response = self.__request.post(url, data)
-		elif not cmp(method, 'PUT'):
-			response = self.__request.put(url, data)
-		elif not cmp(method, 'GET'):
-			response = self.__request.get(url)
-		elif not cmp(method, 'DELETE'):
-			response = self.__request.delete(url)
-		
-		result = self.__request.read(response)
-		
-		#清理添加的content
-		if content:
-			for key in content:
-				del self.__request.headers[key]
-		
-		#TODO 支持二进制文件下载
-		if download:
-			return result
-
-		if result:
-			return json.loads(result)
-		
-	def getError(self, msg):
-		if msg and msg.has_key('error'):
-			return msg['error']
-		
-class Wvs():
-	
-	FULL_SCAN = "11111111-1111-1111-1111-111111111111"
-	
-	def __init__(self):
-		self.context = ssl._create_unverified_context()
-		self.__headers = {'X-Auth':wvseting.api_key}
-		self.__request = Request(headers = self.__headers, context = self.context)
-
-	#return {u'target_id': u'f334a59b-b179-4439-b0bf-ac41e23e2d7f', u'description': u'', u'criticality': 10, u'address': u'https://www.xxx.com/'}
-	def add_target(self, target, description = '', criticality = 10):
-		url = wvseting.base_url + 'api/v1/targets'
-		data = {'address':target,'description':description,"criticality":criticality}
-		return self.action(url, data, 'POST', settings.CONTENT_JSON)
-
-	def list_targets(self, target_id = None, group_name = None):
-		url = wvseting.base_url +  'api/v1/targets'
-		if target_id:
-			url += '/' + target_id
-		return self.action(url)
-		
-	#搜索target
-	def search_target(self, text = None, group_id = None):
-		url = wvseting.base_url + 'api/v1/targets'
-		if text:
-			url += '?q=text_search:*' + text
-		elif group_id:
-			url += '?q=group_id:' + group_id
-		return self.action(url)
-	
-	def del_target(self, target_id):
-		url = wvseting.base_url +  'api/v1/targets/' + target_id
-		return self.action(url, method = 'DELETE')
-	
-	#添加target分组
-	def create_group_target(self, group_name, description = ''):
-		url = wvseting.base_url +  'api/v1/target_groups'
-		data = {'name':group_name, 'description': description}
-		return self.action(url, data = data, method = 'POST', content = settings.CONTENT_JSON)
-	
-	#获取所有target分组
-	#return {u'pagination': {u'previous_cursor': 0, u'next_cursor': None}, u'groups': [{u'group_id': u'cd9f576f-11cb-40ad-8692-e4b3d5271c79', u'description': u'', u'name': u'test', u'target_count': 1}]}
-	def list_groups_target(self):
-		url = wvseting.base_url +  '/api/v1/target_groups'
-		return self.action(url)
-	
-	#TODO 将某个target添加到某个分组
-	def add_target_to_group(self, group_id, target_id):
-		pass
-		
-	def del_group_target(self, group_id):
-		url = wvseting.base_url + 'api/v1/target_groups/' + group_id
-		return self.action(url, method = 'DELETE')
-	
-	def list_scans(self, scan_id = None):
-		url = wvseting.base_url +  'api/v1/scans'
-		if scan_id:
-			url += '/' + scan_id
-		return self.action(url)
-		
-	def search_scans(self, group_id):
-		url = wvseting.base_url +  '/api/v1/scans?q=group_id:' + group_id
-		return self.action(url)
-		
-	def del_scan(self, scan_id):
-		url = wvseting.base_url +  'api/v1/scans/' + scan_id
-		return self.action(url, method = 'DELETE')
-
-	def type_scan(self):
-		url = wvseting.base_url + 'api/v1/scanning_profiles'
-		return self.action(url)
-	
-	#{u'ui_session_id': None, u'profile_id': u'11111111-1111-1111-1111-111111111111', u'target_id': u'f334a59b-b179-4439-b0bf-ac41e23e2d7f', u'schedule': {u'disable': False, u'time_sensitive': False, u'start_date': None}}
-	def start_scan(self, target_id, 
-						profile_id = FULL_SCAN,
-						disable = False,
-						start_date = None,
-						time_sensitive = False):
-		url = wvseting.base_url + 'api/v1/scans'
-		data = {"target_id":target_id,"profile_id":profile_id,"schedule":{"disable":disable,"start_date":start_date,"time_sensitive":time_sensitive}}
-		return self.action(url, data, 'POST', settings.CONTENT_JSON)
-	
-	def action(self, url, data = None, method = 'GET', content = {}, download = False):
-		self.__request.headers.update(content)
-		if not cmp(method, 'POST'):
-			response = self.__request.post(url, data)
-		elif not cmp(method, 'PUT'):
-			response = self.__request.put(url, data)
-		elif not cmp(method, 'GET'):
-			response = self.__request.get(url)
-		elif not cmp(method, 'DELETE'):
-			response = self.__request.delete(url)
-		
-		result = self.__request.read(response)
-		
-		#清理添加的content
-		if content:
-			for key in content:
-				del self.__request.headers[key]
-		
-		#TODO 支持二进制文件下载
-		if download:
-			return result
-
-		if result:
-			return json.loads(result)
-		
-	def getError(self, msg):
-		if msg and msg.has_key('message'):
-			return msg['message']
-
-class BloblastGroupExistException(Exception):
-    pass
-		
-class Masscan():
-	
-	def __init__(self):
-		self.adapter_ip = None
-		self.history = self.__historys(maseting.ALL_HISTORY)
-		self.group = self.__groups(maseting.ALL_GROUP)
-	"""
-
-	历史
-
-	"""
-	
-	#name （masscan 报告文件名 唯一不可重复） token （ip + port md5值，查询扫描历史纪录） target （扫描参数）time （扫描时间） group （分组 探测不同ip段但同属于一个目标的标记）
-	# push {'name':'%s', 'scan':{'token':'%s', 'target':{'ip':'%s', 'port':'%s'},'time':%s}, 'group':''}\n name 不可重复
-	def __push_map(self, ip, port, name, group):
-		history = maseting.history_format%(name, self.token(ip, port), ip, port, time.time(), group)
-		maseting.map_handle.write(history)
-		#更新到历史纪录中
-		self.update_history(history)
-		maseting.map_handle.flush()
-		return eval(history)
-	
-	#line 返回的行数 line等于-1时返回所有历史纪录
-	#return ["{'name':'%s', 'scan':{'token':'%s', 'target':{'ip':'%s', 'port':'%s'},'time':%s}}\n",...]
-	def __pop_map(self, line):
-		#重置文件指针到文件头
-		if maseting.map_handle.tell():
-			maseting.map_handle.seek(0)
-		map_arry = []
-		if line > 0:
-			map_arry.extend(maseting.map_handle.readlines(line))
-		elif line is maseting.ALL_HISTORY:
-			line = 10000
-			while True:
-				lines = maseting.map_handle.readlines(line)
-				if not lines:
-					break
-				map_arry.extend(lines)
-		return map_arry
-	
-	#获取历史纪录 默认获取100条
-	#return  {'history':[{'name':'%s', 'scan':{'token':'%s', 'target':{'ip':'%s', 'port':'%s'},'time':%s}}\n,...],'count':0}
-	def __historys(self, line = 100):
-		history = {'history':[], 'count':0}
-		lines = self.__pop_map(line)
-		history['count'] = len(lines)
-		for i in range(0, history['count']):
-			try:
-				history['history'].append(eval(lines[i]))
-			except exception, e:
-				pass
-		return history
-	
-	#更新历史纪录
-	def update_history(self, map_text):
-		self.history['history'].append(eval(map_text))
-		self.history['count'] += 1
-
-	#筛选历史纪录
-	#return  {'history':[{'name':'%s', 'scan':{'token':'%s', 'target':{'ip':'%s', 'port':'%s'},'time':%s}}\n,...],'count':0}
-	def select_history(self, token = None, name = None, ip = None, group_id = None, time = None):
-		history = {'history':[], 'count':0}
-		if token:
-			for h in self.history['history']:
-				if not cmp(h['scan']['token'],token):
-					history['history'].append(h)
-					history['count'] += 1
-		elif name:
-			for h in self.history['history']:
-				if not cmp(h['name'],name):
-					history['history'].append(h)
-					history['count'] += 1
-		elif ip:
-			for h in self.history['history']:
-				if not cmp(h['scan']['target']['ip'], ip):
-					history['history'].append(h)
-					history['count'] += 1
-		elif group_id:
-			#查询同分组的扫描记录
-			group = self.select_group(id = group_id)
-			for g in self.history['history']:
-				if not cmp(g['group_id'], group_id):
-					history['history'].append(g)
-					history['count'] += 1
-		else:
-			history = None
-		return history
-	"""
-	分组
-	"""
-
-	#添加分组 不存在创建
-	#add {'id':id, 'group':'', 'time':0}
-	def __push_group(self, group):
-		group = maseting.group_format%(self.md5(group.join(str(time.time()))), group, time.time())
-		maseting.group_handle.write(group)
-		#更新分组
-		self.update_group(group)
-		maseting.group_handle.flush()
-		return eval(group)
-	
-	def __pop_group(self, line = 100):
-		#重置文件指针到文件头
-		if maseting.group_handle.tell():
-			maseting.group_handle.seek(0)
-		group_arry = []
-		if line > 0:
-			group_arry.extend(maseting.group_handle.readlines(line))
-		elif line is maseting.ALL_HISTORY:
-			line = 10000
-			while True:
-				lines = maseting.group_handle.readlines(line)
-				if not lines:
-					break
-				group_arry.extend(lines)
-		return group_arry
-
-	#获取历史纪录 默认获取100条
-	def __groups(self, line = 100):
-		group = {'group':[], 'count':0}
-		lines = self.__pop_group(line)
-		group['count'] = len(lines)
-		for i in range(0, group['count']):
-			try:
-				group['group'].append(eval(lines[i]))
-			except exception, e:
-				pass
-		return group
-	
-	#更新分组
-	def update_group(self, group):
-		self.group['group'].append(eval(group))
-		self.group['count'] += 1
-
-	#筛选分组
-	def select_group(self, name = None, id = None):
-		group = {'group':{}}
-		if name:
-			for g in self.group['group']:
-				if not cmp(g['name'], name):
-					group['group'].update(g)
-		elif id:
-			for g in self.group['group']:
-				if not cmp(g['id'], id):
-					group['group'].update(g)
-		else:
-			group = None 
-		return group
-
-	"""
-
-	扫描
-
-	"""
-	
-	def md5(self, key):
-		m2 = hashlib.md5()
-		m2.update(key)
-		return m2.hexdigest()
-		
-	def token(self, ip, port):
-		return self.md5(ip.join(port))
-
-	#TODO --adapter-ip 
-	def scan(self, ip, port, group_name = None):
-		name = self.md5("%s%s%s"%(ip, port, str(time.time())))
-		group_id = ''
-		currten_export_path = "%s%s.json"%(maseting.export_path, name)
-		scan_shell = maseting.masscan_shell%(maseting.masscan_path, ip, port, currten_export_path)
-		output = os.popen(scan_shell)
-		if group_name:
-			group = self.select_group(name=group_name)
-			if group['group']:
-				group_id = group['group']['id']
+			if not self.__wvsrest.getError(target):
+				infoMsg = "add target {%s} success"%url
+				logger.info(infoMsg)
+				#启动扫描
+				#self.__wvsrest.start_scan(target['target_id'])
+				target_id_arry.append(target['target_id'])
+				#infoMsg = "start scan target {%s} success"%url
+				#logger.info(infoMsg)
 			else:
-				group_id = self.__push_group(group_name)['id']
-		if name:
-			return self.__push_map(ip, port, name, group_id)
+				warnMsg = "add target {%s} %s ! "%(url, target)
+				logger.warn(warnMsg)
 		
-	"""
-
-	报告
-
-	"""
-	def __export_path(self, name):
-		return "%s%s.json"%(maseting.export_path, name)
-
-	#return [{"ip": "111.202.114.53","timestamp": "1506482040", "ports": [ {"port": 80, "proto": "tcp", "status": "open", "reason": "syn-ack", "ttl": 128}]},...]
-	def export_json(self, name):
-		export_dict = {'exports':[],'count':0}
-		export_arry = read(self.__export_path(name))
-		export_dict['count'] = len(export_arry)
-		for i in range(0, export_dict['count']):
-			try:
-				export_dict['exports'].append(eval(export_arry[i]))
-			except Exception, e:
-				pass
-		return export_dict
+		if group_name:
+			#检查分组不存在创建
+			group = self.__wvsrest.list_groups_target(group_name)
+			if not group:
+				group = self.__wvsrest.create_group_target(group_name)
+			#将启动的target添加到group_name分组
+			self.__wvsrest.add_target_to_group(target_id_arry, group['group_id'])
+		return target_id_arry
+	
+	#根据分组名获取分组信息
+	def getGroupByName(self, group_name):
+		group = self.__wvsrest.list_groups_target(group_name)
+		if self.__wvsrest.getError(group):
+			logger.info('get group {%s} faild : %s'%(group_name, group))
+			return
+		return group
+	
+	def get_scans(self, scan_id = None, group_name = None, group_id = '', status = ''):
+		query = ''
+		group = None
+		
+		#filter 过滤状态为{status}的targets
+		if status:
+			query += 'status:%s;'%status
+		
+		if group_name:
+			group = self.getGroupByName(group_name)
+			#分组不存在
+			if not group:
+				return
+			else:
+				group_id = group['group_id']
+				query += 'group_id:%s;'%group_id
+		
+		scans = self.__wvsrest.list_scans(scan_id = scan_id, query = query)
+		return scans
+	
+	def stop(self):
+		scans = self.get_scans(group_name = group_name, group_id = group_id)['scans']
+		
+		#开始暂停
+		for scan in scans:
+			self.__wvsrest.del_scan(scan['scan_id'])
+			logger.info('stop scan {%s} success'%scan['target']['address'])
+		return scans
+	
+	def clean_scans(self, group_name = None, group_id = None):
+		scans = self.get_scans(group_name = group_name, group_id = group_id)
+		if scans:
+			#开始删除
+			for scan in scans['scans']:
+				self.__wvsrest.del_scan(scan['scan_id'])
+				logger.info('del scan {%s} success'%scan['target']['address'])
+		return scans
+	
+	#获取targets
+	def get_targets(self, target_id = None, group_name = None, group_id = None):
+		previous_cursor = 0
+		targets = []
+		group = None
+		
+		#获取group name对应的group id
+		if group_name:
+			group = self.getGroupByName(group_name)
+			#分组不存在
+			if not group:
+				return
+			else:
+				group_id = group['group_id']
+		
+		#取出target
+		#group_name != None 时取出group_name分组内所有target
+		while True:
+			ret = self.__wvsrest.list_targets(target_id = target_id, previous_cursor = previous_cursor,  group_id = group_id )
+			previous_cursor += 100
+			targets.extend(ret['targets'])
+			if not ret['pagination']['next_cursor']:
+				break
+		
+		return targets
+	
+	#清除target
+	def clean_targets(self, group_name = None, group_id = None):
+		targets = self.get_targets(group_name = group_name, group_id = group_id)
+		
+		if targets:
+			#开始删除
+			for target in targets:
+				self.__wvsrest.del_target(target['target_id'])
+				logger.info('del target {%s} success'%target['address'])
+		
+		return targets
+		
+	def clean_confirm(self, msg):
+		keys = input(msg).lower()
+		if not cmp(keys, 'y'):
+			logger.info('%s Yes'%msg)
+			return
+		else:
+			logger.info('%s No'%msg)
+		return keys

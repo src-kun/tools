@@ -13,9 +13,10 @@ from lib.core.log import logger
 from lib.core.domain import Network
 from lib.core.domain import Censysio
 from lib.utils.common import separate
-from lib.core.scan import Masscan
-from lib.core.scan import Nessus
-from lib.core.scan import Wvs
+from lib.core.rest import NessusRest
+from lib.core.rest import NessusRest
+from lib.core.rest import WvsRest
+from lib.core.scan import WvsScan
 from lib.core.settings import maseting
 from lib.core.settings import neseting
 from lib.core.settings import hydseting
@@ -23,6 +24,7 @@ from lib.core.crack import Hydra
 from lib.utils.common import input
 from lib.core import settings
 from lib.connection.http import Request
+
 bloom = BloomFilter(capacity=100000, error_rate=0.001)
 
 blob = {'domain':[]}
@@ -117,53 +119,6 @@ class Information():
 				msg = None
 		return msg
 	
-	def application_scan(self, url, description = ''):
-		wvs = Wvs()
-		#未写描述时，默认使用mark作为描述
-		if not description:
-			description = self.mark
-		msg = wvs.add_target(url, description = description)
-		
-		if not wvs.getError(msg):
-			infoMsg = "add target {%s} success"%url
-			logger.info(infoMsg)
-			#msg = wvs.start_scan(msg['target_id'])
-			#infoMsg = "start scan target {%s} success"%url
-			#logger.info(infoMsg)
-		else:
-			warnMsg = "add target {%s} %s ! "%(url, msg)
-			logger.warn(warnMsg)
-			msg = None
-		return msg
-		
-	def clean_scans():
-		pass
-	
-	#confirm = True 时需要确认是否删除targets
-	def clean_targets(self, group_name = None, confirm = True):
-		
-		if confirm:
-			msg = 'Are you sure you want to clean targets? (Y/N) :'
-			if not cmp(input(msg).lower(), 'y'):
-				logger.info('Are you sure you want to clean targets? (Y/N) :Y')
-			else:
-				logger.info('Are you sure you want to clean targets? (Y/N) :N')
-				return
-				
-		if group_name:
-			#删除一个分组的target
-			targets = wvs.search_target(group_name)['targets']
-		else:
-			#删除全部target
-			targets = wvs.list_targets()['targets']
-		
-		#开始删除
-		for target in targets:
-			wvs.del_target(target['target_id'])
-			logger.info('del target {%s} success'%target['address'])
-		
-		return targets
-	
 	def port_scan(ip):
 		masscan = Masscan()
 		scan_dict = masscan.scan('111.202.114.53', maseting.QUICK_SCAN, 'airtel.com')
@@ -180,13 +135,13 @@ class Information():
 blob.update(ip_collect(blob['domain']))
 print blob"""
 
-"""masscan = Masscan()
+"""masscan = MasscanRest()
 scan_dict = masscan.scan('111.202.114.53', maseting.QUICK_SCAN, 'airtel.com')
 print masscan.export_json(scan_dict['name'])
 print 
 print 
 print masscan.select_history(group_id=scan_dict['group_id'])"""
-nessus = Nessus()
+nessus = NessusRest()
 scan_id = 17
 #print nessus.templates('policy', nessus.templates_arry[neseting.BASIC_NETWORK_SCAN])
 #print nessus.create_scan("731a8e52-3ea6-a291-ec0a-d2ff0619c19d7bd788d6be818b65", 'testone', '127.0.0.1', policy_id = 11, folder_id = 4, description = 'test')
@@ -213,26 +168,31 @@ while cmp(scan_status,'completed'):
 	time.sleep(3)
 	print scan_status
 """
-wvs = Wvs()
+wvs = WvsRest()
 #print wvs.add_target('http://www.q28.me/')
-#print wvs.start_scan('f334a59b-b179-4439-b0bf-ac41e23e2d7f')
+#print wvs.start_scan('283832b5-314b-4135-a333-cf4c1b125dce')
 #print wvs.type_scan()
-#print wvs.list_targets()
+#print wvs.list_targets(query = 'group_id:4d6f4994-7036-4cb8-802f-fed6560e7034')
 #print wvs.del_target('820d6a15-c555-4411-ba00-03fe82ce3811')
-#print wvs.list_scans()
+#print wvs.list_scans(query = 'status:aborted;')
 #print wvs.del_scan('0a6f24d7-b6be-422e-a4d2-8795b77b3ec4')
 #print wvs.search_target('csdn.net')
-#print wvs.create_group_target('test')
+#print wvs.create_group_target('csdn.net')
 #print wvs.del_group_target('008ba33b-af79-4ffb-aba5-6ab78bb47aac')
-#print wvs.list_groups_target()
+#print wvs.list_groups_target('csdn.net')
 #print wvs.search_scans('cd9f576f-11cb-40ad-8692-e4b3d5271c79')
+#print wvs.stop('2c682493-149c-4cbc-b65a-de50313f842a')
 hydra = Hydra()
 #hydra.start(target = '127.0.0.1', user_dict_path = hydseting.user_dict_path, password_dict_path =  hydseting.password_dict_path, proto = 'ssh')
 #hydra.restore(hydseting.restore + 'hydra.restore')
 info = Information('http://www.csdn.net/')
 #targets = ','.join(info.domain_collect())
 #print info.network_scan(targets)
-targets = info.domain_collect()
-for target in targets:
-	info.application_scan(target)
-info.clean_targets('test')
+targets = info.domain_collect() 
+wvscan = WvsScan()
+wvscan.scan(targets)
+#print wvscan.getGroupByName('test')
+#print wvscan.get_targets(group_name = 'csdn.net')
+#print wvscan.get_scans(group_name = 'csdn.net')
+wvscan.clean_scans()
+wvscan.clean_targets()
