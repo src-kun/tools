@@ -123,6 +123,12 @@ class Request():
 		if response and response.code == 200:
 			logger.info(url + " 200 ok")
 		return response
+		
+	def patch(self, url, values):
+		response = self.connect(url, values = values, lamb = 'PATCH')
+		if response and response.code == 200:
+			logger.info(url + " 200 ok")
+		return response
 
 	def read(self, response):
 		try:
