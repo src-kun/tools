@@ -22,10 +22,10 @@ class NessusRest():
 	lanch = ['ON_DEMAND', 'DAILY', 'WEEKLY,' 'MONTHLY', 'YEARLY']
 	download_format = ['Nessus', 'HTML', 'PDF', 'CSV', 'DB']
 	
-	def __init__(self):
+	def __init__(self, accessKey, secretKey):
 		self.template = None
 		self.context = ssl._create_unverified_context()
-		self.__headers = {'X-ApiKeys': 'accessKey=' + neseting.access +'; secretKey=' + neseting.secret}
+		self.__headers = {'X-ApiKeys': 'accessKey=' + accessKey +'; secretKey=' + secretKey}
 		self.__request = Request(headers = self.__headers, context = self.context)
 	
 	#获取文件夹相关信息
@@ -186,11 +186,9 @@ class NessusRest():
 		
 class WvsRest():
 	
-	FULL_SCAN = "11111111-1111-1111-1111-111111111111"
-	
-	def __init__(self):
+	def __init__(self, api_key):
 		self.context = ssl._create_unverified_context()
-		self.__headers = {'X-Auth':wvseting.api_key}
+		self.__headers = {'X-Auth':api_key}
 		self.__request = Request(headers = self.__headers, context = self.context)
 
 	#return {u'target_id': u'f334a59b-b179-4439-b0bf-ac41e23e2d7f', u'description': u'', u'criticality': 10, u'address': u'https://www.xxx.com/'}
@@ -202,20 +200,18 @@ class WvsRest():
 	#获取target信息
 	#max_page 每页target最大个数
 	#group_id 分组id
-	def list_targets(self, target_id = None, previous_cursor = None, group_id = None, query = None):
+	def list_targets(self, previous_cursor = -1, query = None):
 		url = wvseting.base_url +  'api/v1/targets'
-		if target_id:
-			url += '/%d'%target_id
-		#获取分组内target
-		elif group_id and previous_cursor >= 0:
-			url += '?c=%d&q=group_id:%s'%(previous_cursor, group_id)
+		
+		#获取分组内从previous_cursor开始100条target
+		if query and previous_cursor > 0:
+			url += '?c=%d&q=%s'%(previous_cursor, query)
 		#获取从previous_cursor开始100条记录
 		elif previous_cursor:
 			url += '?c=%d'%previous_cursor
 		#filter
 		elif query:
 			url += '?q=%s'%query
-		
 		return self.action(url)
 		
 	#搜索target
@@ -227,6 +223,7 @@ class WvsRest():
 			url += '?q=group_id:' + group_id
 		return self.action(url)
 	
+	#删除target之后会删除对应的scan
 	def del_target(self, target_id):
 		url = wvseting.base_url +  'api/v1/targets/' + target_id
 		return self.action(url, method = 'DELETE')
@@ -239,14 +236,9 @@ class WvsRest():
 	
 	#获取所有target分组
 	#return {u'pagination': {u'previous_cursor': 0, u'next_cursor': None}, u'groups': [{u'group_id': u'cd9f576f-11cb-40ad-8692-e4b3d5271c79', u'description': u'', u'name': u'test', u'target_count': 1}]}
-	def list_groups_target(self, group_name = None):
+	def list_groups(self):
 		url = wvseting.base_url +  'api/v1/target_groups'
 		groups = self.action(url)
-		if group_name:
-			for group in groups['groups']:
-				if not cmp(group_name, group['name']):
-					return group
-			return
 		return groups
 	
 	#将target添加到某个分组
@@ -257,20 +249,26 @@ class WvsRest():
 		data = {'add':target_id,'remove':[]}
 		return self.action(url, data, method = 'PATCH', content = settings.CONTENT_JSON)
 		
-	def del_group_target(self, group_id):
+	def del_group(self, group_id):
 		url = wvseting.base_url + 'api/v1/target_groups/' + group_id
 		return self.action(url, method = 'DELETE')
 	
 	#?q=status:aborted
 	#?q=group_id:4d6f4994-7036-4cb8-802f-fed6560e7034
 	#?q=status:aborted;group_id:4d6f4994-7036-4cb8-802f-fed6560e7034
-	def list_scans(self, scan_id = None, query = None):
+	#?c=100&?q=status:aborted;group_id:4d6f4994-7036-4cb8-802f-fed6560e7034
+	def list_scans(self, scan_id = None, previous_cursor = -1, query = None):
 		url = wvseting.base_url +  'api/v1/scans'
-		if scan_id:
-			url += '/' + scan_id
+		
+		#过滤并获取从previous_cursor开始100个target
+		if query and previous_cursor >= 0:
+			url += '?c=%d&q=%s'%(previous_cursor, query)
+		elif previous_cursor >= 0:
+			url += '?c=%d'%previous_cursor
 		#filter
 		elif query:
 			url += '?q=%s'%query
+		
 		return self.action(url)
 		
 	def search_scans(self, group_id):
@@ -291,7 +289,7 @@ class WvsRest():
 	
 	#{u'ui_session_id': None, u'profile_id': u'11111111-1111-1111-1111-111111111111', u'target_id': u'f334a59b-b179-4439-b0bf-ac41e23e2d7f', u'schedule': {u'disable': False, u'time_sensitive': False, u'start_date': None}}
 	def start_scan(self, target_id, 
-						profile_id = FULL_SCAN,
+						profile_id,
 						disable = False,
 						start_date = None,
 						time_sensitive = False):
@@ -329,7 +327,11 @@ class WvsRest():
 	def getError(self, msg):
 		if msg and msg.has_key('message'):
 			return msg['message']
-
+	
+	#TODO wvs通知消息处理
+	def notifications(self):
+		pass #'api/v1/notifications/consume'
+	
 class BloblastGroupExistException(Exception):
     pass
 		

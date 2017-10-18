@@ -6,6 +6,7 @@ from lib.core.rest import NessusRest
 from lib.core.rest import WvsRest
 from lib.core.log import logger
 from lib.utils.common import input
+from lib.core.settings import wvseting
 
 class WvsScan():
 	#终止状态
@@ -16,13 +17,17 @@ class WvsScan():
 	SCAN_STATUS_QUEUED = 'queued'
 	#完成状态
 	SCAN_STATUS_COMPLETED = 'completed'
+	#定时状态
+	SCAN_STATUS_SCHEDULED = 'scheduled'
+	#完全扫描
+	FULL_SCAN = "11111111-1111-1111-1111-111111111111"
 	
-	def __init__(self):
-		self.__wvsrest = WvsRest()
+	def __init__(self, api_key):
+		self.__wvsrest = WvsRest(api_key)
 	
 	#url_arry 需要扫描的url数组
 	#description 备注
-	def scan(self, url_arry, description = '', group_name = None):
+	def scan(self, url_arry, profile_id, group_name = None ,description = ''):
 		
 		target_id_arry = []
 		for url in url_arry:
@@ -33,17 +38,17 @@ class WvsScan():
 				infoMsg = "add target {%s} success"%url
 				logger.info(infoMsg)
 				#启动扫描
-				#self.__wvsrest.start_scan(target['target_id'])
+				self.__wvsrest.start_scan(target['target_id'], profile_id = profile_id)
 				target_id_arry.append(target['target_id'])
-				#infoMsg = "start scan target {%s} success"%url
-				#logger.info(infoMsg)
+				infoMsg = "start scan target {%s} success"%url
+				logger.info(infoMsg)
 			else:
 				warnMsg = "add target {%s} %s ! "%(url, target)
 				logger.warn(warnMsg)
 		
 		if group_name:
 			#检查分组不存在创建
-			group = self.__wvsrest.list_groups_target(group_name)
+			group = self.getGroupByName(group_name)
 			if not group:
 				group = self.__wvsrest.create_group_target(group_name)
 			#将启动的target添加到group_name分组
@@ -52,69 +57,99 @@ class WvsScan():
 	
 	#根据分组名获取分组信息
 	def getGroupByName(self, group_name):
-		group = self.__wvsrest.list_groups_target(group_name)
-		if self.__wvsrest.getError(group):
+		groups = self.__wvsrest.list_groups()
+		
+		if self.__wvsrest.getError(groups):
 			logger.info('get group {%s} faild : %s'%(group_name, group))
 			return
-		return group
+		
+		for group in groups['groups']:
+			if not cmp(group_name, group['name']):
+				return group
 	
-	def get_scans(self, scan_id = None, group_name = None, group_id = '', status = ''):
+	#获取scans
+	def get_scans(self, group_name = None, group_id = None, status = ''):
 		query = ''
 		group = None
+		scans = []
+		previous_cursor = 0
 		
 		#filter 过滤状态为{status}的targets
 		if status:
 			query += 'status:%s;'%status
 		
-		if group_name:
+		if group_id:
+			query += 'group_id:%s;'%group_id
+		elif group_name:
 			group = self.getGroupByName(group_name)
 			#分组不存在
 			if not group:
-				return
+				return scans
 			else:
-				group_id = group['group_id']
-				query += 'group_id:%s;'%group_id
+				query += 'group_id:%s;'%group['group_id']
+			
+		while True:
+			ret = self.__wvsrest.list_scans(previous_cursor = previous_cursor, query = query)
+			previous_cursor += 100
+			scans.extend(ret['scans'])
+			if not ret['pagination']['next_cursor']:
+				break
 		
-		scans = self.__wvsrest.list_scans(scan_id = scan_id, query = query)
 		return scans
 	
-	def stop(self):
-		scans = self.get_scans(group_name = group_name, group_id = group_id)['scans']
+	#暂停扫描
+	def stop(self, group_name = None, group_id = None):
 		
-		#开始暂停
-		for scan in scans:
-			self.__wvsrest.del_scan(scan['scan_id'])
-			logger.info('stop scan {%s} success'%scan['target']['address'])
+		#防止获取scans过快获取到的不完整，循环获取直到获取完成
+		while True:
+			scans = self.get_scans(group_name = group_name, group_id = group_id, status = '%s,%s,%s'%(self.SCAN_STATUS_PROCESSING, self.SCAN_STATUS_QUEUED, self.SCAN_STATUS_SCHEDULED))
+			if scans:
+				#开始暂停
+				for scan in scans:
+					self.__wvsrest.stop(scan['scan_id'])
+					logger.info('stop scan {%s} success'%scan['target']['address'])
+			else:
+				break
+		
 		return scans
 	
-	def clean_scans(self, group_name = None, group_id = None):
-		scans = self.get_scans(group_name = group_name, group_id = group_id)
+	#清理扫描记录
+	def clean_scans(self, group_name = None, group_id = None, status = None):
+		scans = self.get_scans(group_name = group_name, group_id = group_id, status = status)
+		
 		if scans:
 			#开始删除
-			for scan in scans['scans']:
+			for scan in scans:
 				self.__wvsrest.del_scan(scan['scan_id'])
 				logger.info('del scan {%s} success'%scan['target']['address'])
 		return scans
 	
 	#获取targets
-	def get_targets(self, target_id = None, group_name = None, group_id = None):
+	def get_targets(self, group_name = None, group_id = None, text = ''):
 		previous_cursor = 0
 		targets = []
 		group = None
+		query = ''
 		
+		#模糊搜索
+		if text:
+			query += 'text_search:*%s;'%text
+		
+		if group_id:
+			query += 'group_id:%s'%group_id
 		#获取group name对应的group id
-		if group_name:
+		elif group_name:
 			group = self.getGroupByName(group_name)
 			#分组不存在
 			if not group:
-				return
+				return targets
 			else:
-				group_id = group['group_id']
+				query += 'group_id:%s;'%group['group_id']
 		
 		#取出target
 		#group_name != None 时取出group_name分组内所有target
 		while True:
-			ret = self.__wvsrest.list_targets(target_id = target_id, previous_cursor = previous_cursor,  group_id = group_id )
+			ret = self.__wvsrest.list_targets(previous_cursor = previous_cursor, query = query)
 			previous_cursor += 100
 			targets.extend(ret['targets'])
 			if not ret['pagination']['next_cursor']:
@@ -123,8 +158,8 @@ class WvsScan():
 		return targets
 	
 	#清除target
-	def clean_targets(self, group_name = None, group_id = None):
-		targets = self.get_targets(group_name = group_name, group_id = group_id)
+	def clean_targets(self, group_name = None, group_id = None, text = None):
+		targets = self.get_targets(group_name = group_name, group_id = group_id, text = text)
 		
 		if targets:
 			#开始删除
@@ -142,3 +177,6 @@ class WvsScan():
 		else:
 			logger.info('%s No'%msg)
 		return keys
+		
+#class WvsScan():
+	

@@ -59,7 +59,7 @@ class Information():
 	#域名收集
 	def domain_collect(self): 
 		#TODO 测试数据
-		return [u'so.csdn.net', u'server.csdn.net', u'letter.csdn.net', u'special.csdn.net', u'xamarin.csdn.net', u'photo.csdncms.csdn.net', u'database.csdn.net', u'vuforia.csdn.net', u'geek.csdn.net', u'biz.csdn.net', u'space.csdncms.csdn.net', u'tencent_qcloud.csdn.net', u'con2.csdn.net', u'ibm.csdn.net', u'ea.csdn.net', u'ems.csdn.net', u'talk.csdncms.csdn.net', u'www.csdncms.csdn.net', u'subject.csdn.net', u'aws.csdn.net', u'articles.csdn.net', u'hadoop.csdn.net', u'club.csdn.net', u'bss.csdn.net', u'lib.csdn.net', u'cto.csdn.net', u'job.csdn.net', u'order.csdn.net', u'student.csdn.net', u'mailfeed.csdn.net', u'write.blog.csdn.net', u'cloud.csdn.net', u'storage.csdn.net', u'docker.csdn.net', u'Atlassian.csdn.net', u'atlassian.csdn.net', u'bbs.csdn.net', u'msdn.csdn.net', u'mall.csdn.net', u'huiyi.csdn.net', u'api.csdn.net', u'powerlinux.csdn.net', u'primeton.csdn.net', u'app.csdncms.csdn.net', u'g.csdn.net', u'hardware.csdn.net', u'special.csdncms.csdn.net', u'sd.csdn.net', u'visualstudio2017.csdn.net', u'ibmuniversity.csdn.net', u'video.csdncms.csdn.net', u'download.csdn.net', u'programmer.csdn.net', u'openstack.csdn.net', u'qcloud.csdn.net', u'my.csdn.net', u'wiki.csdn.net', u'news.csdn.net', u'edu.csdn.net', u'code.csdn.net', u'cie.csdn.net', u'qualcomm.csdn.net', u'blog.csdn.net', u'newsletter.csdn.net', u'passport.csdn.net', u'hc.csdn.net', u'ask.csdn.net', u'security.csdn.net', u'intel.csdn.net', u'msg.csdn.net', u'huawei.csdn.net', u'mobile.csdn.net', 'www.csdn.net', u'events.csdn.net']
+		return  ['e28.me','www.r28.me','www.d28.me','www.lsf0.com','www.lsf9.com','g28.me','lsf0.com','r28.me','q28.me','www.j28.me','www.z28.me','t28.me','www.q28.me','www.t28.me','www.n28.me','www.p28.me','z28.me','k28.me','www.g28.me','www.l28.me','lsf9.com','n28.me','www.k28.me','d28.me','j28.me','l28.me','y28.me','p28.me','www.e28.me','www.y28.me']
 		domains = []
 		crawler = Crawler(bloom)
 		
@@ -141,7 +141,7 @@ print masscan.export_json(scan_dict['name'])
 print 
 print 
 print masscan.select_history(group_id=scan_dict['group_id'])"""
-nessus = NessusRest()
+#nessus = NessusRest()
 scan_id = 17
 #print nessus.templates('policy', nessus.templates_arry[neseting.BASIC_NETWORK_SCAN])
 #print nessus.create_scan("731a8e52-3ea6-a291-ec0a-d2ff0619c19d7bd788d6be818b65", 'testone', '127.0.0.1', policy_id = 11, folder_id = 4, description = 'test')
@@ -168,13 +168,14 @@ while cmp(scan_status,'completed'):
 	time.sleep(3)
 	print scan_status
 """
-wvs = WvsRest()
+from lib.core.settings import wvseting
+wvs = WvsRest(wvseting.api_key)
 #print wvs.add_target('http://www.q28.me/')
 #print wvs.start_scan('283832b5-314b-4135-a333-cf4c1b125dce')
 #print wvs.type_scan()
 #print wvs.list_targets(query = 'group_id:4d6f4994-7036-4cb8-802f-fed6560e7034')
 #print wvs.del_target('820d6a15-c555-4411-ba00-03fe82ce3811')
-#print wvs.list_scans(query = 'status:aborted;')
+#print len(wvs.list_scans(query = 'status:aborted;', previous_cursor = 100)['scans'])
 #print wvs.del_scan('0a6f24d7-b6be-422e-a4d2-8795b77b3ec4')
 #print wvs.search_target('csdn.net')
 #print wvs.create_group_target('csdn.net')
@@ -185,14 +186,16 @@ wvs = WvsRest()
 hydra = Hydra()
 #hydra.start(target = '127.0.0.1', user_dict_path = hydseting.user_dict_path, password_dict_path =  hydseting.password_dict_path, proto = 'ssh')
 #hydra.restore(hydseting.restore + 'hydra.restore')
-info = Information('http://www.csdn.net/')
+info = Information('http://zfzhandian.com')
 #targets = ','.join(info.domain_collect())
 #print info.network_scan(targets)
 targets = info.domain_collect() 
-wvscan = WvsScan()
-wvscan.scan(targets)
+wvscan = WvsScan(wvseting.api_key)
+wvscan.scan(targets, wvscan.FULL_SCAN, '28pc.com')
+#wvscan.clean_targets()
+#wvscan.clean_scans(group_name = '28pc.com')
 #print wvscan.getGroupByName('test')
-#print wvscan.get_targets(group_name = 'csdn.net')
-#print wvscan.get_scans(group_name = 'csdn.net')
-wvscan.clean_scans()
-wvscan.clean_targets()
+#print len(wvscan.get_targets(group_id = '28pc.com', text = '.me'))
+#print wvscan.get_scans(group_name = '28pc.com', status = wvscan.SCAN_STATUS_PROCESSING)
+wvscan.stop()
+
