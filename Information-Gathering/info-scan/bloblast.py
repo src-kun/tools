@@ -14,7 +14,7 @@ from lib.core.domain import Network
 from lib.core.domain import Censysio
 from lib.utils.common import separate
 from lib.core.rest import NessusRest
-from lib.core.rest import NessusRest
+from lib.core.scan import NessusScan
 from lib.core.rest import WvsRest
 from lib.core.scan import WvsScan
 from lib.core.settings import maseting
@@ -141,9 +141,47 @@ print masscan.export_json(scan_dict['name'])
 print 
 print 
 print masscan.select_history(group_id=scan_dict['group_id'])"""
-#nessus = NessusRest()
+
+"""
+scan_status = nessus.details_scan(25)['history'][0]['status']
+while cmp(scan_status,'completed'):
+	time.sleep(3)
+	print scan_status
+"""
+from lib.core.settings import wvseting
+wvs = WvsRest(wvseting.api_key)
+#print wvs.add_target('http://www.q28.me/')
+#print wvs.start('283832b5-314b-4135-a333-cf4c1b125dce')
+#print wvs.type_scan()
+#print wvs.list_targets(query = 'group_id:4d6f4994-7036-4cb8-802f-fed6560e7034')
+#print wvs.del_target('820d6a15-c555-4411-ba00-03fe82ce3811')
+#print len(wvs.list_scans(query = 'status:aborted;', previous_cursor = 100)['scans'])
+#print wvs.del_scan('0a6f24d7-b6be-422e-a4d2-8795b77b3ec4')
+#print wvs.search_target('csdn.net')
+#print wvs.create_group_target('csdn.net')
+#print wvs.del_group_target('008ba33b-af79-4ffb-aba5-6ab78bb47aac')
+#print wvs.list_groups_target('csdn.net')
+#print wvs.search_scans('cd9f576f-11cb-40ad-8692-e4b3d5271c79')
+#print wvs.stop('2c682493-149c-4cbc-b65a-de50313f842a')
+hydra = Hydra()
+#hydra.start(target = '127.0.0.1', user_dict_path = hydseting.user_dict_path, password_dict_path =  hydseting.password_dict_path, proto = 'ssh')
+#hydra.restore(hydseting.restore + 'hydra.restore')
+info = Information('http://zfzhandian.com')
+#targets = ','.join(info.domain_collect())
+#print info.network_scan(targets)
+#targets = info.domain_collect()
+#wvscan = WvsScan(wvseting.api_key)
+#wvscan.scan(targets, wvscan.FULL_SCAN, '28pc.com', launch_now = True)
+#wvscan.clean_targets()
+#wvscan.clean_scans(group_name = '28pc.com')
+#print wvscan.getGroupByName('test')
+#print len(wvscan.get_targets(group_id = '28pc.com', text = '.me'))
+#print wvscan.get_scans(group_name = '28pc.com', status = wvscan.SCAN_STATUS_PROCESSING)
+#wvscan.stop()
+
+nessus = NessusRest(neseting.access, neseting.secret)
 scan_id = 17
-#print nessus.templates('policy', nessus.templates_arry[neseting.BASIC_NETWORK_SCAN])
+#print nessus.templates('policy')
 #print nessus.create_scan("731a8e52-3ea6-a291-ec0a-d2ff0619c19d7bd788d6be818b65", 'testone', '127.0.0.1', policy_id = 11, folder_id = 4, description = 'test')
 #print nessus.policies(neseting.POLICIE_COMPLEX)
 #print nessus.folders('test')
@@ -162,40 +200,14 @@ nessus.download_export(scan_id,file_id)"""
 #print nessus.status_scan(scan_id)
 #print nessus.details_scan(scan_id)
 #检测nessus运行状态
-"""
-scan_status = nessus.details_scan(25)['history'][0]['status']
-while cmp(scan_status,'completed'):
-	time.sleep(3)
-	print scan_status
-"""
-from lib.core.settings import wvseting
-wvs = WvsRest(wvseting.api_key)
-#print wvs.add_target('http://www.q28.me/')
-#print wvs.start_scan('283832b5-314b-4135-a333-cf4c1b125dce')
-#print wvs.type_scan()
-#print wvs.list_targets(query = 'group_id:4d6f4994-7036-4cb8-802f-fed6560e7034')
-#print wvs.del_target('820d6a15-c555-4411-ba00-03fe82ce3811')
-#print len(wvs.list_scans(query = 'status:aborted;', previous_cursor = 100)['scans'])
-#print wvs.del_scan('0a6f24d7-b6be-422e-a4d2-8795b77b3ec4')
-#print wvs.search_target('csdn.net')
-#print wvs.create_group_target('csdn.net')
-#print wvs.del_group_target('008ba33b-af79-4ffb-aba5-6ab78bb47aac')
-#print wvs.list_groups_target('csdn.net')
-#print wvs.search_scans('cd9f576f-11cb-40ad-8692-e4b3d5271c79')
-#print wvs.stop('2c682493-149c-4cbc-b65a-de50313f842a')
-hydra = Hydra()
-#hydra.start(target = '127.0.0.1', user_dict_path = hydseting.user_dict_path, password_dict_path =  hydseting.password_dict_path, proto = 'ssh')
-#hydra.restore(hydseting.restore + 'hydra.restore')
-info = Information('http://zfzhandian.com')
-#targets = ','.join(info.domain_collect())
-#print info.network_scan(targets)
-targets = info.domain_collect() 
-wvscan = WvsScan(wvseting.api_key)
-wvscan.scan(targets, wvscan.FULL_SCAN, '28pc.com')
-#wvscan.clean_targets()
-#wvscan.clean_scans(group_name = '28pc.com')
-#print wvscan.getGroupByName('test')
-#print len(wvscan.get_targets(group_id = '28pc.com', text = '.me'))
-#print wvscan.get_scans(group_name = '28pc.com', status = wvscan.SCAN_STATUS_PROCESSING)
-wvscan.stop()
 
+#, 
+targets = '127.0.0.1,10.102.16.196,10.102.16.197,10.102.16.198,192.168.230.140'
+nesscan = NessusScan(neseting.access, neseting.secret)
+#template_uuid = nesscan.getScanPolicyTemplateByName(nessus.BASIC_NETWORK_SCAN)['uuid']
+#policy_id = nesscan.getPoliciesTemplateByName('complex')['id']
+#print nesscan.scan(template_uuid = template_uuid, scan_name = 'scan_name', targets = targets, policy_id = policy_id, launch_now = True)
+#nesscan.stop(81)
+#print nesscan.create_folder('sedfg')
+#print nesscan.list_scan()
+print nesscan.getFolderByName('test')

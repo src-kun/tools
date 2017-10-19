@@ -18,8 +18,13 @@ from lib.utils.common import write
 from lib.connection.http import Request
 
 class NessusRest():
-	templates_arry = ['PCI Quarterly External Scan', 'Host Discovery', 'WannaCry Ransomware', 'Intel AMT Security Bypass', 'Basic Network Scan', 'Credentialed Patch Audit', 'Web Application Tests', 'Malware Scan', 'Mobile Device Scan', 'MDM Config Audit', 'Policy Compliance Auditing', 'Internal PCI Network Scan', 'Offline Config Audit', 'Audit Cloud Infrastructure', 'SCAP and OVAL Auditing', 'Bash Shellshock Detection', 'GHOST (glibc) Detection', 'DROWN Detection', 'Badlock Detection', 'Shadow Brokers Scan', 'Advanced Scan']
+	#模板列表
+	SCAN_TEMPLATES = ['PCI Quarterly External Scan', 'Host Discovery', 'WannaCry Ransomware', 'Intel AMT Security Bypass', 'Basic Network Scan', 'Credentialed Patch Audit', 'Web Application Tests', 'Malware Scan', 'Mobile Device Scan', 'MDM Config Audit', 'Policy Compliance Auditing', 'Internal PCI Network Scan', 'Offline Config Audit', 'Audit Cloud Infrastructure', 'SCAP and OVAL Auditing', 'Bash Shellshock Detection', 'GHOST (glibc) Detection', 'DROWN Detection', 'Badlock Detection', 'Shadow Brokers Scan', 'Advanced Scan']
+	#network扫描模板
+	BASIC_NETWORK_SCAN = 4
+	#扫描周期
 	lanch = ['ON_DEMAND', 'DAILY', 'WEEKLY,' 'MONTHLY', 'YEARLY']
+	#下载格式
 	download_format = ['Nessus', 'HTML', 'PDF', 'CSV', 'DB']
 	
 	def __init__(self, accessKey, secretKey):
@@ -28,17 +33,10 @@ class NessusRest():
 		self.__headers = {'X-ApiKeys': 'accessKey=' + accessKey +'; secretKey=' + secretKey}
 		self.__request = Request(headers = self.__headers, context = self.context)
 	
-	#获取文件夹相关信息
-	def folders(self, folder = None):
+	#获取文件夹信息
+	def folders(self):
 		url = neseting.base_url + 'scans'
-		flods = self.action(url)
-		if flods and folder:
-			for f in flods['folders']:
-				if not cmp(folder, f['name']):
-					#{u'name': u'test', u'custom': 1, u'unread_count': 1, u'default_tag': 0, u'type': u'custom', u'id': 4}
-					return f
-		else:
-			return flods
+		return self.action(url)
 	
 	#创建文件夹
 	def create_folder(self, folder_name):
@@ -51,38 +49,34 @@ class NessusRest():
 		url = neseting.base_url + 'folders/%d'%folder_id
 		return self.action(url, method = 'DELETE')
 	
-	#获取所有扫描模板
-	def templates(self, type, template = None):
+	#获取模板
+	def templates(self, type):
 		url = neseting.base_url + 'editor/' + type + '/templates'
-		tems = self.action(url)
-		if tems and template:
-			for t in tems['templates']:
-				if not cmp(template, t['title']):
-					return t
-		else:
-			return tems
+		return self.action(url)
 	
-	#获取策略
-	def policies(self, policie = None):
+	#获取自定义的策略
+	def policies(self):
 		url = neseting.base_url + 'policies'
-		policies = self.action(url)
-		if policie and policies:
-			for p in policies['policies']:
-				if not cmp(policie, p['name']):
-					return p
-		else:
-			return policies
+		return self.action(url)
 	
 	#获取folder_id文件夹内扫描任务
-	def list_scan(self, folder_id = None, date = None):
+	#TODO 增加时间过滤
+	def list_scan(self, folder_id = None):
 		url = neseting.base_url + 'scans'
-		#TODO 增加date过滤
 		if folder_id:
 			url += '?folder_id=' + str(folder_id)
 		return self.action(url)
 	
 	#创建扫描
-	def create_scan(self, template_uuid, scan_name, targets, enabled = 'false', policy_id = None, folder_id = None, description = None, launch = None):
+	def scan(self, template_uuid,  #系统扫描模板uuid
+						scan_name, #扫描任务名称
+						targets, #扫描目标
+						policy_id = None, #自定义模板id
+						folder_id = None, #文件夹id
+						description = None, #注释信息
+						enabled = 'false', #如果为true，则启用扫描时间表。
+						launch = None #扫描周期
+						):
 		url = neseting.base_url + 'scans'
 		data = {
 		"uuid": template_uuid,
@@ -104,22 +98,22 @@ class NessusRest():
 		return self.action(url, data, method = 'POST', content = settings.CONTENT_JSON)
 	
 	#开始扫描
-	def start_scan(self, scan_id):
+	def start(self, scan_id):
 		url = neseting.base_url + 'scans/%d/launch'%(scan_id)
 		return self.action(url, method = 'POST')
 	
 	#停止扫描
-	def stop_scan(self, scan_id):
-		url = neseting.base_url + '/scans/%d/stop'%(scan_id)
+	def stop(self, scan_id):
+		url = neseting.base_url + 'scans/%d/stop'%(scan_id)
 		return self.action(url, method = 'POST')
 	
 	#无返回值
-	def status_scan(self, scan_id, read = True):
+	def status(self, scan_id, read = True):
 		url = neseting.base_url + 'scans/%d/status'%(scan_id)
 		return self.action(url, {"read":read}, method = 'PUT', content = settings.CONTENT_JSON)
 	
 	#获取扫描任务、漏洞、描述、历史扫描记录
-	def details_scan(self, scan_id, history_id = None):
+	def details(self, scan_id, history_id = None):
 		url = neseting.base_url + 'scans/%d'%(scan_id)
 		if history_id:
 			url += '?history_id=%d'%history_id
@@ -179,10 +173,6 @@ class NessusRest():
 
 		if result:
 			return json.loads(result)
-		
-	def getError(self, msg):
-		if msg and msg.has_key('error'):
-			return msg['error']
 		
 class WvsRest():
 	
@@ -323,10 +313,6 @@ class WvsRest():
 
 		if result:
 			return json.loads(result)
-		
-	def getError(self, msg):
-		if msg and msg.has_key('message'):
-			return msg['message']
 	
 	#TODO wvs通知消息处理
 	def notifications(self):

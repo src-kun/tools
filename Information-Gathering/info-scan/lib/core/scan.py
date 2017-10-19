@@ -27,7 +27,8 @@ class WvsScan():
 	
 	#url_arry 需要扫描的url数组
 	#description 备注
-	def scan(self, url_arry, profile_id, group_name = None ,description = ''):
+	#profile_id 扫描类型（快速、完全 等...）编号
+	def scan(self, url_arry, profile_id, group_name = None ,description = '', launch_now = False):
 		
 		target_id_arry = []
 		for url in url_arry:
@@ -37,11 +38,9 @@ class WvsScan():
 			if not self.__wvsrest.getError(target):
 				infoMsg = "add target {%s} success"%url
 				logger.info(infoMsg)
-				#启动扫描
-				self.__wvsrest.start_scan(target['target_id'], profile_id = profile_id)
+				if launch_now:
+					self.start(target_id = target['target_id'])
 				target_id_arry.append(target['target_id'])
-				infoMsg = "start scan target {%s} success"%url
-				logger.info(infoMsg)
 			else:
 				warnMsg = "add target {%s} %s ! "%(url, target)
 				logger.warn(warnMsg)
@@ -50,10 +49,20 @@ class WvsScan():
 			#检查分组不存在创建
 			group = self.getGroupByName(group_name)
 			if not group:
-				group = self.__wvsrest.create_group_target(group_name)
+				group = self.create_group(group_name)
 			#将启动的target添加到group_name分组
 			self.__wvsrest.add_target_to_group(target_id_arry, group['group_id'])
 		return target_id_arry
+	
+	#启动扫描
+	def start(self, target_id, profile_id):
+		self.__wvsrest.start_scan(target_id, profile_id = profile_id)
+		infoMsg = "start scan target {%s} success"%url
+		logger.info(infoMsg)
+	
+	#创建分组
+	def create_group(self, group_name): 
+		return self.__wvsrest.create_group_target(group_name)
 	
 	#根据分组名获取分组信息
 	def getGroupByName(self, group_name):
@@ -178,5 +187,108 @@ class WvsScan():
 			logger.info('%s No'%msg)
 		return keys
 		
-#class WvsScan():
+class NessusScan():
 	
+	def __init__(self, accessKey, secretKey):
+		 self.__nescan = NessusRest(accessKey= accessKey, secretKey = secretKey)
+	#print nessus.templates('policy', nessus.templates_arry[neseting.BASIC_NETWORK_SCAN])
+	#print nessus.create_scan("731a8e52-3ea6-a291-ec0a-d2ff0619c19d7bd788d6be818b65", 'testone', '127.0.0.1', policy_id = 11, folder_id = 4, description = 'test')
+	#print nessus.policies(neseting.POLICIE_COMPLEX)
+	#print nessus.folders('test')
+	#print nessus.start_scan(17)
+	#print nessus.list_scan(4)
+	#print nessus.status_scan(9)
+	#msg = nessus.create_folder('test')
+	#print nessus.getError(msg)
+	#print nessus.del_folder(4)
+	
+	#scan_type SCAN_TEMPLATES的下标
+	#获取系统扫描策略模板信息
+	def getScanPolicyTemplateByName(self, template_name_index):
+		template_name =  self.__nescan.SCAN_TEMPLATES[template_name_index]
+		templates = self.__nescan.templates('policy') 
+		for template in templates['templates']:
+			if not cmp(template_name, template['title']):
+				return template
+	
+	#获取自定义的扫描模板 policies
+	def getPoliciesTemplateByName(self, name):
+		policies = self.__nescan.policies()
+		for policie in policies['policies']:
+			if not cmp(name, policie['name']):
+				return policie
+	
+	#launch_now == True 马上开始扫描
+	def scan(self, template_uuid, scan_name, targets, policy_id = None, folder_id = None, description = '', launch_now = False):
+		
+		#检查文件夹不存在创建
+		"""if folder_name:
+			folders = getFolderByName(folder_name)
+			if folders:
+				folder_id = folders['id']
+			else:
+				create_folder"""
+		
+		scan = self.__nescan.scan(template_uuid = template_uuid, scan_name = scan_name, targets = targets, policy_id = policy_id, folder_id = folder_id, description = description)
+		
+		if scan and launch_now:
+			self.start(scan['scan']['id'])
+		
+		return scan
+		
+	#开始扫描
+	def start(self, scan_id):
+		scan = self.__nescan.start(scan_id)
+		if self.getError(scan):
+			warnMsg = 'create scan_id {%d} faild : %s'%(scan_id, self.getError(scan))
+			logger.warn(warnMsg)
+			return
+		return scan
+	
+	def stop(self, scan_id):
+		stop = self.__nescan.stop(scan_id)
+		if self.getError(stop):
+			warnMsg = 'stop scan_id {%d} faild : %s'%(scan_id, self.getError(stop))
+			logger.warn(warnMsg)
+			return
+		return stop
+		
+	def list_scan(self, group_name = None):
+		list = self.__nescan.list_scan(group_name)
+		if self.getError(list):
+			warnMsg = 'list scan faild : %s'%self.getError(list)
+			logger.warn(warnMsg)
+			return
+		return list
+
+	def delete(self):
+		pass
+	
+	def getFolderByName(self, name):
+		folders = self.folders()
+		for folder in folders['folders']:
+			if not cmp(name, folder['name']):
+				#{u'name': u'test', u'custom': 1, u'unread_count': 1, u'default_tag': 0, u'type': u'custom', u'id': 4}
+				return folder
+	
+	#获取文件夹信息
+	def folders(self):
+		folders = self.__nescan.folders()
+		if self.getError(folders):
+			warnMsg = 'get folders faild : %s'%self.getError(folders)
+			logger.warn(warnMsg)
+			return
+		return folders
+	
+	def create_folder(self, name):
+		folder = self.__nescan.create_folder(name)
+		if self.getError(folder):
+			warnMsg = 'create folder {%s} faild : %s'%(name, self.getError(folder))
+			logger.warn(warnMsg)
+			return
+		return folder
+	
+	#{u'error': u'A valid policy ID must be provided.'}
+	def getError(self, msg):
+		if msg.has_key('error'):
+			return msg['error']

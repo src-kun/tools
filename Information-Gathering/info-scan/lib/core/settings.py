@@ -46,7 +46,7 @@ SECRET = "HFtjvpfa5vJ0pVY4mZIOWxMfmm4sCr9E"
 
 class Neseting():
 	
-	BASIC_NETWORK_SCAN = 4
+	
 	POLICIE_COMPLEX = 'complex'
 	
 	def __init__(self):
