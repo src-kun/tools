@@ -44,28 +44,6 @@ log_path = "%slog/"%bash_obj_path
 UID = "dcd61cfe-36b9-40a6-8a8a-21d7f9ccc37d"
 SECRET = "HFtjvpfa5vJ0pVY4mZIOWxMfmm4sCr9E"
 
-class Neseting():
-	
-	
-	POLICIE_COMPLEX = 'complex'
-	
-	def __init__(self):
-		self.access = '9ce1ca30eb7ec4511af9c29cb74e96cd35a7dc400439459599454d079a176f3d'
-		self.secret = 'b289fedbb80c0a405609b7493299ebf3235b9cb847554807afdbe00e654d2f29'
-		self.base_url = 'http://127.0.0.1/'
-		self.base_url = 'https://10.102.16.196:8834/'
-		#self.base_url = 'https://192.168.1.100:8834/'
-		self.data = bash_obj_path + 'data/nessus/'
-		self.export_path = self.data + 'report'
-		self.__check_env()
-		
-	#检查调用时的所需环境
-	def __check_env(self):
-		#检测masscan report 文件夹 不存在则创建
-		chk_dir(self.export_path)
-
-neseting = Neseting()
-
 class Wvseting():
 	def __init__(self):
 		self.api_key = '1986ad8c0a5b3df4d7028d5f3c06e936c10a743b8beb644cd852d9320bd0e3a4e'

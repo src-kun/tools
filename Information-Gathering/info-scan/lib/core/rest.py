@@ -12,22 +12,16 @@ from lib.utils.common import read
 from lib.utils.common import list_dir_nohidden
 from lib.core.settings import maseting
 from lib.core.settings import wvseting
-from lib.core.settings import neseting
 from lib.core import settings
 from lib.utils.common import write
 from lib.connection.http import Request
 
 class NessusRest():
-	#模板列表
-	SCAN_TEMPLATES = ['PCI Quarterly External Scan', 'Host Discovery', 'WannaCry Ransomware', 'Intel AMT Security Bypass', 'Basic Network Scan', 'Credentialed Patch Audit', 'Web Application Tests', 'Malware Scan', 'Mobile Device Scan', 'MDM Config Audit', 'Policy Compliance Auditing', 'Internal PCI Network Scan', 'Offline Config Audit', 'Audit Cloud Infrastructure', 'SCAP and OVAL Auditing', 'Bash Shellshock Detection', 'GHOST (glibc) Detection', 'DROWN Detection', 'Badlock Detection', 'Shadow Brokers Scan', 'Advanced Scan']
-	#network扫描模板
-	BASIC_NETWORK_SCAN = 4
-	#扫描周期
-	lanch = ['ON_DEMAND', 'DAILY', 'WEEKLY,' 'MONTHLY', 'YEARLY']
-	#下载格式
-	download_format = ['Nessus', 'HTML', 'PDF', 'CSV', 'DB']
 	
-	def __init__(self, accessKey, secretKey):
+	CONTENT_JSON = {'Content-Type':'application/json'}
+	
+	def __init__(self, accessKey, secretKey, base_url):
+		self.base_url = base_url
 		self.template = None
 		self.context = ssl._create_unverified_context()
 		self.__headers = {'X-ApiKeys': 'accessKey=' + accessKey +'; secretKey=' + secretKey}
@@ -35,34 +29,34 @@ class NessusRest():
 	
 	#获取文件夹信息
 	def folders(self):
-		url = neseting.base_url + 'scans'
+		url = self.base_url + 'folders'
 		return self.action(url)
 	
 	#创建文件夹
 	def create_folder(self, folder_name):
-		url = neseting.base_url + 'folders'
+		url = self.base_url + 'folders'
 		data = {"name":folder_name}
-		return self.action(url, data = data, method = 'POST', content = settings.CONTENT_JSON)
+		return self.action(url, data = data, method = 'POST', content = self.CONTENT_JSON)
 		
 	#删除文件夹
 	def del_folder(self, folder_id):
-		url = neseting.base_url + 'folders/%d'%folder_id
+		url = self.base_url + 'folders/%d'%folder_id
 		return self.action(url, method = 'DELETE')
 	
 	#获取模板
 	def templates(self, type):
-		url = neseting.base_url + 'editor/' + type + '/templates'
+		url = self.base_url + 'editor/' + type + '/templates'
 		return self.action(url)
 	
 	#获取自定义的策略
 	def policies(self):
-		url = neseting.base_url + 'policies'
+		url = self.base_url + 'policies'
 		return self.action(url)
 	
 	#获取folder_id文件夹内扫描任务
 	#TODO 增加时间过滤
 	def list_scan(self, folder_id = None):
-		url = neseting.base_url + 'scans'
+		url = self.base_url + 'scans'
 		if folder_id:
 			url += '?folder_id=' + str(folder_id)
 		return self.action(url)
@@ -77,7 +71,7 @@ class NessusRest():
 						enabled = 'false', #如果为true，则启用扫描时间表。
 						launch = None #扫描周期
 						):
-		url = neseting.base_url + 'scans'
+		url = self.base_url + 'scans'
 		data = {
 		"uuid": template_uuid,
 		"settings": {
@@ -95,59 +89,63 @@ class NessusRest():
 		if launch:
 			data['settings']['launch'] = launch
 			
-		return self.action(url, data, method = 'POST', content = settings.CONTENT_JSON)
+		return self.action(url, data, method = 'POST', content = self.CONTENT_JSON)
 	
 	#开始扫描
 	def start(self, scan_id):
-		url = neseting.base_url + 'scans/%d/launch'%(scan_id)
+		url = self.base_url + 'scans/%d/launch'%(scan_id)
+		return self.action(url, method = 'POST')
+	
+	#暂停
+	def pause(self, scan_id):
+		url = self.base_url + 'scans/%d/pause'%(scan_id)
+		return self.action(url, method = 'POST')
+	
+	#继续
+	def resume(self, scan_id):
+		url = self.base_url + 'scans/%d/resume'%(scan_id)
 		return self.action(url, method = 'POST')
 	
 	#停止扫描
 	def stop(self, scan_id):
-		url = neseting.base_url + 'scans/%d/stop'%(scan_id)
+		url = self.base_url + 'scans/%d/stop'%(scan_id)
 		return self.action(url, method = 'POST')
 	
 	#无返回值
 	def status(self, scan_id, read = True):
-		url = neseting.base_url + 'scans/%d/status'%(scan_id)
-		return self.action(url, {"read":read}, method = 'PUT', content = settings.CONTENT_JSON)
+		url = self.base_url + 'scans/%d/status'%(scan_id)
+		return self.action(url, {"read":read}, method = 'PUT', content = self.CONTENT_JSON)
 	
 	#获取扫描任务、漏洞、描述、历史扫描记录
 	def details(self, scan_id, history_id = None):
-		url = neseting.base_url + 'scans/%d'%(scan_id)
+		url = self.base_url + 'scans/%d'%(scan_id)
 		if history_id:
 			url += '?history_id=%d'%history_id
+		return self.action(url)
+		
+	def vulnerabilitie_info(self, scan_id, plugin_id):
+		url = self.base_url + 'scans/%d/plugins/%d'%(scan_id, plugin_id)
 		return self.action(url)
 
 	#通知nessus生成报告
 	#return {u'token': u'c8f9425c44306088a383ed7045ceb346c10de51bbc8edd4428c15024b7d20c0c', u'file': 2056893300}
-	def file_id_scan(self, scan_id, format = 'nessus'):
-		url =  neseting.base_url + 'scans/%d/export'%(scan_id)
+	def export_request(self, scan_id, format):
+		url =  self.base_url + 'scans/%d/export'%(scan_id)
 		values = {"format":format,"filter.search_type":"and"}
-		return self.action(url, values, method = 'POST', content = settings.CONTENT_JSON) 
+		return self.action(url, values, method = 'POST', content = self.CONTENT_JSON) 
 	
 	#查看报告是否可以下载，生成报告有延迟，首先需要判断是否可以下载
 	#return 0 可以下载
 	def export_status(self, scan_id, file_id):
-		url =  neseting.base_url + 'scans/%d/export/%d/status'%(scan_id, file_id)
-		return cmp(self.action(url)['status'], 'ready')
-	
-	#TODO 获取删除记录
-	def export_history(self, scan_id):
-		pass
+		url =  self.base_url + 'scans/%d/export/%d/status'%(scan_id, file_id)
+		return self.action(url)
 		
 	#TODO 下载pdf失败
-	def download_export(self, scan_id, file_id, name = None, format = 'nessus'):
-		url =  neseting.base_url + 'scans/%d/export/%d/download'%(scan_id, file_id)
-		data = self.action(url, method = 'GET', content = settings.CONTENT_JSON, download = True) 
-		if not name:
-			name = str(file_id)
-		path = neseting.export_path
+	def download_export(self, scan_id, file_id, path, name, format):
+		url =  self.base_url + 'scans/%d/export/%d/download'%(scan_id, file_id)
+		data = self.action(url, method = 'GET', content = self.CONTENT_JSON, download = True) 
 		with open('%s%s.%s'%(path, name, format), 'wb') as code:     
 			code.write(data)
-			
-	def vuln_info():
-		pass
 		
 	def action(self, url, data = None, method = 'GET', content = {}, download = False):
 		self.__request.headers.update(content)
@@ -176,14 +174,15 @@ class NessusRest():
 		
 class WvsRest():
 	
-	def __init__(self, api_key):
+	def __init__(self, api_key, base_url):
+		self.base_url = base_url
 		self.context = ssl._create_unverified_context()
 		self.__headers = {'X-Auth':api_key}
 		self.__request = Request(headers = self.__headers, context = self.context)
 
 	#return {u'target_id': u'f334a59b-b179-4439-b0bf-ac41e23e2d7f', u'description': u'', u'criticality': 10, u'address': u'https://www.xxx.com/'}
 	def add_target(self, target, description = '', criticality = 10):
-		url = wvseting.base_url + 'api/v1/targets'
+		url = self.base_url + 'api/v1/targets'
 		data = {'address':target,'description':description,"criticality":criticality}
 		return self.action(url, data, 'POST', settings.CONTENT_JSON)
 	
@@ -191,7 +190,7 @@ class WvsRest():
 	#max_page 每页target最大个数
 	#group_id 分组id
 	def list_targets(self, previous_cursor = -1, query = None):
-		url = wvseting.base_url +  'api/v1/targets'
+		url = self.base_url +  'api/v1/targets'
 		
 		#获取分组内从previous_cursor开始100条target
 		if query and previous_cursor > 0:
@@ -206,7 +205,7 @@ class WvsRest():
 		
 	#搜索target
 	def search_target(self, text = None, group_id = None):
-		url = wvseting.base_url + 'api/v1/targets'
+		url = self.base_url + 'api/v1/targets'
 		if text:
 			url += '?q=text_search:*' + text
 		elif group_id:
@@ -215,32 +214,32 @@ class WvsRest():
 	
 	#删除target之后会删除对应的scan
 	def del_target(self, target_id):
-		url = wvseting.base_url +  'api/v1/targets/' + target_id
+		url = self.base_url +  'api/v1/targets/' + target_id
 		return self.action(url, method = 'DELETE')
 	
 	#添加target分组
 	def create_group_target(self, group_name, description = ''):
-		url = wvseting.base_url +  'api/v1/target_groups'
+		url = self.base_url +  'api/v1/target_groups'
 		data = {'name':group_name, 'description': description}
 		return self.action(url, data = data, method = 'POST', content = settings.CONTENT_JSON)
 	
 	#获取所有target分组
 	#return {u'pagination': {u'previous_cursor': 0, u'next_cursor': None}, u'groups': [{u'group_id': u'cd9f576f-11cb-40ad-8692-e4b3d5271c79', u'description': u'', u'name': u'test', u'target_count': 1}]}
 	def list_groups(self):
-		url = wvseting.base_url +  'api/v1/target_groups'
+		url = self.base_url +  'api/v1/target_groups'
 		groups = self.action(url)
 		return groups
 	
 	#将target添加到某个分组
 	#group_id 分组id
 	#target_id target的id 类型：数组
-	def add_target_to_group(self, target_id, group_id):
-		url = wvseting.base_url +  'api/v1/target_groups/%s/targets'%group_id
+	def add_targets_to_group(self, target_id, group_id):
+		url = self.base_url +  'api/v1/target_groups/%s/targets'%group_id
 		data = {'add':target_id,'remove':[]}
 		return self.action(url, data, method = 'PATCH', content = settings.CONTENT_JSON)
 		
 	def del_group(self, group_id):
-		url = wvseting.base_url + 'api/v1/target_groups/' + group_id
+		url = self.base_url + 'api/v1/target_groups/' + group_id
 		return self.action(url, method = 'DELETE')
 	
 	#?q=status:aborted
@@ -248,8 +247,7 @@ class WvsRest():
 	#?q=status:aborted;group_id:4d6f4994-7036-4cb8-802f-fed6560e7034
 	#?c=100&?q=status:aborted;group_id:4d6f4994-7036-4cb8-802f-fed6560e7034
 	def list_scans(self, scan_id = None, previous_cursor = -1, query = None):
-		url = wvseting.base_url +  'api/v1/scans'
-		
+		url = self.base_url +  'api/v1/scans'
 		#过滤并获取从previous_cursor开始100个target
 		if query and previous_cursor >= 0:
 			url += '?c=%d&q=%s'%(previous_cursor, query)
@@ -262,19 +260,19 @@ class WvsRest():
 		return self.action(url)
 		
 	def search_scans(self, group_id):
-		url = wvseting.base_url +  '/api/v1/scans?q=group_id:' + group_id
+		url = self.base_url +  '/api/v1/scans?q=group_id:' + group_id
 		return self.action(url)
 		
 	def del_scan(self, scan_id):
-		url = wvseting.base_url +  'api/v1/scans/' + scan_id
+		url = self.base_url +  'api/v1/scans/' + scan_id
 		return self.action(url, method = 'DELETE')
 
 	def type_scan(self):
-		url = wvseting.base_url + 'api/v1/scanning_profiles'
+		url = self.base_url + 'api/v1/scanning_profiles'
 		return self.action(url)
 	
 	def stop(self, scan_id):
-		url =  wvseting.base_url + 'api/v1/scans/%s/abort'%scan_id
+		url =  self.base_url + 'api/v1/scans/%s/abort'%scan_id
 		return self.action(url, method = 'POST')
 	
 	#{u'ui_session_id': None, u'profile_id': u'11111111-1111-1111-1111-111111111111', u'target_id': u'f334a59b-b179-4439-b0bf-ac41e23e2d7f', u'schedule': {u'disable': False, u'time_sensitive': False, u'start_date': None}}
@@ -283,7 +281,7 @@ class WvsRest():
 						disable = False,
 						start_date = None,
 						time_sensitive = False):
-		url = wvseting.base_url + 'api/v1/scans'
+		url = self.base_url + 'api/v1/scans'
 		data = {"target_id":target_id,"profile_id":profile_id,"schedule":{"disable":disable,"start_date":start_date,"time_sensitive":time_sensitive}}
 		return self.action(url, data, 'POST', settings.CONTENT_JSON)
 	

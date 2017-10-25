@@ -60,6 +60,7 @@ class Hydra():
 			bash += '%s'%proto
 		bash = 'cd ' + hydseting.restore + ' && ' + bash
 		os.system(bash)
+	
 	def restore(self, restore_path):
 		bash = hydseting.hydra_path + ' ' + '-R ' + restore_path
 		os.system(bash)
