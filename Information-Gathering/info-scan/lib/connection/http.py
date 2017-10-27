@@ -48,10 +48,11 @@ class Request():
 		
 	def get(self, url):
 		response = self.connect(url, lamb = 'GET')
-		if response and response.code == 200:
-			logger.info(url + " 200 ok")
-		else:
-			logger.info(url + " %d "%response.code)
+		if response:
+			if response.code == 200:
+				logger.info(url + " 200 ok")
+			else:
+				logger.info(url + " %d "%response.code)
 		return response
 		
 	"""def post(self, url = None, values = None, lamb = 'POST'):
@@ -80,10 +81,11 @@ class Request():
 		return response"""
 	def post(self, url, values = None):
 		response = self.connect(url, values = values, lamb = 'POST')
-		if  response and response.code == 200:
-			logger.info(url + " 200 ok")
-		else:
-			logger.info(url + " %d "%response.code)
+		if response:
+			if response.code == 200:
+				logger.info(url + " 200 ok")
+			else:
+				logger.info(url + " %d "%response.code)
 		return response
 
 	def connect(self, url, lamb, values = None):
@@ -118,26 +120,29 @@ class Request():
 
 	def put(self, url, values):
 		response = self.connect(url, values = values, lamb = 'PUT')
-		if response and response.code == 200:
-			logger.info(url + " 200 ok")
-		else:
-			logger.info(url + " %d "%response.code)
+		if response:
+			if response.code == 200:
+				logger.info(url + " 200 ok")
+			else:
+				logger.info(url + " %d "%response.code)
 		return response
 		
 	def delete(self, url):
 		response = self.connect(url, lamb = 'DELETE')
-		if response and response.code == 200:
-			logger.info(url + " 200 ok")
-		else:
-			logger.info(url + " %d "%response.code)
+		if response:
+			if response.code == 200:
+				logger.info(url + " 200 ok")
+			else:
+				logger.info(url + " %d "%response.code)
 		return response
 		
 	def patch(self, url, values):
 		response = self.connect(url, values = values, lamb = 'PATCH')
-		if response and response.code == 200:
-			logger.info(url + " 200 ok")
-		else:
-			logger.info(url + " %d "%response.code)
+		if response:
+			if response.code == 200:
+				logger.info(url + " 200 ok")
+			else:
+				logger.info(url + " %d "%response.code)
 		return response
 
 	def read(self, response):

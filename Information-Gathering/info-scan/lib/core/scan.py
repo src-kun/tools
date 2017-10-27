@@ -40,26 +40,37 @@ class NessusScan():
 		self.scan_id = ''
 		self.uuid = ''
 		self.category = ''
-		self.settings = {'launch':'ONETIME',
-							'enabled':False,
-							'launch_now':True,
-							'text_targets':'',
-							'file_targets':'',
-							'folder_id':None,
-							'policy_id':None}
-		self.download = {'format': self.DOWNLOAD_FORMAT[self.DOWNLOAD_NESSUS],
-						'path':'',
-						'name':'',
-						'file_id':None,
-						'status':False
+		self.settings = {
+							'launch': 'ONETIME',
+							'enabled': False,
+							'launch_now': True,
+							'targets':{
+								'file':None,
+								'text':''
+							},
+							'text_targets': '',
+							'file_targets': '',
+							'folder':{
+										'id': None,
+										'name': ''
+							},
+							'policy_id': None
+						}
+		self.download = {
+							'format': self.DOWNLOAD_FORMAT[self.DOWNLOAD_NESSUS],
+							'path':'',
+							'name':'',
+							'file_id':None,
+							'status':False
 						}
 	
 	#设置扫描目标
 	def set_text_targets(self, targets):
 		if type(targets) == list:
-			self.settings['text_targets'] = ','.join(targets)
+			self.settings['targets']['text'] = ','.join(targets)
 		else:
-			self.settings['text_targets'] = targets
+			self.settings['targets']['text'] = targets
+		
 	
 	#TODO
 	def set_file_targets(self, targets):
@@ -97,12 +108,15 @@ class NessusScan():
 		if name:
 			folder = self.getFolderByName(name)
 			try:
-				self.settings['folder_id'] = folder['id']
-			except KeyError:
+				self.settings['folder']['id'] = folder['id']
+			except Exception,e:
 				warnMsg = 'folder name {%s} is not defined'%name
 				logger.warn(warnMsg)
 			return folder
-		self.settings['folder_id'] = id
+		self.settings['folder']['id'] = id
+	
+	def get_folder(self):
+		return self.settings['folder']
 	
 	#scan_type SCAN_TEMPLATES的下标
 	#获取系统扫描策略模板信息
@@ -130,16 +144,25 @@ class NessusScan():
 	
 	#launch_now is True 马上开始扫描
 	def scan(self, name, description = ''):
+		infoMsg = '*'*19 + 'create scan' + '*'*19
+		infoMsg += '\r\n%s'%self.settings['targets']['text']
+		logger.info(infoMsg)
+		infoMsg = '*'*50
+		logger.info(infoMsg)
 		scan = self.__nescan.scan(template_uuid = self.settings['template_uuid'], 
 									scan_name = name, 
-									targets = self.settings['text_targets'], 
+									targets = self.settings['targets']['text'], 
 									policy_id = self.settings['policy_id'], 
-									folder_id = self.settings['folder_id'], 
+									folder_id = self.settings['folder']['id'], 
 									description = description)
-		
-		if scan and self.settings['launch_now']:
-			self.scan_id = scan['scan']['id']
-			self.start()
+		try:
+			if scan and self.settings['launch_now']:
+				self.scan_id = scan['scan']['id']
+				self.start()
+		except KeyError:
+			warnMsg = 'create scan {%s} faild : %s'%(name, self.getError(scan))
+			logger.warn(warnMsg)
+			return
 		
 		return scan
 		
@@ -167,8 +190,9 @@ class NessusScan():
 			self.info = details['info']
 		
 	def is_running(self):
-		self.get_scan_info()
-		return self.info['status'] == 'running'
+		if self.scan_id: 
+			self.get_scan_info()
+			return self.info['status'] == 'running'
 
 	def is_completed(self):
 		self.get_scan_info()
@@ -300,13 +324,18 @@ class WvsScan():
 		self.__wvsrest = WvsRest(api_key, base_url)
 		self.target_id = None
 		self.targets = []
-		self.wvs = {'scans':[], 
-						'targets':[],
-						'group':{'name':'',
-						'id':None}}
-		self.settings = {'launch_now':True,
-							#扫描类型（快速扫描、完全扫描 等...）编号
-							'profile_id':self.FULL_SCAN}
+		self.wvs = {
+						'scans': [],
+						'targets': [],
+						'group': {
+							'name': '',
+							'id': None
+						}
+					}
+		self.settings = {
+							'launch_now': True,
+							'profile_id': self.FULL_SCAN #扫描类型（快速扫描、完全扫描等...）编号
+						}
 							
 		if targets:
 			self.set_targets(targets)
@@ -339,10 +368,15 @@ class WvsScan():
 		
 	#return  {u'target_id': u'eefff2bc-b688-43df-855d-eb901c5f1352', u'description': u'', u'criticality': 10, u'address': u'www.y28.me'}
 	#扫描
-	def scan(self, group_name, group_id = None, description = ''):
+	def scan(self, group_name = None, group_id = None, description = ''):
 		
 		self.set_group( name = group_name, id = group_id)
 		
+		infoMsg = '*'*19 + 'add targets ' + '*'*19
+		infoMsg += '\r\n%s'%self.targets
+		logger.info(infoMsg)
+		infoMsg = '*'*50
+		logger.info(infoMsg)
 		for address in self.targets:
 			#添加到target
 			target = self.__wvsrest.add_target(address, description = description)

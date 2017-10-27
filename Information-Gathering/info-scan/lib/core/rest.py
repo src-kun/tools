@@ -11,7 +11,6 @@ from lib.core.log import logger
 from lib.utils.common import read
 from lib.utils.common import list_dir_nohidden
 from lib.core.settings import maseting
-from lib.core.settings import wvseting
 from lib.core import settings
 from lib.utils.common import write
 from lib.connection.http import Request
@@ -36,7 +35,7 @@ class NessusRest():
 	def create_folder(self, folder_name):
 		url = self.base_url + 'folders'
 		data = {"name":folder_name}
-		return self.action(url, data = data, method = 'POST', content = self.CONTENT_JSON)
+		return self.action(url, data = data, method = 'POST', content = settings.CONTENT_JSON)
 		
 	#删除文件夹
 	def del_folder(self, folder_id):
@@ -89,7 +88,7 @@ class NessusRest():
 		if launch:
 			data['settings']['launch'] = launch
 			
-		return self.action(url, data, method = 'POST', content = self.CONTENT_JSON)
+		return self.action(url, data, method = 'POST', content = settings.CONTENT_JSON)
 	
 	#开始扫描
 	def start(self, scan_id):
@@ -114,7 +113,7 @@ class NessusRest():
 	#无返回值
 	def status(self, scan_id, read = True):
 		url = self.base_url + 'scans/%d/status'%(scan_id)
-		return self.action(url, {"read":read}, method = 'PUT', content = self.CONTENT_JSON)
+		return self.action(url, {"read":read}, method = 'PUT', content = settings.CONTENT_JSON)
 	
 	#获取扫描任务、漏洞、描述、历史扫描记录
 	def details(self, scan_id, history_id = None):
@@ -132,7 +131,7 @@ class NessusRest():
 	def export_request(self, scan_id, format):
 		url =  self.base_url + 'scans/%d/export'%(scan_id)
 		values = {"format":format,"filter.search_type":"and"}
-		return self.action(url, values, method = 'POST', content = self.CONTENT_JSON) 
+		return self.action(url, values, method = 'POST', content = settings.CONTENT_JSON) 
 	
 	#查看报告是否可以下载，生成报告有延迟，首先需要判断是否可以下载
 	#return 0 可以下载
@@ -143,7 +142,7 @@ class NessusRest():
 	#TODO 下载pdf失败
 	def download_export(self, scan_id, file_id, path, name, format):
 		url =  self.base_url + 'scans/%d/export/%d/download'%(scan_id, file_id)
-		data = self.action(url, method = 'GET', content = self.CONTENT_JSON, download = True) 
+		data = self.action(url, method = 'GET', content = settings.CONTENT_JSON, download = True) 
 		with open('%s%s.%s'%(path, name, format), 'wb') as code:     
 			code.write(data)
 		

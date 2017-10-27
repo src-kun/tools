@@ -4,13 +4,13 @@
 import sys
 import os
 import time
+import socket
 
 from pybloom import BloomFilter
 import platform
 
 from lib.core import scrawler
 from lib.core.scrawler import Crawler
-from lib.core.scrawler import t_crawlerApi
 from lib.core.log import logger
 from lib.core.domain import Network
 from lib.core.domain import Censysio
@@ -27,7 +27,7 @@ from lib.utils.common import input
 from lib.core import settings
 from lib.connection.http import Request
 
-bloom = BloomFilter(capacity=100000, error_rate=0.001)
+
 
 blob = {'domain':[]}
 
@@ -48,77 +48,72 @@ elif WINDOWS in systype.lower():
 	pass
 else:
 	print 'unkown operating system'
-#self.__bin_check()
 
+access = '9ce1ca30eb7ec4511af9c29cb74e96cd35a7dc400439459599454d079a176f3d'
+secret = 'b289fedbb80c0a405609b7493299ebf3235b9cb847554807afdbe00e654d2f29'
+base_url = 'https://10.102.16.196:8834/'
+
+wvs_api_key = '1986ad8c0a5b3df4d7028d5f3c06e936c10a743b8beb644cd852d9320bd0e3a4e'
+wvs_base_url = 'https://10.102.16.196:3443/'
 class Information():
+	
+	
+	def __init__(self, target):
+		self.__target = target
+		
+		self.collect = {
+						'domain': [],
+						'ip': []
+					}
+	
+	def check_https(self, domain):
+		ip = Network().ip(domain)
+		s = socket.socket(socket.AF_INET,socket.SOCK_STREAM)
+		try:
+			s.connect((ip, 443))
+			return True
+		except Exception,e:
+			return False
 
-	def __init__(self, url):
-		self.url = url
-		(self.proto, self.substr, self.domain, self.resources, self.suffix) = separate(self.url)
-		self.mark = self.domain.replace('www.','')
-
+	def get_target(self):
+		return self.__target
+	
 	#域名收集
-	def domain_collect(self): 
-		#TODO 测试数据
-		return  ['e28.me','www.r28.me','www.d28.me','www.lsf0.com','www.lsf9.com','g28.me','lsf0.com','r28.me','q28.me','www.j28.me','www.z28.me','t28.me','www.q28.me','www.t28.me','www.n28.me','www.p28.me','z28.me','k28.me','www.g28.me','www.l28.me','lsf9.com','n28.me','www.k28.me','d28.me','j28.me','l28.me','y28.me','p28.me','www.e28.me','www.y28.me']
+	def domain(self, filter, level = 5):
 		domains = []
-		crawler = Crawler(bloom)
 		
+		#[u'mx41.csdn.net', u'*.csdn.net', u'code.csdn.net', u'forums.aws.csdn.net', u'aws.csdn.net', u'passport.csdn.net', u'csdn.net', 'www.csdn.net']
+		#TODO 调试
+		self.collect['domain'].extend(['e28.me','www.r28.me','www.d28.me','www.lsf0.com','www.lsf9.com','g28.me','lsf0.com','r28.me','q28.me','www.j28.me','www.z28.me','t28.me','www.q28.me','www.t28.me','www.n28.me','www.p28.me','z28.me','k28.me','www.g28.me','www.l28.me','lsf9.com','n28.me','www.k28.me','d28.me','j28.me','l28.me','y28.me','p28.me','www.e28.me','www.y28.me'])
+		self.collect['ip'].extend(['52.175.25.185', '137.116.169.118', '137.116.169.118', '137.116.169.118', '103.21.118.253', '137.116.169.118', '137.116.169.118', '137.116.169.118', '137.116.169.118', '137.116.169.118', '13.75.88.216', '137.116.169.118', '137.116.169.118', '137.116.169.118', '137.116.169.118', '137.116.169.118', '', '137.116.169.118', '137.116.169.118', '137.116.169.118', '103.21.118.253', '137.116.169.118', '137.116.169.118', '137.116.169.118', '137.116.169.118', '137.116.169.118', '137.116.169.118', '137.116.169.118', '52.175.25.185', '137.116.169.118'])
+		return
 		#空间搜索引擎采集域名信息
-		domains.extend(Censysio().certificates(self.domain)['domain'])
-		
+		#domains.extend(Censysio().certificates(self.domain.replace('www.',''))['domain'])
+		l = len(domains)
+		for i in range(0, l):
+			#TODO 支持两种协议
+			#domains.append('https://' + domains[i])
+			domains[i] = self.proto + '://' + domains[i]
 		#爬虫爬取网络信息
-		filter = self.domain.replace('www.','')
-		crawler.filter = filter
-		crawler.level = 5
-		crawler.appendDomain(self.url)
-		crawler.start()
+		self.crawler.filter = filter
+		self.crawler.set_targets(self.__target)
+		self.crawler.set_targets(domains)
+		self.crawler.level = level
+		self.crawler.start()
+		self.collect['domain'] = self.crawler.getHost()['domain']
+		self.collect['ip'] = Network().ip(self.collect['domain'])
+		return self.collect['domain']
+	
+	#TODO ip 采集
+	def ip(self):
+		pass
+	
+	def get_ip(self):
+		return self.collect['ip']
 		
-		#对比两个集合，确认爬虫收集的域名与syscen搜索引擎搜索的域名是否存在差异，如果存在继续爬一次差异域名
-		diff = crawler.appendDomain(domains)
-		if diff:
-			crawler.level += 1
-			infoMsg = "censys and crawler diff ==> %s"%str(domains)
-			logger.info(infoMsg)
-			crawler.start()
-		return crawler.getHost()['domain']
+	def get_domain(self):
+		return self.collect['domain']
 		
-	#ip 采集
-	def ip_collect(self, domain_arry):
-		return Network().ip(domain_arry)
-
-	#网络扫描
-	#targets 扫描IP地址、scan_name 扫描任务名称
-	#
-	def network_scan(self, targets, description = ''):
-		nessus = Nessus()
-		folder_id = None
-		uuid = nessus.templates('policy', nessus.templates_arry[neseting.BASIC_NETWORK_SCAN])['uuid']
-		
-		#任务名默认使用
-		scan_name = self.mark
-		
-		#文件夹名字默认使用域名，不存在创建
-		folder = self.mark
-		msg = nessus.create_folder(folder)
-		if nessus.getError(msg):
-			folder_id = nessus.folders(folder)['id']
-		else:
-			folder_id = msg['id']
-		policy_id = nessus.policies(neseting.POLICIE_COMPLEX)['id']
-		#创建扫描任务
-		msg = nessus.create_scan(uuid, scan_name, targets, policy_id = policy_id, folder_id = folder_id, description = description)
-		if nessus.getError(msg):
-			warnMsg = 'nessus create scan faild : %s'%msg['error']
-			logger.warn(warnMsg)
-		else:
-			#开始扫描
-			msg = nessus.start_scan(msg['scan']['id'])
-			if nessus.getError(msg): 
-				warnMsg = 'nessus start scan faild : %s'%msg['error']
-				logger.warn(warnMsg)
-				msg = None
-		return msg
 	
 	def port_scan(ip):
 		masscan = Masscan()
@@ -127,41 +122,135 @@ class Information():
 		print 
 		print 
 		print masscan.select_history(group_id=scan_dict['group_id'])
+
+class Exploit:
+	
+	def __init__(self, name, target = None, info = None, nesscan = None, wvs = None, bloom = None):
 		
-	def proto_crack(self, ip, port, proto):
+		self.settings = {
+							'crawler': {
+								'targets': '',
+								'bloom': None,
+								'filter': [],
+								'level': 5
+							},
+							'nessus': {
+								'scan': {
+										'name':'',
+										'targets': [],
+										'description':'',
+										'policy': 'complex',#complex 自定义的扫描策略 TODO complex不存在自动创建
+								},
+								'floder': {
+										'id':None,
+										'name':''
+								}
+							},
+							'wvs': {
+								'scan': {
+										'name':'',
+										'targets': [],
+										'description':'',
+										'profile_id': None
+								},
+								'group': {
+									'id':None,
+									'name':''
+								}
+							}
+						}
+		self.set_exploit_name(name)
+		
+		if info:
+			self.__info = info
+		else:
+			self.__info = Information(target)
+			
+		self.__info.domain(filter = self.settings['crawler']['filter'])
+		
+		if nesscan:
+			self.__nesscan = nesscan
+		else:
+			self.__nesscan = NessusScan(access, secret, base_url)
+			
+		if wvs:
+			self.__wvs = wvs
+		else:
+			self.__wvs = WvsScan(api_key = wvs_api_key, base_url = wvs_base_url)
+		
+		if bloom:
+			self.settings['crawler']['bloom'] = bloom
+		else:
+			self.settings['crawler']['bloom'] = BloomFilter(capacity=100000, error_rate=0.001)
+		
+		self.crawler = Crawler(self.settings['crawler']['bloom'])
+	
+	def set_exploit_name(self, name):
+		self.settings['nessus']['scan']['name'] = name
+		self.settings['nessus']['floder']['name'] = name
+		self.settings['wvs']['group']['name'] = name
+	
+	#网络扫描
+	#targets 扫描IP地址、scan_name 扫描任务名称
+	def network(self):
+		(proto, substr, domain, resources, suffix) = separate(self.__info.get_target())
+		
+		if not self.settings['crawler']['filter']:
+			self.settings['crawler']['filter'] = domain.replace('www.','')
+		
+		if not self.settings['nessus']['scan']['targets']:
+			self.settings['nessus']['scan']['targets'].extend(self.__info.collect['ip'])
+		self.__nesscan.set_text_targets(self.settings['nessus']['scan']['targets'])
+		floder = self.__nesscan.set_folder(self.settings['nessus']['floder']['name'])
+		if not floder:
+			self.__nesscan.create_folder(self.settings['nessus']['floder']['name'])
+		self.settings['nessus']['floder'].update(self.__nesscan.get_folder())
+		self.__nesscan.set_template(self.__nesscan.BASIC_NETWORK_SCAN)
+		self.__nesscan.set_policy(self.settings['nessus']['scan']['policy'])
+		self.__nesscan.scan(self.settings['nessus']['scan']['name'])
+		#TODO 调试
+		self.__nesscan.stop()
+		return self.__nesscan.is_running()
+		
+	def application(self):
+		if not self.settings['wvs']['scan']['targets']:
+			self.settings['wvs']['scan']['targets'] = self.__info.get_domain()
+
+		self.__wvs.set_targets(self.settings['wvs']['scan']['targets'])
+		self.__wvs.scan(group_name = self.settings['wvs']['group']['name'])
+		#TODO 调试
+		self.__wvs.clean_targets()
+		
+	def crack(self, ip, port, proto):
 		hydra = Hydra()
 		#hydra.start(target = ip, user_dict_path = hydseting.user_dict_path, password_dict_path =  hydseting.password_dict_path, port = port, proto = proto)
 		#hydra.restore(hydseting.restore + 'hydra.restore')
-"""blob['domain'].extend(domain_collect('mlr.gov.cn','http://www.mlr.gov.cn'))
-blob.update(ip_collect(blob['domain']))
-print blob"""
-
-"""masscan = MasscanRest()
+	
+info = Information('http://www.csdn.net')
+exp = Exploit('test', info = info)
+exp.network()
+exp.application()
+"""
+masscan = MasscanRest()
 scan_dict = masscan.scan('111.202.114.53', maseting.QUICK_SCAN, 'airtel.com')
 print masscan.export_json(scan_dict['name'])
 print 
 print 
-print masscan.select_history(group_id=scan_dict['group_id'])"""
-
-"""
-scan_status = nessus.details_scan(25)['history'][0]['status']
-while cmp(scan_status,'completed'):
-	time.sleep(3)
-	print scan_status
+print masscan.select_history(group_id=scan_dict['group_id'])
 """
 from lib.core.settings import wvseting
 
 hydra = Hydra()
 #hydra.start(target = '127.0.0.1', user_dict_path = hydseting.user_dict_path, password_dict_path =  hydseting.password_dict_path, proto = 'ssh')
 #hydra.restore(hydseting.restore + 'hydra.restore')
-info = Information('http://zfzhandian.com')
-targets = info.domain_collect()
+#info = Information('http://zfzhandian.com')
+#targets = info.domain_collect()
 #print info.network_scan(targets)
 #targets = info.domain_collect()
-#wvscan = WvsScan(wvseting.api_key, 'https://10.102.16.196:3443/', targets, )
+#wvscan = WvsScan(wvseting.api_key, 'https://10.102.16.196:3443/', None )
 #wvscan.scan(group_name = 'tegfsddvj')
 #wvscan.stop()
-#wvscan.set_group(name = '28pc.com')
+#wvscan.set_group('test')
 #wvscan.del_group()
 #wvscan.clean_targets()
 #wvscan.add_targets_to_group();

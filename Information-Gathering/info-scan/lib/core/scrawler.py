@@ -63,20 +63,38 @@ class Crawler:
 	def depthInc(self):
 		 self.__host['depth'] += 1
 
+	def __check_proto(self, url):
+		(proto, substr, domain, resources, suffix) = separate(url)
+		return proto
+		 
 	#添加domain并返回未爬取到的域名
-	def appendDomain(self, full_domain_arry):
+	def __appendFullDomain(self, full_domain_arry):
 		domains = []
-		if type(full_domain_arry) is types.ListType:
-			full_domain_arry = list(set(full_domain_arry))
+		if type(full_domain_arry) == list:
 			for full_domain in full_domain_arry:
+				if not self.__check_proto(full_domain):
+					raise Exception("url Incompleteness !")
 				if not full_domain in self.bloom:
-					domains.extend(full_domain)
+					domains.append(full_domain)
 				self.__push(self.__host['depth'], full_domain, full_domain)
-		elif type(full_domain_arry) is types.StringType:
+		else:
+			if not self.__check_proto(full_domain_arry):
+					raise Exception("url Incompleteness !")
 			if not full_domain_arry in self.bloom:
 				domains.append(full_domain_arry)
 			self.__push(self.__host['depth'], full_domain_arry, full_domain_arry)
 		return domains
+		
+	def set_targets(self, targets):
+		return self.__appendFullDomain(targets)
+	
+	def domain_filter(self, subject):
+		if type(self.filter) == list:
+			for f in self.filter:
+				if f in subject:
+					return True
+		else:
+			return (not self.filter or subject in self.filter)
 	
 	#TODO 增加相近url匹配过滤，去除相似url 如 host/2345.html host/4567.html
 	#return ('url', '协议', '完整域名', '域名', '非域名链接')
@@ -86,7 +104,12 @@ class Crawler:
 			#处理url
 			(proto, substr, domain, resources, suffix) = separate(url)
 			#过滤掉非self.filter下的域名 或 self.filter == None 全部通过不过滤
-			if (proto and proto in support_proto) and domain and (not self.filter or self.filter in domain):
+			if substr:
+				subject = domain.replace(substr + '.', '')
+			else:
+				subject = domain
+			
+			if (proto and proto in support_proto) and domain and self.domain_filter(subject):
 				full_domain = "%s://%s"%(proto, domain)
 				if full_domain in self.bloom:
 					full_domain = None
@@ -99,7 +122,7 @@ class Crawler:
 			elif proto not in support_proto:
 				#TODO 处理其它协议
 				pass
-			elif self.filter and domain and not (self.filter in domain):
+			elif self.filter and domain and not (domain in self.filter):
 				#TODO 保存爬取到的其它网站url
 				#another = url
 				#print another
@@ -145,6 +168,7 @@ class Crawler:
 				logger.debug(debMsg)
 			#将不完整url压入bloom
 			self.bloom.add(url)
+		
 	#解析出html中的链接
 	def parser(self, current_level, current_url, html):
 		try:
@@ -162,17 +186,13 @@ class Crawler:
 			pass
 
 	#TODO 线程控制
-	#depth :从host那一层开始，为-1时默认使用self.__host['depth']
-	def start(self, depth = -1):
+	def start(self):
 		threadLock = threading.Lock()
 		threads = []
 		start_index = self.__host['depth']
 		tmp_domain = self.__host['full_domain'][self.__host['depth']][:]
 		for current_level in range(start_index, self.level):
-			host_len = len(tmp_domain)
-			if not host_len:
-				break
-			for i in range(host_len):
+			for i in range(len(tmp_domain)):
 				# 创建新线程
 				thread = CrawlerTrd(threadLock, current_level, self, tmp_domain[i])
 				# 开启新线程
@@ -182,15 +202,16 @@ class Crawler:
 			# 等待线程完成
 			for t in threads:
 				t.join()
-			if not self.__host['full_domain'].has_key(current_level):
+			if not self.__host['full_domain'][current_level]:
 				break
 			tmp_domain = self.__host['full_domain'][self.__host['depth']][:]
 		if tmp_domain:
 			self.__host['depth'] += 1
 			self.__host['full_domain'][self.__host['depth']] = []
-		logger.info('{doamin}' + '='*50)
+		
+		logger.info('='*23 + '{doamin}' + '='*23)
 		logger.info(self.__host['full_domain'])
-		logger.info('='*50)
+		logger.info('='*54)
 	 
 class CrawlerTrd (threading.Thread):
 	def __init__(self, threadLock, current_levle, crawler, url, data = None):
@@ -209,13 +230,10 @@ class CrawlerTrd (threading.Thread):
 		current_url = self.url
 		if respose:
 			html = self.crawler.request.read(respose)
-			self.crawler.parser(self.current_levle, current_url, html)
+			self.crawler.parser(self.current_levle + 1, current_url, html)
 		#threadLock.acquire()
 		# 释放锁
 		#threadLock.release()
-	
-def t_crawlerApi(crawler):
-	crawler.start()
 
 #多线程Demo
 def t_demo(url, filter):

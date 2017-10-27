@@ -31,20 +31,20 @@ class Network():
 	#ip数组的顺序和domain数组内的域名一一对应
 	#return {'ip': [ip,ip1,...]}
 	def __ip_bat(self, domain_arry):
-		ip_dict = {'ip':[]}
 		index = 0
+		ip_arry = []
 		for domain in domain_arry:
 			try:
 				(proto, substr, domain, resources, suffix) = separate(domain)
 				ip = socket.getaddrinfo(domain,'http')[0][4][0]
-				ip_dict['ip'].append(ip)
+				ip_arry.append(ip)
 			except Exception,e:
-				ip_dict['ip'].append('')
+				ip_arry.append('')
 				errMsg = '%s {%s}'%(e, domain)
 				logger.error(errMsg)
 			index += 1
-		logger.debug(ip_dict)
-		return ip_dict
+		logger.debug(ip_arry)
+		return ip_arry
 	
 	#获取域名ip
 	#return ip
