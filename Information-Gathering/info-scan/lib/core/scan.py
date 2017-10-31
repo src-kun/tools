@@ -323,13 +323,12 @@ class WvsScan():
 					targets = None):
 		self.__wvsrest = WvsRest(api_key, base_url)
 		self.target_id = None
-		self.targets = []
-		self.wvs = {
-						'scans': [],
-						'targets': [],
+		self.__wvs = {
+						#'targets':[{'address': '', 'target_id': '', scans_id:[]},...]
+						'targets':[],
 						'group': {
-							'name': '',
-							'id': None
+							#'name': '',
+							#'id': None
 						}
 					}
 		self.settings = {
@@ -344,9 +343,27 @@ class WvsScan():
 	#description 备注
 	def set_targets(self, targets):
 		if type(targets) == list:
-			self.targets.extend(targets)
+			for target in targets:
+				self.__wvs['targets'].append({'address':target})
 		else:
-			self.targets.append(targets)
+			self.__wvs['targets'].append({'address':targets})
+			
+	def set_target_id(self, id):
+		if type(id) == list:
+			for i in id:
+				self.__wvs['targets'].append({'target_id':i})
+		else:
+			self.__wvs['targets'].append({'target_id':id})
+			
+	def set_scan_id(self, id):
+		if type(id) == list:
+			for i in id:
+				self.__wvs['targets'].append({'scan_id':[i]})
+		else:
+			self.__wvs['targets'].append({'scan_id':[i]})
+	
+	def get_wvs_targets(self):
+		return self.__wvs['targets']
 	
 	#return {u'group_id': u'b66848f0fed647e29e2b1185d11fd60a', u'description': u'', u'name': u'group_name'}
 	#创建分组
@@ -354,7 +371,7 @@ class WvsScan():
 		return self.__wvsrest.create_group_target(name)
 		
 	def del_group(self):
-		return self.__wvsrest.del_group(self.wvs['group']['id'])
+		return self.__wvsrest.del_group(self.__wvs['group']['id'])
 		
 	#设置分组 不存在创建
 	def set_group(self, name = None, id = None):
@@ -363,49 +380,45 @@ class WvsScan():
 			if not group:
 				group = self.__create_group(name)
 			id = group['group_id']
-			self.wvs['group']['name'] = name
-		self.wvs['group']['id'] = id
+			self.__wvs['group']['name'] = name
+		self.__wvs['group']['id'] = id
 		
 	#return  {u'target_id': u'eefff2bc-b688-43df-855d-eb901c5f1352', u'description': u'', u'criticality': 10, u'address': u'www.y28.me'}
 	#扫描
-	def scan(self, group_name = None, group_id = None, description = ''):
+	def scan(self, description = ''):
 		
-		self.set_group( name = group_name, id = group_id)
-		
-		infoMsg = '*'*19 + 'add targets ' + '*'*19
-		infoMsg += '\r\n%s'%self.targets
-		logger.info(infoMsg)
-		infoMsg = '*'*50
-		logger.info(infoMsg)
-		for address in self.targets:
+		self.log('add target', self.__wvs['targets'])
+		index = 0
+		for address in self.__wvs['targets']:
 			#添加到target
-			target = self.__wvsrest.add_target(address, description = description)
+			target = self.__wvsrest.add_target(address['address'], description = description)
 			if self.getError(target):
-				warnMsg = 'add target {%s} %s ! '%(address, self.getError(target))
+				self.__wvs['targets'][index]['target_id'] = None
+				warnMsg = 'add target {%s} %s ! '%(address['address'], self.getError(target))
 				logger.warn(warnMsg)
-			self.wvs['targets'].append(target)
-		
-		self.add_targets_to_group()
+			else:
+				self.__wvs['targets'][index]['target_id'] = target['target_id']
+			index += 1
 		
 		if self.settings['launch_now']:
 			scan = self.start()
-		
-		return self.wvs['targets']
 	
 	#将target添加到group_name分组
-	def add_targets_to_group(self, group_id = None, targets_id_arry = None):
+	def add_targets_to_group(self, group_name = None):
 		
-		if group_id:
-			self.wvs['group']['id'] = group_id
+		if group_name:
+			self.set_group(name = group_name)
 		
-		if not targets_id_arry:
-			targets_id_arry = []
-			for scan in self.wvs['targets']:
-				targets_id_arry.append(scan['target_id'])
+		self.log('add targets to group', self.__wvs['targets'])
 		
-		result = self.__wvsrest.add_targets_to_group(targets_id_arry, self.wvs['group']['id'])
+		targets_id_arry = []
+		for scans in self.__wvs['targets']:
+			if scans['target_id']:
+				targets_id_arry.append(scans['target_id'])
+		
+		result = self.__wvsrest.add_targets_to_group(targets_id_arry, self.__wvs['group']['id'])
 		if self.getError(result):
-			warnMsg = 'add targets id {%s} to group {%s} faild : %s'%(targets_id_arry, group_id, self.getError(result))
+			warnMsg = 'add targets id {%s} to group {%s} faild : %s'%(targets_id_arry, self.__wvs['group']['id'], self.getError(result))
 			logger.warn(warnMsg)
 		return result
 	
@@ -414,14 +427,18 @@ class WvsScan():
 	
 	#启动扫描
 	def start(self):
-		for target in self.wvs['targets']:
-			scan = self.__wvsrest.start_scan(target['target_id'], profile_id = self.settings['profile_id'])
+		self.log('start targets', self.__wvs['targets'])
+		scan = None
+		for target in self.__wvs['targets']:
 			try:
-				self.wvs['scans'].append(scan)
+				scan = self.__wvsrest.start_scan(target['target_id'], profile_id = self.settings['profile_id'])
 			except KeyError:
 				warnMsg = 'start scan target {%s} faild : %s'%(target['address'], self.getError(scan))
 				logger.warn(warnMsg)
-		return self.wvs['scans']
+				
+		#获取scans_id
+		self.current_scans()
+		return self.__wvs['targets']
 	
 	#根据分组名获取分组信息
 	def getGroupByName(self, group_name):
@@ -435,12 +452,17 @@ class WvsScan():
 			if not cmp(group_name, group['name']):
 				return group
 	
-	def get_current_scans(self, status = ''):
-		if self.wvs['group']['name']:
-			return self.get_scans(group_name = self.wvs['group']['name'], status = status)
+	def current_scans(self, status = ''):
+		index = 0
+		for target in self.__wvs['targets']:
+			self.__wvs['targets'][index]['scans_id'] = []
+			scans = self.search_scans(target_id = target['target_id'], status = status)
+			for scan in scans:
+				self.__wvs['targets'][index]['scans_id'].append(scan['scan_id'])
+			index += 1
 	
 	#获取scans
-	def get_scans(self, group_name = None, group_id = None, status = ''):
+	def search_scans(self, group_name = None, group_id = None, target_id = '', status = ''):
 		query = ''
 		group = None
 		scans = []
@@ -449,6 +471,10 @@ class WvsScan():
 		#filter 过滤状态为{status}的targets q=status:processing,completed
 		if status:
 			query += 'status:%s;'%status
+		
+		#获取某个target的扫描信息
+		if target_id:
+			query += 'target_id:%s;'%target_id
 		
 		if group_id:
 			query += 'group_id:%s;'%group_id
@@ -471,43 +497,34 @@ class WvsScan():
 		
 		return scans
 	
-	#暂停扫描
-	def stop(self):
-		scans = []
-		#防止scans添加延迟导致不能暂停任务
-		while True:
-			current_scans = self.get_current_scans(status = 'queued,processing,scheduled')
-			for scan in current_scans:
-				self.__wvsrest.stop(scan['scan_id'])
-			if not scans:
-				break
-			scans.append(current_scans)
-		return scans
+	def del_scans(self):
+		pass
 	
 	#清理扫描记录
 	def clean_scans(self, group_name = None, group_id = None, status = None):
 	
 		if not group_name:
-			group_name = self.wvs['group']['name']
+			group_name = self.__wvs['group']['name']
 			
 		if not group_id:
-			group_id = self.wvs['group']['id']
+			group_id = self.__wvs['group']['id']
 		
-		scans = self.get_scans(group_name = self.wvs['group']['name'], group_id = self.wvs['group']['id'], status = status)
+		scans = self.search_scans(group_name = self.__wvs['group']['name'], group_id = self.__wvs['group']['id'], status = status)
 		
 		#开始删除
 		for scan in scans:
 			self.__wvsrest.del_scan(scan['scan_id'])
 		return scans
 	
-	#获取当前targets
-	def get_current_targets(self, text = ''):
-		group_name = self.wvs['group']['name']
-		if group_name:
-			return self.get_targets(group_name = group_name, text = text)
+	#暂停扫描
+	def stop(self):
+		self.current_scans()
+		for target in self.__wvs['targets']:
+			for id in target['scans_id']:
+				self.__wvsrest.stop(id)
 	
 	#获取targets
-	def get_targets(self, group_name = None, group_id = None, text = ''):
+	def search_targets(self, text = ''):
 		previous_cursor = 0
 		targets = []
 		group = None
@@ -517,16 +534,8 @@ class WvsScan():
 		if text:
 			query += 'text_search:*%s;'%text
 		
-		if group_id:
-			query += 'group_id:%s'%group_id
-		#获取group name对应的group id
-		elif group_name:
-			group = self.getGroupByName(group_name)
-			#分组不存在
-			if not group:
-				return targets
-			else:
-				query += 'group_id:%s;'%group['group_id']
+		if self.__wvs['group']['id']:
+			query += 'group_id:%s'%self.__wvs['group']['id']
 		
 		#取出target
 		#group_name != None 时取出group_name分组内所有target
@@ -539,23 +548,15 @@ class WvsScan():
 		
 		return targets
 	
-	#清除target
-	#TODO 目前只能删除有分组的扫描任务
-	def clean_targets(self, group_name = None, group_id = None, text = None):
+	#删除targets任务
+	def del_targets(self):
+		self.log('del targets', self.__wvs['targets'])
+		#开始删除
+		for target in self.__wvs['targets']:
+			self.__wvsrest.del_target(target['target_id'])
+		
+		return self.__wvs['targets']
 	
-		if not group_name and not group_id:
-			targets = self.get_current_targets()
-		else:
-			targets = self.get_targets(group_name = self.wvs['group']['name'], group_id = self.wvs['group']['id'], text = text)
-		
-		if targets:
-			#开始删除
-			for target in targets:
-				self.__wvsrest.del_target(target['target_id'])
-				logger.info('del target {%s} success'%target['address'])
-		
-		return targets
-		
 	def clean_confirm(self, msg):
 		keys = input(msg).lower()
 		if not cmp(keys, 'y'):
@@ -569,3 +570,10 @@ class WvsScan():
 	def getError(self, msg):
 		if msg and msg.has_key('message'):
 			return msg['message']
+	
+	def log(self, msg, target):
+		infoMsg = '*'*19 + '%s '%msg + '*'*19
+		infoMsg += '\r\n%s'%target
+		logger.info(infoMsg)
+		infoMsg = '*'*50
+		logger.info(infoMsg)

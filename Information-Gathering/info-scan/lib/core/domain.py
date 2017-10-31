@@ -117,6 +117,8 @@ class Censysio():
 			c = censys.certificates.CensysCertificates(self.UID, self.SECRET)
 			#paged search
 			result = c.paged_search('parsed.names: %s'%domain, page = page, fields = fields)
+			infoMsg = 'Censysio paged_search parsed.names: %s'%domain
+			logger.info(infoMsg)
 			infoMsg = "{%s} syscen search result ==> %s"%(domain, result)
 			logger.info(infoMsg)
 			if 'ok' in result['status']:

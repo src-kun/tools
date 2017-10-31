@@ -94,7 +94,7 @@ class Crawler:
 				if f in subject:
 					return True
 		else:
-			return (not self.filter or subject in self.filter)
+			return (not self.filter or self.filter in subject)
 	
 	#TODO 增加相近url匹配过滤，去除相似url 如 host/2345.html host/4567.html
 	#return ('url', '协议', '完整域名', '域名', '非域名链接')
@@ -202,7 +202,10 @@ class Crawler:
 			# 等待线程完成
 			for t in threads:
 				t.join()
-			if not self.__host['full_domain'][current_level]:
+			try:
+				if not self.__host['full_domain'][current_level]:
+					break
+			except KeyError:
 				break
 			tmp_domain = self.__host['full_domain'][self.__host['depth']][:]
 		if tmp_domain:
