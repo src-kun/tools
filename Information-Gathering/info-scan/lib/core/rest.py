@@ -128,20 +128,20 @@ class NessusRest():
 
 	#通知nessus生成报告
 	#return {u'token': u'c8f9425c44306088a383ed7045ceb346c10de51bbc8edd4428c15024b7d20c0c', u'file': 2056893300}
-	def export_request(self, scan_id, format):
-		url =  self.base_url + 'scans/%d/export'%(scan_id)
+	def report_request(self, scan_id, format):
+		url =  self.base_url + 'scans/%d/report'%(scan_id)
 		values = {"format":format,"filter.search_type":"and"}
 		return self.action(url, values, method = 'POST', content = settings.CONTENT_JSON) 
 	
 	#查看报告是否可以下载，生成报告有延迟，首先需要判断是否可以下载
 	#return 0 可以下载
-	def export_status(self, scan_id, file_id):
-		url =  self.base_url + 'scans/%d/export/%d/status'%(scan_id, file_id)
+	def report_status(self, scan_id, file_id):
+		url =  self.base_url + 'scans/%d/report/%d/status'%(scan_id, file_id)
 		return self.action(url)
 		
 	#TODO 下载pdf失败
-	def download_export(self, scan_id, file_id, path, name, format):
-		url =  self.base_url + 'scans/%d/export/%d/download'%(scan_id, file_id)
+	def download_report(self, scan_id, file_id, path, name, format):
+		url =  self.base_url + 'scans/%d/report/%d/download'%(scan_id, file_id)
 		data = self.action(url, method = 'GET', content = settings.CONTENT_JSON, download = True) 
 		with open('%s%s.%s'%(path, name, format), 'wb') as code:     
 			code.write(data)
@@ -322,8 +322,8 @@ class MasscanRest():
 	
 	def __init__(self):
 		self.adapter_ip = None
-		self.history = self.__historys(maseting.ALL_HISTORY)
-		self.group = self.__groups(maseting.ALL_GROUP)
+		self.__history = self.__historys(maseting.ALL_HISTORY)
+		self.__group = self.__groups(maseting.ALL_GROUP)
 	"""
 
 	历史
@@ -331,12 +331,14 @@ class MasscanRest():
 	"""
 	
 	#name （masscan 报告文件名 唯一不可重复） token （ip + port md5值，查询扫描历史纪录） target （扫描参数）time （扫描时间） group （分组 探测不同ip段但同属于一个目标的标记）
-	# push {'name':'%s', 'scan':{'token':'%s', 'target':{'ip':'%s', 'port':'%s'},'time':%s}, 'group':''}\n name 不可重复
+	# push {'name':'%s', 'scan':{'token':'%s', 'target':{'ip':'%s', 'port':'%s'},'time':%s}, 'group':{'id':'','name':''}\n name 不可重复
 	def __push_map(self, ip, port, name, group):
-		history = maseting.history_format%(name, self.token(ip, port), ip, port, time.time(), group)
+		if not group:
+			group = {'id':'','name':''}
+		history ="{'name':'%s', 'scan':{'token':'%s', 'target':{'ip':'%s', 'port':'%s'},'time':%s}, 'group':{'id':'%s','name':'%s'}}\n"%(name, self.token(ip, port), ip, port, time.time(), group['id'], group['name'])
 		maseting.map_handle.write(history)
 		#更新到历史纪录中
-		self.update_history(history)
+		self.__update_history(history)
 		maseting.map_handle.flush()
 		return eval(history)
 	
@@ -372,39 +374,42 @@ class MasscanRest():
 		return history
 	
 	#更新历史纪录
-	def update_history(self, map_text):
-		self.history['history'].append(eval(map_text))
-		self.history['count'] += 1
+	def __update_history(self, map_text):
+		self.__history['history'].append(eval(map_text))
+		self.__history['count'] += 1
 
 	#筛选历史纪录
 	#return  {'history':[{'name':'%s', 'scan':{'token':'%s', 'target':{'ip':'%s', 'port':'%s'},'time':%s}}\n,...],'count':0}
 	def select_history(self, token = None, name = None, ip = None, group_id = None, time = None):
 		history = {'history':[], 'count':0}
 		if token:
-			for h in self.history['history']:
+			for h in self.__history['history']:
 				if not cmp(h['scan']['token'],token):
 					history['history'].append(h)
 					history['count'] += 1
 		elif name:
-			for h in self.history['history']:
+			for h in self.__history['history']:
 				if not cmp(h['name'],name):
 					history['history'].append(h)
 					history['count'] += 1
 		elif ip:
-			for h in self.history['history']:
+			for h in self.__history['history']:
 				if not cmp(h['scan']['target']['ip'], ip):
 					history['history'].append(h)
 					history['count'] += 1
 		elif group_id:
 			#查询同分组的扫描记录
 			group = self.select_group(id = group_id)
-			for g in self.history['history']:
-				if not cmp(g['group_id'], group_id):
+			for g in self.__history['history']:
+				if not cmp(g['group']['id'], group_id):
 					history['history'].append(g)
 					history['count'] += 1
 		else:
 			history = None
 		return history
+		
+	def get_history(self):
+		return self.__history
 	"""
 	分组
 	"""
@@ -412,12 +417,12 @@ class MasscanRest():
 	#添加分组 不存在创建
 	#add {'id':id, 'group':'', 'time':0}
 	def __push_group(self, group):
-		group = maseting.group_format%(self.md5(group.join(str(time.time()))), group, time.time())
-		maseting.group_handle.write(group)
+		group_text = "{'id':'%s', 'name':'%s', 'time':%s}\r\n"%(self.md5(group['name'].join(str(time.time()))), group['name'], time.time())
+		maseting.group_handle.write(group_text)
 		#更新分组
-		self.update_group(group)
+		self.__update_group(eval(group_text))
 		maseting.group_handle.flush()
-		return eval(group)
+		return eval(group_text)
 	
 	def __pop_group(self, line = 100):
 		#重置文件指针到文件头
@@ -435,37 +440,36 @@ class MasscanRest():
 				group_arry.extend(lines)
 		return group_arry
 
-	#获取历史纪录 默认获取100条
+	#获取分组纪录 默认获取100条
 	def __groups(self, line = 100):
-		group = {'group':[], 'count':0}
+		group = {'groups':[], 'count':0}
 		lines = self.__pop_group(line)
 		group['count'] = len(lines)
 		for i in range(0, group['count']):
 			try:
-				group['group'].append(eval(lines[i]))
-			except exception, e:
+				group['groups'].append(eval(lines[i]))
+			except Exception, e:
 				pass
 		return group
 	
 	#更新分组
-	def update_group(self, group):
-		self.group['group'].append(eval(group))
-		self.group['count'] += 1
+	def __update_group(self, group):
+		self.__group['groups'].append(group)
+		self.__group['count'] += 1
 
 	#筛选分组
 	def select_group(self, name = None, id = None):
-		group = {'group':{}}
 		if name:
-			for g in self.group['group']:
+			for g in self.__group['groups']:
 				if not cmp(g['name'], name):
-					group['group'].update(g)
+					return g
 		elif id:
-			for g in self.group['group']:
+			for g in self.__group['groups']:
 				if not cmp(g['id'], id):
-					group['group'].update(g)
-		else:
-			group = None 
-		return group
+					return g
+	
+	def get_groups(self):
+		return self.__group
 
 	"""
 
@@ -483,36 +487,34 @@ class MasscanRest():
 
 	#TODO --adapter-ip 
 	def scan(self, ip, port, group_name = None):
+		group = None
 		name = self.md5("%s%s%s"%(ip, port, str(time.time())))
-		group_id = ''
-		currten_export_path = "%s%s.json"%(maseting.export_path, name)
-		scan_shell = maseting.masscan_shell%(maseting.masscan_path, ip, port, currten_export_path)
+		currten_report_path = "%s%s.json"%(maseting.report_path, name)
+		scan_shell = maseting.masscan_shell%(maseting.masscan_path, ip, port, currten_report_path)
 		output = os.popen(scan_shell)
+		#查找group不存在创建
 		if group_name:
-			group = self.select_group(name=group_name)
-			if group['group']:
-				group_id = group['group']['id']
-			else:
-				group_id = self.__push_group(group_name)['id']
-		if name:
-			return self.__push_map(ip, port, name, group_id)
+			group = self.select_group(name = group_name)
+			if not group:
+				group = self.__push_group({'name':group_name,'id':''})
+		self.__push_map(ip, port, name, group)
 		
 	"""
 
 	报告
 
 	"""
-	def __export_path(self, name):
-		return "%s%s.json"%(maseting.export_path, name)
+	def __report_path(self, name):
+		return "%s%s.json"%(maseting.report_path, name)
 
 	#return [{"ip": "111.202.114.53","timestamp": "1506482040", "ports": [ {"port": 80, "proto": "tcp", "status": "open", "reason": "syn-ack", "ttl": 128}]},...]
-	def export_json(self, name):
-		export_dict = {'exports':[],'count':0}
-		export_arry = read(self.__export_path(name))
-		export_dict['count'] = len(export_arry)
-		for i in range(0, export_dict['count']):
+	def report_json(self, name):
+		report_dict = {'reports':[],'count':0}
+		report_arry = read(self.__report_path(name))
+		report_dict['count'] = len(report_arry)
+		for i in range(0, report_dict['count']):
 			try:
-				export_dict['exports'].append(eval(export_arry[i]))
+				report_dict['reports'].append(eval(report_arry[i]))
 			except Exception, e:
 				pass
-		return export_dict
+		return report_dict

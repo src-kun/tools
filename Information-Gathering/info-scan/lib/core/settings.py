@@ -73,11 +73,11 @@ class Maseting():
 		#物理路径
 		self.masscan_path = self.bin + 'masscan'
 		#输出的报告路径
-		self.report_path = self.data + 'report'
+		self.report_path = self.data + 'report/'
 		#扫描记录map文件
-		self.report_map_path = self.data + '.masscan'
-		self.report_group_path =  self.data + '.group'
-		self.history_format = "{'name':'%s', 'scan':{'token':'%s', 'target':{'ip':'%s', 'port':'%s'},'time':%s}, 'group_id':'%s'}\n"
+		self.map_path = self.data + '.masscan'
+		self.group_path =  self.data + '.group'
+		self.history_format = "{'name':'%s', 'scan':{'token':'%s', 'target':{'ip':'%s', 'port':'%s'},'time':%s}, 'group:{id':'%s','name':'%s'}}\n"
 		self.group_format = "{'id':'%s', 'name':'%s', 'time':%s}\n"
 		self.map_handle = None
 		self.group_handle = None
@@ -89,16 +89,19 @@ class Maseting():
 	
 	#检查调用时的所需环境
 	def __check_env(self):
-		#检测masscan report 文件夹 不存在则创建
+		#检测masscan文件夹
 		chk_dir(self.data)
-		#检查map文件 不存在则创建
-		chk_file(self.report_map_path)
-		#检查group文件 不存在则创建
-		chk_file(self.report_group_path)
+		#检查结果导出路径
+		chk_dir(self.report_path)
+		#检查map文件
+		chk_file(self.map_path)
+		#检查group文件
+		chk_file(self.group_path)
+
 
 	def __init_var(self):
-		self.map_handle = open(self.report_map_path, 'r+')
-		self.group_handle = open(self.report_group_path, 'r+')
+		self.map_handle = open(self.map_path, 'r+')
+		self.group_handle = open(self.group_path, 'r+')
 
 	def __del__( self ):
 		self.map_handle.close()

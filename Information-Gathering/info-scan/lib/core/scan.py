@@ -7,6 +7,7 @@ from lib.core.rest import NessusRest
 from lib.core.rest import WvsRest
 from lib.core.log import logger
 from lib.utils.common import input
+from  lib.core.base import switch
 
 
 class NessusScan():
@@ -577,3 +578,70 @@ class WvsScan():
 		logger.info(infoMsg)
 		infoMsg = '*'*50
 		logger.info(infoMsg)
+
+from lib.core.rest import MasscanRest
+class MasScan():
+	
+	FORMAT_JSON = 'report_json'
+	masrest = MasscanRest()
+	
+	#最常见端口
+	QUICK_SCAN = '80,8080,3128,8081,9080,1080,21,23,443,69,22,25,110,7001,9090,3389,1521,1158,2100,1433'
+	#TODO 全部常见端口
+	COMPLEX_SCAN = '80,8080,3128,8081,9080,1080,21,23,443,69,22,25,110,7001,9090,3389,1521,1158,2100,1433'
+	#全端口
+	FULL_SCAN = '1-65535'
+	
+	def __init__(self, masrest = None):
+		if masrest:
+			self.__masrest = masrest
+		else:
+			self.__masrest = self.masrest
+		
+		self.__mas = {
+						'scan': {
+							'target': '',
+							'port': ''
+						},
+						'group':{
+							'id': '',
+							'name': '',
+						
+						},
+						'report': {
+							'name',''
+						},
+						'history': self.__masrest.get_history()
+					}
+	
+	def set_group(self, name = '', id = ''):
+		self.__mas['group']['name'] = name
+		self.__mas['group']['id'] = id
+		
+	
+	def scan(self, target, port):
+		self.__mas['scan']['target'] = target
+		self.__mas['scan']['port'] = port
+		scan = self.__masrest.scan(self.__mas['scan']['target'], self.__mas['scan']['port'], self.__mas['group']['name'])
+	
+	def get_history(self):
+		return  self.__mas['history']
+		
+	def get_groups(self):
+		return self.__masrest.get_groups()
+		
+	def select_group(self):
+		pass
+		#TODO
+		#self.__masrest.select_history(token = None, name = None, ip = None, group_id = None, time = None)
+	
+	def report(self, format):
+		for case in switch(format):
+			if case(self.FORMAT_JSON):
+				self.__masrest.export_json(self.__mas['report']['name'])
+				break
+			if case(): 
+				warnMsg = 'format {%s} output undefined'%format
+				logger.warn
+				pass
+
