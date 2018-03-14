@@ -58,4 +58,4 @@ def zonetransfer(target):
 		response = json.dumps(response, indent=4, separators=(',', ': '))
 		return response
 
-zonetransfer('baidu.com')
+print zonetransfer('baidu.com')
