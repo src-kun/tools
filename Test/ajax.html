@@ -1,0 +1,475 @@
+<!DOCTYPE html>
+<html lang="en">
+	<head>
+		<meta charset="utf-8">
+		<meta id="viewport" name="viewport" content="user-scalable=no, width=640, initial-scale=0.5, maximum-scale=0.5">
+		<title></title>
+	</head>
+	<style type="text/css">
+		body
+		{
+			background: #f4f4f4;
+			margin: 0px;
+			padding: 20px;
+		}
+		#bigDiv{
+			margin-left: 0;
+			margin-right: 0;
+		}
+		*
+		{
+			font-family: "microsoft yahei";
+		}
+		textarea,input
+		{
+			display: block;
+			width: calc(100% - 20px);
+			height: 34px;
+			padding: 0px 10px;
+			font-size: 14px;
+			line-height: 1.42857143;
+			color: #555;
+			background-color: #fff;
+			background-image: none;
+			border: 1px solid #ccc;
+			border-radius: 4px;
+			-webkit-box-shadow: inset 0 1px 1px rgba(0, 0, 0, .075);
+			box-shadow: inset 0 1px 1px rgba(0, 0, 0, .075);
+			-webkit-transition: border-color ease-in-out .15s, -webkit-box-shadow ease-in-out .15s;
+			-o-transition: border-color ease-in-out .15s, box-shadow ease-in-out .15s;
+			transition: border-color ease-in-out .15s, box-shadow ease-in-out .15s;
+		}
+		textarea
+		{
+			padding: 10px;
+		}
+		input:focus,textarea:focus
+		{
+			border-color: #66afe9;
+			outline: 0;
+			-webkit-box-shadow: inset 0 1px 1px rgba(0,0,0,.075), 0 0 8px rgba(102, 175, 233, .6);
+			box-shadow: inset 0 1px 1px rgba(0,0,0,.075), 0 0 8px rgba(102, 175, 233, .6);
+		}
+	</style>
+	<body>
+		<script src="lzy/js/lUtils/lUtils.js" type="text/javascript" charset="utf-8"></script>
+		<script src="http://libs.baidu.com/jquery/1.6.4/jquery.min.js" type="text/javascript" charset="utf-8"></script>
+	</body>
+	<script type="text/javascript" charset="utf-8">
+	
+		var localStName = "historyArr"
+		//window.localStorage.clear()
+	
+		var bigDiv = document.createElement("div")
+		bigDiv.id="bigDiv"
+		//bigDiv.style.width="100%"
+		//bigDiv.style.height="100%"
+		
+		document.body.appendChild(bigDiv)
+		
+		var sp = document.createElement("span")
+		sp.innerHTML="<b>ajax Test</b>"
+		bigDiv.appendChild(sp)
+		bigDiv.appendChild(document.createElement("p"))
+		
+		var data
+		var sp = document.createElement("span")
+		sp.innerHTML="data："
+		bigDiv.appendChild(sp)
+		var dataTa = document.createElement("textarea")
+		bigDiv.appendChild(dataTa)
+		dataTa.value='{\n\ta:"parameter1",\n\tb:"parameter2"\n}'
+		dataTa.style.height=100+"px"
+		
+		bigDiv.appendChild(document.createElement("p"))
+		
+		//http://www.osmun.com.cn/2dbf/getjiang.php
+		var sp = document.createElement("span")
+		sp.innerHTML="URL："
+		bigDiv.appendChild(sp)
+		var urltxtarea = document.createElement("input")
+		bigDiv.appendChild(urltxtarea)
+		urltxtarea.value=""
+		urltxtarea.placeholder="url"
+		//urltxtarea.style.width="50%"
+		//urltxtarea.style.height=20+"px"
+		
+		bigDiv.appendChild(document.createElement("p"))
+		
+		var sp = document.createElement("span")
+		sp.innerHTML="ajax options："
+		bigDiv.appendChild(sp)
+		var otherP = document.createElement("input")
+		bigDiv.appendChild(otherP)
+		otherP.value='{type:"post",dataType:"json",async:true}'
+		//otherP.style.width="50%"
+		//otherP.style.height=20+"px"
+		
+		bigDiv.appendChild(document.createElement("p"))
+		
+		var btn = document.createElement("button")
+		btn.innerHTML="send"
+		bigDiv.appendChild(btn)
+		btn.addEventListener("mousedown",btnClick)
+		btn.addEventListener("touchend",btnClick)
+		btn.style.width=100+"px"
+		btn.style.height=30+"px"
+		
+		var ajaxP
+		function btnClick (e) {
+			if(urltxtarea.value!="")
+			{
+				try{
+					eval("data = "+dataTa.value)
+				}catch(e){
+					alert('data error，格式为：{a:"参数1",b:"参数2"}')
+				}
+				
+				try{
+					eval("ajaxP = "+otherP.value)
+					ajaxP.data=data
+					ajaxP.success=onSuccess
+					ajaxP.error=err
+					ajaxP.url=urltxtarea.value
+				}catch(e){
+					alert('ajax options error，格式为：{type:"post",dataType:"json",async:true}')
+				}
+				txtarea.value="Please wait..."
+				saveArr()
+	
+				binHistory()
+				saveLS() 
+				//encodeURIComponent()
+				shareIp.value="http://codepen.io/lzy100p/full/Kpwrgd?url="+encodeURIComponent(urltxtarea.value)+"&data="+encodeURIComponent(dataTa.value)
+				$.ajax(ajaxP);
+			}else{
+				alert("请输入发送地址")
+			}
+		}
+		
+		function onSuccess (d,e,f,g) {
+			console.log(d,e,f)
+			var rTxt=""
+			if(typeof(d)=="object")
+			{
+				rTxt=lObjToString(d)
+			}else{
+				
+				rTxt=d
+			}
+			
+			rTxt+="\n"
+			rTxt+="responseText:\n"
+			rTxt+=f.responseText
+			
+			txtarea.value=rTxt
+			
+		}
+		function err (a,b,c) {
+			var rt = ""
+			rt+=b+"\n"
+			rt+=c+"\n"
+			rt+=lObjToString(a)
+			txtarea.value=rt
+			console.log(a)
+		}
+		
+		bigDiv.appendChild(document.createElement("p"))
+		
+		var txtarea = document.createElement("textarea")
+		bigDiv.appendChild(txtarea)
+		txtarea.value=""
+		txtarea.placeholder="返回内容"
+		txtarea.style.height=200+"px"
+		
+		bigDiv.appendChild(document.createElement("p"))
+		
+		var sp = document.createElement("span")
+		sp.innerHTML="外发地址："
+		bigDiv.appendChild(sp)
+		var shareIp = document.createElement("input")
+		bigDiv.appendChild(shareIp)
+		shareIp.placeholder="按send后自动生成链接"
+		//shareIp.style.width="60%"
+		/*
+		var btn2 = document.createElement("button")
+		btn2.innerHTML="复制链接"
+		bigDiv.appendChild(btn2)
+		btn2.addEventListener("mousedown",function () {
+			window.clipboardData.setData("Text","aaaaaaaaaaaaaaaaa"); 
+		})*/
+		//btn2.style.width=100+"px"
+		//btn2.style.height=30+"px"
+		
+		bigDiv.appendChild(document.createElement("p"))
+		
+		var sp = document.createElement("span")
+		sp.innerHTML="history："
+		bigDiv.appendChild(sp)
+		
+		bigDiv.appendChild(document.createElement("br"))
+		
+		var spGrp = document.createElement("div")
+		bigDiv.appendChild(spGrp)
+		spGrp.addEventListener("mousedown",historyClick)
+		spGrp.addEventListener("mouseover",function (e) {
+			if(e.target.tid!=undefined)
+			{
+				var tid = e.target.tid
+				e.target.style.textDecoration="underline"
+			}
+		})
+		spGrp.addEventListener("mouseout",function (e) {
+			if(e.target.tid!=undefined)
+			{
+				var tid = e.target.tid
+				e.target.style.textDecoration=""
+			}
+		})
+		
+		function historyClick (e) {
+			
+			if(e.target.tid!=undefined)
+			{
+				var tid = e.target.tid
+				
+				//console.log(e.target.innerHTML,e.target.innerHTML.indexOf("Delete"))
+				
+				if(e.target.innerHTML.indexOf("Delete")!=-1)
+				{
+					historyArr.splice(tid,1)
+					binHistory()
+					saveLS()
+				}else{
+					urltxtarea.value=historyArr[tid][0]
+					dataTa.value=historyArr[tid][1]
+					otherP.value=historyArr[tid][2]
+				}
+			}
+		}
+		//spGrp.style.width=0+"px"
+		
+		var historyBtnArr=[]
+		var historyArr=[]
+		loadLS()
+		binHistory()
+		
+		if(historyArr[0] != undefined)
+		{
+			urltxtarea.value =historyArr[0][0];
+			dataTa.value = historyArr[0][1];
+			otherP.value = historyArr[0][2];
+		}
+		
+		var urlObj = lUrlToObj()
+		if(urlObj.url!=undefined)
+		{
+			urltxtarea.value =decodeURIComponent(urlObj.url)
+		}
+		if(urlObj.data!=undefined)
+		{
+			dataTa.value =decodeURIComponent(urlObj.data)
+		}
+		
+		function reoder()
+		{
+			if(findedIndex!=0){
+				
+			}
+		}
+		
+		function saveArr () {
+			var findedIndex=-1
+			for (var i = 0; i < historyArr.length; i++) {
+				if(historyArr[i][0] == urltxtarea.value)
+				{
+					historyArr[i][1] = dataTa.value;
+					historyArr[i][2] = otherP.value;
+					findedIndex = i
+					
+				}
+			}
+			//console.log(historyArr)
+			if(findedIndex==-1)
+			{
+				historyArr.unshift([urltxtarea.value,dataTa.value,otherP.value])
+			}else if(findedIndex!=0)
+			{
+				var ts = historyArr[findedIndex]
+				historyArr.splice(findedIndex,1)
+				historyArr.unshift(ts)
+			}
+			
+			return findedIndex
+			
+		}
+		
+		//建立历史按钮
+		function binHistory () {
+			//console.log(historyArr[0])
+			//console.log(historyArr[1])
+			
+			$(spGrp).empty()
+			
+			for (var i = 0; i < historyArr.length; i++) {
+				
+				var tempSp
+				var tempSp2
+				var tempSp3
+				var tempArr = historyArr[i][0].split("/");
+				var tempStr = tempArr[1]+tempArr[2];
+				
+				tempSp = document.createElement("span")
+				spGrp.appendChild(tempSp)
+				
+				tempSp3 = document.createElement("span")
+				tempSp3.innerHTML=tempArr[tempArr.length-1]+" "+tempStr;
+				tempSp.appendChild(tempSp3)
+				tempSp3.tid=i
+				
+				tempSp2 = document.createElement("span")
+				tempSp2.innerHTML=" [Delete]<br>"
+				tempSp.appendChild(tempSp2)
+				tempSp2.tid=i
+				tempSp.style.cursor="pointer"
+				
+				//historyBtnArr[i] = tempSp
+				//console.log(tempSp.style.position)
+				//tempSp.style.position="absolute"
+				//tempSp.style.width="100%"
+				//tempSp.style.background="#ff0000"
+
+			}
+		}
+		
+		//textarea输入tab
+		HTMLTextAreaElement.prototype.getCaretPosition = function () { //return the caret position of the textarea
+		    return this.selectionStart;
+		};
+		HTMLTextAreaElement.prototype.setCaretPosition = function (position) { //change the caret position of the textarea
+		    this.selectionStart = position;
+		    this.selectionEnd = position;
+		    this.focus();
+		};
+		HTMLTextAreaElement.prototype.hasSelection = function () { //if the textarea has selection then return true
+		    if (this.selectionStart == this.selectionEnd) {
+		        return false;
+		    } else {
+		        return true;
+		    }
+		};
+		HTMLTextAreaElement.prototype.getSelectedText = function () { //return the selection text
+		    return this.value.substring(this.selectionStart, this.selectionEnd);
+		};
+		HTMLTextAreaElement.prototype.setSelection = function (start, end) { //change the selection area of the textarea
+		    this.selectionStart = start;
+		    this.selectionEnd = end;
+		    this.focus();
+		};
+		 
+		var textarea = document.getElementsByTagName('textarea')[0];
+		
+		//var lastContent
+		var oldselectionStart
+		textarea.onkeydown = function(event) {
+		     //console.log(ntxt)
+		    //support tab on textarea
+		    if (event.keyCode == 9) { //tab was pressed
+		    	
+		    	//Delete选择内容
+		    	//lastContent = textarea.value
+				oldselectionStart = textarea.selectionStart
+				var ttxtArr = textarea.value.split("")
+				ttxtArr.splice(textarea.selectionStart,textarea.selectionEnd-textarea.selectionStart)
+			    textarea.value = ttxtArr.join("")
+			    textarea.setCaretPosition(oldselectionStart)
+		    	
+		    	//插入tab
+		        var newCaretPosition;
+		        newCaretPosition = textarea.getCaretPosition() + "\t".length;
+		        textarea.value = textarea.value.substring(0, textarea.getCaretPosition()) + "\t" + textarea.value.substring(textarea.getCaretPosition(), textarea.value.length);
+		        textarea.setCaretPosition(newCaretPosition);
+		        return false;
+		    }
+			
+		}
+
+		
+		function lObjToString(obj) {
+			var st = ""
+			for (var pName in obj) {
+				if (obj[pName] != null && obj[pName].constructor != Function) {
+					st += pName + ":" + obj[pName] + "\n";
+				}
+		
+			}
+			return st
+		}
+		
+		
+		//读取本地数据
+		function loadLS() 
+		{
+			if(window.localStorage)
+			{
+				//console.log("loadLS",localStName,window.localStorage[localStName],window.localStorage)
+				if(window.localStorage[localStName]!=undefined)
+				{
+					historyArr = JSON.parse(window.localStorage[localStName])
+				}
+			}
+		}
+		
+		//保存并更改本地存储
+		function saveLS() 
+		{
+			if(window.localStorage)
+			{
+				//console.log("saveLS",JSON.stringify(historyArr))
+				window.localStorage[localStName] = JSON.stringify(historyArr)
+				//console.log("saveLS2",window.localStorage[localStName])
+			}
+		}
+		/**
+		 * 获得页面参数并转换为obj
+		 */
+		function lUrlToObj() {
+			var url = location.search;
+			//获取url中"?"符后的字串
+			var theRequest = new Object();
+			if (url.indexOf("?") != -1) {
+				var str = url.substr(1);
+				strs = str.split("&");
+				for (var i = 0; i < strs.length; i++) {
+					//theRequest[strs[i].split("=")[0]] = decodeURIComponent(strs[i].split("=")[1]);
+					//theRequest[strs[i].split("=")[0]] = unescape(strs[i].split("=")[1]);//解码
+					theRequest[strs[i].split("=")[0]] = strs[i].split("=")[1];//不解码
+				}
+			}
+			theRequest.toString = function() {
+				return lObjToUrl(theRequest)
+			}
+		
+			return theRequest;
+		}
+		
+		/**
+		 * 将obj转换为url参数
+		 */
+		function lObjToUrl(obj) {
+			var st = ""
+			for (var pName in obj) {
+				if (pName != "toString") {
+					if (st == "") {
+						//st += "?" + pName + "=" + encodeURIComponent(obj[pName]);
+						st += "?" + pName + "=" + obj[pName];
+					} else {
+						//st += "&" + pName + "=" + encodeURIComponent(obj[pName]);
+						st += "&" + pName + "=" + obj[pName];
+					}
+				}
+			}
+			return st
+		}
+	</script>
+</html>
